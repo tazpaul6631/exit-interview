@@ -4,13 +4,46 @@ import legacy from '@vitejs/plugin-legacy'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import { defineConfig } from 'vite'
+import { VitePWA } from 'vite-plugin-pwa'
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
-    legacy()
+    legacy(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      injectRegister: 'auto',
+      workbox: {
+        // Cache thêm cả các file wasm nếu dùng SQLite bản web
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2,wasm}'],
+        cleanupOutdatedCaches: true,
+      },
+      manifest: {
+        name: 'My Security App',
+        short_name: 'SecurityApp',
+        description: 'Ứng dụng bảo mật tối ưu',
+        theme_color: '#ffffff',
+        background_color: '#ffffff',
+        display: 'standalone',
+        icons: [
+          {
+            // Nên thêm dấu / ở đầu để trỏ đúng vào thư mục public
+            src: '/assets/icon/icon.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
+          }
+        ]
+      }
+    })
   ],
+  // QUAN TRỌNG: Tránh lỗi cho SQLite
+  optimizeDeps: {
+    exclude: ['@capacitor-community/sqlite']
+  },
+  esbuild: {
+    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -19,5 +52,26 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom'
-  }
+  },
+  build: {
+    chunkSizeWarningLimit: 2000,
+    cssCodeSplit: true,
+    sourcemap: false,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
+  },
+  // Khuyên dùng khi debug trên điện thoại qua Wifi
+  // server: {
+  //   host: '0.0.0.0',
+  //   port: 8100,
+  //   hmr: {
+  //     host: '10.0.149.28',
+  //     port: 8100
+  //   }
+  // }
 })

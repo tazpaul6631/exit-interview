@@ -1,0 +1,73 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Web Assets (Vue.js)
+        run: npm run build
+
+      - name: Sync with Capacitor
+        run: npx cap sync android
+
+      - name: Build Android APK (Release)
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: Force Android Build Tools Version
+        run: |
+          # Tìm phiên bản build-tools mới nhất (ví dụ 34.0.0 hoặc 35.0.0)
+          LATEST_VERSION=$(ls $ANDROID_HOME/build-tools | sort -V | tail -n 1)
+          echo "Latest version found: $LATEST_VERSION"
+          
+          # Tạo thư mục mà Action r0adkll đang tìm kiếm (29.0.3)
+          sudo mkdir -p /usr/local/lib/android/sdk/build-tools/29.0.3
+          
+          # Liên kết (link) các file từ bản mới nhất sang thư mục 29.0.3
+          sudo ln -s $ANDROID_HOME/build-tools/$LATEST_VERSION/* /usr/local/lib/android/sdk/build-tools/29.0.3/
+          
+          # Kiểm tra xem zipalign đã có mặt ở đúng chỗ chưa
+          ls /usr/local/lib/android/sdk/build-tools/29.0.3/zipalign
+
+      - name: Sign APK
+        uses: r0adkll/sign-android-release@v1
+        id: sign_app
+        with:
+          releaseDirectory: android/app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          alias: ${{ secrets.ANDROID_KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Security-App-V1
+          path: ${{ steps.sign_app.outputs.signedReleaseFile }}
+          retention-days: 7
