@@ -43,7 +43,3 @@ local.properties
 *.apk
 *.aab
 captures/
-
-# Giữ lại các file fix lỗi cụ thể trong node_modules (nếu bạn thực sự cần)
-!node_modules/@capacitor/filesystem/android/src/main/kotlin/com/capacitorjs/plugins/filesystem/FilesystemErrors.kt
-!node_modules/@capacitor/filesystem/android/build.gradle

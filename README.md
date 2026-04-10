@@ -1,6 +1,4 @@
-# 🛡️ Security App - Mobile Solution
-
-Ứng dụng bảo mật được phát triển trên nền tảng **Ionic + Capacitor + Vue 3**, tích hợp với Backend C# để cung cấp giải pháp an ninh toàn diện.
+Ứng dụng được phát triển trên nền tảng **Ionic + Capacitor + Vue 3**, tích hợp với Backend C# để cung cấp giải pháp an ninh toàn diện.
 
 ## 🚀 Tính năng chính
 * **High Performance:** Tối ưu hóa hiệu năng với Gradle Caching.
@@ -25,16 +23,10 @@
 npm install
 
 # Thay đổi capacitor
-
 npm run build
 npx cap copy
 npx cap sync
 
-# Xóa bên android file
-
-flatDir{ dirs 'src/main/libs', 'libs' }
-
 # Thêm 
-
 implementation fileTree(dir: 'src/main/libs', include: ['*.jar', '*.aar'])
 implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
