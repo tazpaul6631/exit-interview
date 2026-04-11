@@ -8,7 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # 1. THÊM BIẾN MÔI TRƯỜNG VÀO ĐÂY ĐỂ XÓA CẢNH BÁO NODE.JS 20
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true 
       
@@ -22,7 +21,6 @@ jobs:
           node-version: 22
           cache: 'npm'
 
-      # 2. HẠ CẤP XUỐNG JAVA 17 ĐỂ ĐỒNG BỘ VỚI CẤU HÌNH LOCAL CỦA DỰ ÁN
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -45,27 +43,22 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleRelease
 
-      - name: Sign APK Manually
-        env:
-          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      # BƯỚC MỚI: Tự động tạo Keystore ngay trên Server và ký APK
+      - name: Auto Generate Keystore and Sign APK
         run: |
-          # 1. Di chuyển vào thư mục chứa file APK vừa build xong
           cd android/app/build/outputs/apk/release
           
-          # 2. Giải mã file Keystore từ Secret
-          echo $KEYSTORE_BASE64 | base64 --decode > keystore.jks
+          # 1. Tạo một Keystore mới tinh ngay lập tức bằng Java 17 của Server
+          keytool -genkey -v -keystore auto-github-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias auto_alias -storepass 12345678 -keypass 12345678 -dname "CN=Thuan, OU=IT, O=JiaHsin, L=HCM, S=HCM, C=VN"
           
-          # 3. Tự động lấy bộ công cụ Build Tools mới nhất của GitHub
+          # 2. Lấy Build Tools
           BUILD_TOOLS=$(ls -d $ANDROID_HOME/build-tools/* | tail -1)
           
-          # 4. Chạy Zipalign để tối ưu hóa file APK
+          # 3. Zipalign
           $BUILD_TOOLS/zipalign -v -p 4 app-release-unsigned.apk app-release-aligned.apk
           
-          # 5. Ký tên file APK bằng apksigner (Đổi tên file thành Security-App-Release.apk)
-          $BUILD_TOOLS/apksigner sign --ks keystore.jks --ks-pass pass:$KEYSTORE_PASSWORD --ks-key-alias "$KEY_ALIAS" --key-pass pass:$KEY_PASSWORD --out Security-App-Release.apk app-release-aligned.apk
+          # 4. Ký tên trực tiếp bằng Keystore vừa tạo
+          $BUILD_TOOLS/apksigner sign --ks auto-github-key.jks --ks-pass pass:12345678 --ks-key-alias "auto_alias" --key-pass pass:12345678 --out Security-App-Release.apk app-release-aligned.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
