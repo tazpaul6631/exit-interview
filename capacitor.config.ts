@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.thuan.exit.interview',
-  appName: 'my-mobile-app',
+  appName: 'exit-interview',
   webDir: 'dist',
   plugins: {
     CapacitorHttp: {
@@ -10,7 +10,7 @@ const config: CapacitorConfig = {
     },
     CapacitorSQLite: {
       iosIsEncryption: false,
-      iosKeychainPrefix: 'my-mobile-app',
+      iosKeychainPrefix: 'exit-interview',
       androidIsEncryption: false,
       logging: false, // Tắt log nội bộ của SQLite để console sạch hơn
     },
