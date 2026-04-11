@@ -30,3 +30,7 @@ npx cap sync
 # Thêm 
 implementation fileTree(dir: 'src/main/libs', include: ['*.jar', '*.aar'])
 implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+
+#install (nếu cần)
+npm install @capacitor/browser@latest
+npx cap sync android
