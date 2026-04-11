@@ -31,7 +31,7 @@ jobs:
           cache: gradle
 
       - name: Install Dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Build Web Assets (Vue.js)
         run: npm run build
