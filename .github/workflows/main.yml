@@ -45,20 +45,31 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleRelease
 
-      - name: Sign APK
-        uses: r0adkll/sign-android-release@v1
-        id: sign_app
-        with:
-          releaseDirectory: android/app/build/outputs/apk/release
-          signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          alias: ${{ secrets.ANDROID_KEY_ALIAS }}
-          keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
-          buildToolsVersion: 34.0.0
+      - name: Sign APK Manually
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          # 1. Di chuyển vào thư mục chứa file APK vừa build xong
+          cd android/app/build/outputs/apk/release
+          
+          # 2. Giải mã file Keystore từ Secret
+          echo $KEYSTORE_BASE64 | base64 --decode > keystore.jks
+          
+          # 3. Tự động lấy bộ công cụ Build Tools mới nhất của GitHub
+          BUILD_TOOLS=$(ls -d $ANDROID_HOME/build-tools/* | tail -1)
+          
+          # 4. Chạy Zipalign để tối ưu hóa file APK
+          $BUILD_TOOLS/zipalign -v -p 4 app-release-unsigned.apk app-release-aligned.apk
+          
+          # 5. Ký tên file APK bằng apksigner (Đổi tên file thành Security-App-Release.apk)
+          $BUILD_TOOLS/apksigner sign --ks keystore.jks --ks-pass pass:$KEYSTORE_PASSWORD --ks-key-alias "$KEY_ALIAS" --key-pass pass:$KEY_PASSWORD --out Security-App-Release.apk app-release-aligned.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Security-App-V1
-          path: ${{ steps.sign_app.outputs.signedReleaseFile }}
+          path: android/app/build/outputs/apk/release/Security-App-Release.apk
           retention-days: 7
