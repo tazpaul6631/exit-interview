@@ -8,6 +8,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # 1. THÊM BIẾN MÔI TRƯỜNG VÀO ĐÂY ĐỂ XÓA CẢNH BÁO NODE.JS 20
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true 
+      
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
@@ -18,10 +22,11 @@ jobs:
           node-version: 22
           cache: 'npm'
 
-      - name: Set up JDK 21
+      # 2. HẠ CẤP XUỐNG JAVA 17 ĐỂ ĐỒNG BỘ VỚI CẤU HÌNH LOCAL CỦA DỰ ÁN
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: '17' 
           distribution: 'temurin'
           cache: gradle
 
