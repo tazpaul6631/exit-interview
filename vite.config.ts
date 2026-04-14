@@ -14,7 +14,6 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       workbox: {
-        // Cache thêm cả các file wasm nếu dùng SQLite bản web
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2,wasm}'],
         cleanupOutdatedCaches: true,
       },
@@ -27,7 +26,6 @@ export default defineConfig({
         display: 'standalone',
         icons: [
           {
-            // Nên thêm dấu / ở đầu để trỏ đúng vào thư mục public
             src: '/assets/icon/icon.png',
             sizes: '512x512',
             type: 'image/png',
@@ -37,7 +35,16 @@ export default defineConfig({
       }
     })
   ],
-  // QUAN TRỌNG: Tránh lỗi cho SQLite
+
+  // SASS DEPRECATION
+  css: {
+    preprocessorOptions: {
+      scss: {
+        api: 'modern-compiler', // Sử dụng compiler mới để tắt cảnh báo legacy API
+      },
+    },
+  },
+
   optimizeDeps: {
     exclude: ['@capacitor-community/sqlite']
   },
@@ -65,13 +72,18 @@ export default defineConfig({
       },
     },
   },
-  // Khuyên dùng khi debug trên điện thoại qua Wifi
-  // server: {
-  //   host: '0.0.0.0',
-  //   port: 8100,
-  //   hmr: {
-  //     host: '10.0.149.28',
-  //     port: 8100
-  //   }
-  // }
+
+  server: {
+    host: '0.0.0.0',
+    port: 8100,
+    // VITE RELOAD KHI ANDROID BUILD
+    watch: {
+      ignored: ['**/android/**'], // Không theo dõi các file trong thư mục android
+    },
+    hmr: {
+      host: '10.0.149.28',
+      // port: 8101
+    },
+    strictPort: false,
+  }
 })
