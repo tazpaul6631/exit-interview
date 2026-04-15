@@ -30,7 +30,7 @@
           </ion-item>
         </div>
 
-        <ion-button expand="block" class="login-btn" @click="$emit('login')">
+        <ion-button expand="block" class="login-btn" @click="onLoginClick">
           VÀO HỆ THỐNG
           <ion-icon slot="end" :icon="arrowForwardOutline"></ion-icon>
         </ion-button>
@@ -46,7 +46,18 @@
 <script setup lang="ts">
 import { IonItem, IonInput, IonButton, IonIcon } from '@ionic/vue';
 import { personOutline, lockClosedOutline, arrowForwardOutline } from 'ionicons/icons';
-defineEmits(['login']);
+
+const emit = defineEmits(['login']);
+
+const onLoginClick = () => {
+  // Bỏ focus của nút "Vào hệ thống" trước khi báo cho cha chuyển trang
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
+
+  // Phát sự kiện login
+  emit('login');
+};
 </script>
 
 <style scoped>

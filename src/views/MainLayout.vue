@@ -1,10 +1,10 @@
 <template>
   <ion-page>
-    <ion-split-pane content-id="main-content" :disabled="isIpadMode" when="md" class="layout-container">
-      <ion-menu v-show="!isIpadMode" content-id="main-content" type="overlay" class="verona-sidebar">
+    <ion-split-pane content-id="main-content" when="md" class="layout-container">
+
+      <ion-menu content-id="main-content" type="overlay" class="verona-sidebar">
         <ion-content class="sidebar-content">
           <div class="sidebar-container">
-
             <div class="sidebar-top">
               <div class="logo-box">
                 <img src="/assets/icon/icon1.png" alt="logo-company">
@@ -27,15 +27,14 @@
       </ion-menu>
 
       <ion-page id="main-content">
-
-        <ion-header v-show="!isIpadMode" class="ion-no-border verona-header">
+        <ion-header class="ion-no-border verona-header">
           <ion-toolbar class="header-toolbar">
             <ion-buttons slot="start" class="header-left">
               <ion-menu-button class="ion-hide-md-up"></ion-menu-button>
             </ion-buttons>
 
             <ion-buttons slot="end">
-              <ion-chip class="profile-chip" @click="isDropdownOpen = !isDropdownOpen">
+              <ion-chip id="profile-trigger" class="profile-chip">
                 <ion-avatar>
                   <img alt="User Avatar" src="https://i.pravatar.cc/100?img=3" />
                 </ion-avatar>
@@ -45,13 +44,25 @@
                 </div>
                 <ion-icon :icon="chevronDownOutline" class="dropdown-icon ion-hide-sm-down"></ion-icon>
               </ion-chip>
+
+              <ion-popover trigger="profile-trigger" dismiss-on-select="true">
+                <ion-content>
+                  <ion-list lines="none" class="ion-no-padding">
+                    <ion-item button @click="handleLogout" :detail="false">
+                      <ion-icon :icon="logOutOutline" slot="start" color="danger"></ion-icon>
+                      <ion-label color="danger">Đăng xuất</ion-label>
+                    </ion-item>
+                  </ion-list>
+                </ion-content>
+              </ion-popover>
             </ion-buttons>
           </ion-toolbar>
         </ion-header>
 
-        <ion-content :class="isIpadMode ? 'ipad-fullscreen' : 'verona-content'">
+        <ion-content class="verona-content">
           <div class="content-wrapper">
-            <div class="breadcrumb-wrapper" v-show="!isIpadMode">
+
+            <div class="breadcrumb-wrapper">
               <ion-breadcrumbs>
                 <ion-breadcrumb @click="router.push('/dashboard')" class="breadcrumb-link">
                   <ion-icon :icon="homeOutline"></ion-icon>
@@ -63,36 +74,27 @@
               </ion-breadcrumbs>
             </div>
 
-            <div :class="isIpadMode ? 'ipad-card' : 'content-card'">
+            <div class="content-card">
               <ion-router-outlet></ion-router-outlet>
             </div>
 
-            <footer class="layout-footer" v-show="!isIpadMode">
-              <div class="copyright">© 2026 IT Jia Hsin</div>
+            <footer class="layout-footer">
+              <div class="copyright">© 2026 IT Jia Hsin CO., LTD</div>
             </footer>
           </div>
         </ion-content>
-
-        <div v-show="isDropdownOpen" class="dropdown-overlay" @click.stop="isDropdownOpen = false"></div>
-
-        <div v-show="isDropdownOpen" class="normal-dropdown">
-          <button class="dropdown-item text-danger" @click.stop="handleLogout">
-            <ion-icon :icon="logOutOutline"></ion-icon>
-            <span>Đăng xuất</span>
-          </button>
-        </div>
       </ion-page>
     </ion-split-pane>
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { computed } from 'vue';
 import {
   IonSplitPane, IonMenu, IonList, IonPage,
   IonHeader, IonToolbar, IonButtons, IonMenuButton, IonRouterOutlet,
-  IonContent, IonMenuToggle, isPlatform, IonChip, IonAvatar,
-  IonIcon, IonBreadcrumbs, IonBreadcrumb,
+  IonContent, IonMenuToggle, IonChip, IonAvatar,
+  IonIcon, IonBreadcrumbs, IonBreadcrumb, IonPopover, IonLabel, IonItem
 } from '@ionic/vue';
 import { useRouter, useRoute } from 'vue-router';
 import {
@@ -102,32 +104,24 @@ import {
 
 const router = useRouter();
 const route = useRoute();
-const isIpadMode = ref(isPlatform('tablet') || isPlatform('capacitor'));
-
-const isDropdownOpen = ref(false);
 
 const handleLogout = () => {
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
   router.push('/login');
 };
 
 const menuItems = [
   { title: 'Dashboard', url: '/dashboard', icon: homeOutline },
-  // { title: 'Exit Interview', url: '/formExit', icon: documentTextOutline },
   { title: '404', url: '/404', icon: settingsOutline },
 ];
 
 const currentRouteTitle = computed(() => {
   switch (route.path) {
     case '/dashboard': return 'Dashboard';
-    // case '/formExit': return 'Exit Interview';
     case '/settings': return 'Settings';
     default: return 'Current View';
-  }
-});
-
-onMounted(() => {
-  if (isIpadMode.value) {
-    router.replace('/formExit');
   }
 });
 </script>
@@ -228,7 +222,6 @@ ion-menu.verona-sidebar {
   contain: none !important;
   overflow: visible !important;
   pointer-events: auto;
-  /* Thêm dòng này */
 
   .header-toolbar {
     --background: transparent;
@@ -238,7 +231,6 @@ ion-menu.verona-sidebar {
     contain: none !important;
     overflow: visible !important;
     pointer-events: auto;
-    /* Thêm dòng này */
   }
 }
 
@@ -344,25 +336,19 @@ ion-menu.verona-sidebar {
   margin-bottom: 1.5rem;
 
   ion-breadcrumbs {
-    /* Đổi màu chữ cho đường dẫn chưa active (màu xám nhạt) */
     --color: #64748b;
-    /* Đổi màu chữ cho đường dẫn active (màu đen/đậm) */
     --color-active: #0f172a;
-    /* Đổi màu biểu tượng phân cách (dấu /) */
     --separator-color: #cbd5e1;
-
     font-size: 0.875rem;
     font-weight: 500;
   }
 
-  /* Tạo hiệu ứng con trỏ cho thư mục gốc */
   .breadcrumb-link {
     cursor: pointer;
     transition: color 0.2s ease;
 
     &:hover {
       color: #0f172a;
-      /* Hover vào Dashboard sẽ sáng lên */
     }
 
     ion-icon {
@@ -385,93 +371,5 @@ ion-menu.verona-sidebar {
     width: fit-content;
     padding-bottom: 15px;
   }
-}
-
-/* --- CUSTOM DROPDOWN BÌNH THƯỜNG --- */
-.profile-dropdown-wrapper {
-  position: relative;
-}
-
-/* --- CUSTOM DROPDOWN BÌNH THƯỜNG --- */
-.dropdown-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 999;
-}
-
-/* Khung menu thả xuống */
-.normal-dropdown {
-  position: absolute;
-  top: 70px;
-  right: 1.5rem;
-  margin-top: 8px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  min-width: 160px;
-  z-index: 1000;
-  overflow: hidden;
-}
-
-/* Nút bấm bên trong dropdown */
-.dropdown-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-  padding: 0.75rem 1.25rem;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: background-color 0.2s;
-}
-
-.dropdown-item i {
-  font-size: 1.1rem;
-}
-
-/* Style cho nút đăng xuất */
-.dropdown-item.text-danger {
-  color: #e11d48;
-}
-
-.dropdown-item:hover {
-  background-color: #fff1f2;
-}
-
-/* --- CHẾ ĐỘ IPAD / KIOSK --- */
-.ipad-fullscreen {
-  --background: #ffffff;
-  --padding-top: 0px;
-  --padding-bottom: 0px;
-
-  display: flex;
-  flex-direction: column;
-
-  &::part(scroll) {
-    padding-top: 0 !important;
-    margin-top: 0 !important;
-  }
-}
-
-/* Khung chứa cho chế độ iPad */
-.ipad-wrapper {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-}
-
-.ipad-card {
-  flex: 1;
-  position: relative;
-  width: 100%;
-  height: 100%;
 }
 </style>

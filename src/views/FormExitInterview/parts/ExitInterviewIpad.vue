@@ -495,6 +495,7 @@ const submitForm = handleSubmit(async (values) => {
       font-weight: 600;
       color: #2d3748;
       font-size: 15px;
+      transition: all 0.2s;
     }
 
     .details {
