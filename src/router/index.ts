@@ -19,7 +19,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     component: MainLayout,
-    meta: { requiresAuth: true }, // Web bắt buộc phải login
+    meta: { requiresAuth: true },
     children: [
       {
         path: 'dashboard',
@@ -82,19 +82,19 @@ router.beforeEach((to, from, next) => {
   // ==========================================
   // 2. LUỒNG DÀNH CHO WEB BROWSER
   // ==========================================
-  // const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
 
-  // // Nếu người dùng Web cố gắng truy cập vào route dành riêng cho App
-  // if (to.path === '/app-menu' || to.path === '/formExit') {
-  //   return next(isAuthenticated ? '/dashboard' : '/login');
-  // }
+  // Nếu người dùng Web cố gắng truy cập vào route dành riêng cho App
+  if (to.path === '/app-menu' || to.path === '/formExit') {
+    return next(isAuthenticated ? '/dashboard' : '/login');
+  }
 
-  // // Xử lý login bình thường cho Web
-  // if (requiresAuth && !isAuthenticated) {
-  //   return next('/login');
-  // } else if (to.path === '/login' && isAuthenticated) {
-  //   return next('/dashboard');
-  // }
+  // Xử lý login bình thường cho Web
+  if (requiresAuth && !isAuthenticated) {
+    return next('/login');
+  } else if (to.path === '/login' && isAuthenticated) {
+    return next('/dashboard');
+  }
 
   // Hợp lệ thì cho đi tiếp
   next();

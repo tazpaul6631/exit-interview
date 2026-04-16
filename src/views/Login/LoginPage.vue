@@ -8,21 +8,41 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonContent, isPlatform } from '@ionic/vue';
+import { IonPage, IonContent } from '@ionic/vue';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-
-// import LoginMobile from './parts/LoginMobile.vue';
 import LoginDesktop from './parts/LoginDesktop.vue';
+import userApi from '@/api/user';
+
+// 1. Import useAuthStore
+import { useAuthStore } from '@/store/auth';
 
 const router = useRouter();
-// const isIpadMode = ref(isPlatform('ipad') || isPlatform('tablet'));
+// 2. Khởi tạo store
+const authStore = useAuthStore();
+const isLoading = ref(false);
 
-const handleLogin = () => {
-  console.log('Đăng nhập thành công trên Web...');
-  if (document.activeElement instanceof HTMLElement) {
-    document.activeElement.blur();
+const handleLogin = async (credentials: any) => {
+  if (!credentials.code || !credentials.password) {
+    alert('Vui lòng nhập đầy đủ tài khoản và mật khẩu!');
+    return;
   }
-  router.push('/dashboard');
+
+  try {
+    isLoading.value = true;
+    const response = await userApi.postUserValidate(credentials);
+
+    if (response.data && response.data.success) {
+      authStore.setToken(response.data.data.password);
+
+      router.push('/dashboard');
+    } else {
+      alert(response.data.message || 'Đăng nhập thất bại.');
+    }
+  } catch (error: any) {
+    console.error('Lỗi gọi API đăng nhập:', error);
+  } finally {
+    isLoading.value = false;
+  }
 };
 </script>

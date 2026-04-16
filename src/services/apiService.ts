@@ -1,10 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '@/store/auth';
-import storageService from '@/services/storage.service';
-import router from '@/router';
 import baseURLApi from '@/api/baseURLApi';
 
-// Lấy baseURL từ cấu hình của bạn
 const baseURL = baseURLApi.url;
 
 const api = axios.create({
@@ -17,7 +14,7 @@ const api = axios.create({
  */
 api.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    const authStore = useAuthStore(); // Pinia cho phép gọi store ở đây
+    const authStore = useAuthStore(); // Pinia cho phép gọi store
     const token = authStore.token; // Lấy token đã được Pinia tự động load từ Storage
 
     if (token && config.headers) {
@@ -56,9 +53,8 @@ api.interceptors.response.use(
     // TH2: Token hết hạn (401)
     if (status === 401) {
       console.error("Token hết hạn. Đang đăng xuất...");
-      await storageService.clear();
-      authStore.logout();
-      router.push('/login');
+      alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!');
+      await authStore.logout();
     }
 
     // TH3: Lỗi hệ thống Server (5xx) -> Ép về Offline để dùng dữ liệu SQLite
@@ -72,7 +68,7 @@ api.interceptors.response.use(
 );
 
 /**
- * 3. EXPORT WRAPPER: Giữ lại cách gọi cũ của bạn nhưng chạy bằng Axios
+ * 3. EXPORT WRAPPER: chạy bằng Axios
  */
 const request = {
   get: (url: string, params?: any) => api.get(url, { params }),

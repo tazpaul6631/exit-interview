@@ -21,12 +21,14 @@
         <div class="input-container">
           <ion-item lines="none" class="custom-input">
             <ion-icon :icon="personOutline" slot="start"></ion-icon>
-            <ion-input label="Tài khoản quản lý" label-placement="floating" placeholder="Mã số nhân viên"></ion-input>
+            <ion-input v-model="code" label="Tài khoản quản lý" label-placement="floating"
+              placeholder="Mã số nhân viên"></ion-input>
           </ion-item>
 
           <ion-item lines="none" class="custom-input ion-margin-top">
             <ion-icon :icon="lockClosedOutline" slot="start"></ion-icon>
-            <ion-input type="password" label="Mật khẩu" label-placement="floating" placeholder="********"></ion-input>
+            <ion-input v-model="password" type="password" label="Mật khẩu" label-placement="floating"
+              placeholder="********"></ion-input>
           </ion-item>
         </div>
 
@@ -44,19 +46,28 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { IonItem, IonInput, IonButton, IonIcon } from '@ionic/vue';
 import { personOutline, lockClosedOutline, arrowForwardOutline } from 'ionicons/icons';
 
-const emit = defineEmits(['login']);
+// Định nghĩa emit để truyền payload
+const emit = defineEmits<{
+  (e: 'login', payload: any): void
+}>();
+
+// Khởi tạo state cho input
+const code = ref('');
+const password = ref('');
 
 const onLoginClick = () => {
-  // Bỏ focus của nút "Vào hệ thống" trước khi báo cho cha chuyển trang
   if (document.activeElement instanceof HTMLElement) {
     document.activeElement.blur();
   }
 
-  // Phát sự kiện login
-  emit('login');
+  emit('login', {
+    code: code.value,
+    password: password.value
+  });
 };
 </script>
 

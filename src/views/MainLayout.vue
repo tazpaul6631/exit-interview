@@ -102,14 +102,20 @@ import {
   logOutOutline
 } from 'ionicons/icons';
 
+import { useAuthStore } from '@/store/auth';
+
 const router = useRouter();
 const route = useRoute();
 
-const handleLogout = () => {
+// 2. Khởi tạo store
+const authStore = useAuthStore();
+
+const handleLogout = async () => {
   if (document.activeElement instanceof HTMLElement) {
     document.activeElement.blur();
   }
-  router.push('/login');
+
+  await authStore.logout();
 };
 
 const menuItems = [
@@ -121,6 +127,7 @@ const currentRouteTitle = computed(() => {
   switch (route.path) {
     case '/dashboard': return 'Dashboard';
     case '/404': return '404';
+    default: return '';
   }
 });
 </script>
