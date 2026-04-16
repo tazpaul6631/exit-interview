@@ -25,12 +25,11 @@ const handleGoBack = () => {
 
 <style scoped>
 .error-container {
-  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 30px;
+  margin: auto;
 }
 
 h1 {

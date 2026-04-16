@@ -26,6 +26,11 @@ const routes: Array<RouteRecordRaw> = [
         name: 'Dashboard',
         component: () => import('@/views/DashBoard/DashBoard.vue')
       },
+      // {
+      //   path: 'form-crud',
+      //   name: 'FormCRUD',
+      //   component: () => import('@/views/FormExitInterview/FormCRUD.vue')
+      // },
       {
         path: '404',
         name: 'NotFound',

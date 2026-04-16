@@ -99,7 +99,8 @@ import {
 import { useRouter, useRoute } from 'vue-router';
 import {
   chevronDownOutline, homeOutline, settingsOutline,
-  logOutOutline
+  logOutOutline,
+  documentTextOutline
 } from 'ionicons/icons';
 
 import { useAuthStore } from '@/store/auth';
@@ -120,12 +121,14 @@ const handleLogout = async () => {
 
 const menuItems = [
   { title: 'Dashboard', url: '/dashboard', icon: homeOutline },
+  // { title: 'FormCRUD', url: '/form-crud', icon: documentTextOutline },
   { title: '404', url: '/404', icon: settingsOutline },
 ];
 
 const currentRouteTitle = computed(() => {
   switch (route.path) {
     case '/dashboard': return 'Dashboard';
+    // case '/form-crud': return 'FormCRUD';
     case '/404': return '404';
     default: return '';
   }
@@ -307,15 +310,10 @@ ion-menu.verona-sidebar {
 .content-wrapper {
   background-color: #f8fafc;
   border-top-left-radius: 30px;
-  /* BỎ padding ở đây, đã chuyển xuống scrollable-area */
-
   display: flex;
   flex-direction: column;
   height: 100%;
-  /* Cố định chiều cao 100% thay vì min-height */
   overflow: hidden;
-  /* Không cho phép cuộn ở lớp ngoài cùng này */
-
   border-top: 1px solid #e2e8f0;
   border-left: 1px solid #e2e8f0;
   position: relative;
@@ -326,16 +324,13 @@ ion-menu.verona-sidebar {
 /* --- THÊM CLASS MỚI NÀY --- */
 .scrollable-area {
   flex: 1;
-  /* Chiếm toàn bộ không gian còn lại của content-wrapper */
   overflow-y: auto;
-  /* Kích hoạt cuộn dọc tại đây */
   padding: 2rem 2rem 0;
-  /* Padding được chuyển từ content-wrapper xuống đây */
 
   display: flex;
   flex-direction: column;
+  min-height: 100%;
 
-  /* (Tuỳ chọn) Custom thanh cuộn cho mượt và đẹp hơn trên Web */
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -359,30 +354,29 @@ ion-menu.verona-sidebar {
   border-radius: 30px;
   border: 1px solid #e2e8f0;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  position: relative;
   margin-bottom: 2rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: auto;
 
-  /* Ép ion-router-outlet hiển thị như block tĩnh thay vì absolute */
   ion-router-outlet {
     position: relative;
-    height: auto;
+    flex: 1;
     display: block;
     contain: none;
   }
 
-  /* BÍ QUYẾT: Ép các ion-page lồng bên trong thành thẻ div bình thường. 
-     Nó sẽ tự động giãn chiều cao theo nội dung thay vì bóp chết layout */
   :deep(.ion-page:not(.ion-page-hidden)) {
     position: relative !important;
+    flex: 1;
+    display: flex !important;
+    flex-direction: column;
     height: auto !important;
+    min-height: 100%;
     contain: none !important;
     overflow: visible !important;
     background: transparent !important;
-  }
-
-  /* Đảm bảo trang cũ bị ẩn hoàn toàn */
-  :deep(.ion-page-hidden) {
-    display: none !important;
   }
 }
 
