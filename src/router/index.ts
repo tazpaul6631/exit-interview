@@ -23,6 +23,7 @@ const routes: Array<RouteRecordRaw> = [
     children: [
       {
         path: 'dashboard',
+        name: 'Dashboard',
         component: () => import('@/views/DashBoard/DashBoard.vue')
       },
       {

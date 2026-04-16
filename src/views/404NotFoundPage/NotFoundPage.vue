@@ -1,21 +1,26 @@
 <template>
   <ion-page>
-    <ion-content class="custom-page-content">
-      <div class="error-container">
-        <h1>404</h1>
-        <p>Ối! Trang bạn tìm kiếm không tồn tại.</p>
-        <ion-button fill="clear" @click="router.push('/dashboard')">
-          Quay lại Dashboard
-        </ion-button>
-      </div>
-    </ion-content>
+    <div class="error-container">
+      <h1>404</h1>
+      <p>Ối! Trang bạn tìm kiếm không tồn tại.</p>
+      <ion-button fill="clear" @click="handleGoBack">
+        Quay lại Dashboard
+      </ion-button>
+    </div>
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonContent, IonButton } from '@ionic/vue';
+import { IonPage, IonButton } from '@ionic/vue';
 import { useRouter } from 'vue-router';
 const router = useRouter();
+
+const handleGoBack = () => {
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
+  router.push('/dashboard');
+};
 </script>
 
 <style scoped>
@@ -25,6 +30,7 @@ const router = useRouter();
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding: 30px;
 }
 
 h1 {

@@ -14,40 +14,40 @@
             <ion-col size="12" size-md="6">
               <div class="custom-input">
                 <label>Tôi tên <span>姓名</span></label>
-                <input v-model="name" type="text" placeholder="Nhập họ tên..."
-                  :class="{ 'is-invalid': errors['userInfo.name'] }" />
-                <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.name']">
-                  {{ errors['userInfo.name'] }}
+                <input v-model="employeeName" type="text" placeholder="Nhập họ tên..."
+                  :class="{ 'is-invalid': errors['userInfo.employeeName'] }" />
+                <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.employeeName']">
+                  {{ errors['userInfo.employeeName'] }}
                 </span>
               </div>
             </ion-col>
             <ion-col size="12" size-md="6">
               <div class="custom-input">
                 <label>Mã Số <span>工號</span></label>
-                <input v-model="code" type="text" placeholder="Nhập mã nhân viên..."
-                  :class="{ 'is-invalid': errors['userInfo.code'] }" />
-                <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.code']">
-                  {{ errors['userInfo.code'] }}
+                <input v-model="employeeCode" type="text" placeholder="Nhập mã nhân viên..."
+                  :class="{ 'is-invalid': errors['userInfo.employeeCode'] }" />
+                <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.employeeCode']">
+                  {{ errors['userInfo.employeeCode'] }}
                 </span>
               </div>
             </ion-col>
             <ion-col size="12" size-md="6">
               <div class="custom-input">
                 <label>Hiện là <span>任職</span></label>
-                <input v-model="position" type="text" placeholder="Bộ phận/Chức vụ..."
-                  :class="{ 'is-invalid': errors['userInfo.position'] }" />
-                <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.position']">
-                  {{ errors['userInfo.position'] }}
+                <input v-model="jobPositionName" type="text" placeholder="Bộ phận/Chức vụ..."
+                  :class="{ 'is-invalid': errors['userInfo.jobPositionName'] }" />
+                <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.jobPositionName']">
+                  {{ errors['userInfo.jobPositionName'] }}
                 </span>
               </div>
             </ion-col>
             <ion-col size="12" size-md="6">
               <div class="custom-input">
                 <label>Ngày thôi việc <span>離職日期</span></label>
-                <ion-input v-model="resignDate" type="date" label-placement="stacked" class="ion-date-input"
-                  :class="{ 'is-invalid': errors['userInfo.resignDate'] }"></ion-input>
-                <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.resignDate']">
-                  {{ errors['userInfo.resignDate'] }}
+                <ion-input v-model="exitedAt" type="date" label-placement="stacked" class="ion-date-input"
+                  :class="{ 'is-invalid': errors['userInfo.exitedAt'] }"></ion-input>
+                <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.exitedAt']">
+                  {{ errors['userInfo.exitedAt'] }}
                 </span>
               </div>
             </ion-col>
@@ -64,11 +64,11 @@
 
       <div v-if="!loading && values" class="dynamic-content">
 
-        <section class="section-box">
+        <section class="section-box" v-if="apiData && apiData.sections[0]">
           <div class="section-title">
-            <h3>PHẦN 1: LÝ DO CHÍNH NGHỈ VIỆC/ 第一部分：離職主因</h3>
+            <h3>{{ apiData.sections[0].name }}</h3>
           </div>
-          <p class="instruction">(Vui lòng chọn 1-2 lý do chính / 請勾選最主要的 1-2項)</p>
+          <p class="instruction">({{ apiData.sections[0].childs[0].name }})</p>
 
           <p class="error-msg" v-if="submitCount > 0 && errors.selectedReasons"
             style="margin-left: 20px; margin-bottom: 10px;">
@@ -76,114 +76,133 @@
           </p>
 
           <div class="reason-grid">
-            <label v-for="item in dynamicData.reasons" :key="item.id"
-              :class="['checkbox-card', { 'is-checked': selectedReasons.includes(item.id) }, { 'is-invalid': submitCount > 0 && errors.selectedReasons }]">
-              <input type="checkbox" :value="item.id" v-model="selectedReasons"
-                :disabled="selectedReasons.length >= 2 && !selectedReasons.includes(item.id)">
-              <div class="card-body">
-                <span class=" title-vn-cn"
-                  :class="selectedReasons.length >= 2 && !selectedReasons.includes(item.id) ? 'details' : ''"">{{ item.titleVN }}/ {{ item.titleCN }}</span>
-                <small class=" details">{{ item.description }}</small>
-              </div>
-            </label>
+            <template v-for="ans in apiData.sections[0].childs[0].answers" :key="ans.anwerId">
+
+              <label v-if="ans.allowCheck"
+                :class="['checkbox-card', { 'is-checked': selectedReasons.includes(ans.anwerId) }, { 'is-invalid': submitCount > 0 && errors.selectedReasons }]">
+
+                <input type="checkbox" :value="ans.anwerId" v-model="selectedReasons"
+                  :disabled="selectedReasons.length >= apiData.maxReasonSelect && !selectedReasons.includes(ans.anwerId)">
+
+                <div class="card-body">
+                  <span class="title-vn-cn"
+                    :class="selectedReasons.length >= apiData.maxReasonSelect && !selectedReasons.includes(ans.anwerId) ? 'details' : ''">
+                    {{ ans.anwerName }}
+                  </span>
+                </div>
+              </label>
+
+            </template>
           </div>
         </section>
 
-        <section class="section-box">
+        <section class="section-box" v-if="apiData?.sections?.[1]">
           <div class="section-title">
-            <h3>PHẦN 2: ĐÁNH GIÁ THỰC TẾ/ 第二部分：現場評價</h3>
+            <h3>{{ apiData.sections[1].name }}</h3>
           </div>
-          <p class="instruction">(5 điểm là rất hài lòng / 5分為最滿意)</p>
+
+          <p v-if="apiData.sections[1].childs?.length > 0" class="instruction">
+            ({{ apiData.sections[1].childs[0].name }})
+          </p>
 
           <p class="error-msg" v-if="submitCount > 0 && errors.scores" style="margin-left: 20px;">
             {{ errors.scores }}
           </p>
 
-          <div class="rating-container">
-            <div v-for="rate in dynamicData.ratings" :key="rate.id" class="rating-row">
+          <div class="rating-container" v-if="apiData.sections[1].childs?.[0]?.answers">
+            <template v-for="ans in apiData.sections[1].childs[0].answers" :key="ans.anwerId">
 
-              <div class="rating-info">
-                <p class="vn">{{ rate.labelVN }}</p>
+              <div v-if="ans.allowRating" class="rating-row">
+
+                <div class="rating-info">
+                  <p class="vn">{{ ans.anwerName }}</p>
+                </div>
+
+                <div class="rating-stars">
+                  <label v-for="n in (apiData.maxRatingPoint || 5)" :key="n" class="star-item">
+                    <input type="radio" :name="'rating-' + ans.anwerId" :value="n"
+                      :checked="values.scores[ans.anwerId] === n" @change="setFieldValue(`scores.${ans.anwerId}`, n)">
+
+                    <span class="num" :class="{ 'num-error': submitCount > 0 && !values.scores[ans.anwerId] }">
+                      {{ n }}
+                    </span>
+                  </label>
+                </div>
+
+                <p class="error-msg" v-if="submitCount > 0 && errors[`scores.${ans.anwerId}` as any]">
+                  {{ errors[`scores.${ans.anwerId}` as any] }}
+                </p>
               </div>
 
-              <div class="rating-stars">
-                <label v-for="n in 5" :key="n" class="star-item">
-                  <input type="radio" :name="'rating-' + rate.id" :value="n" :checked="values.scores[rate.id] === n"
-                    @change="setFieldValue(`scores.${rate.id}`, n)">
-
-                  <span class="num" :class="{ 'num-error': submitCount > 0 && !values.scores[rate.id] }">
-                    {{ n }}
-                  </span>
-                </label>
-              </div>
-
-              <p class="error-msg" v-if="submitCount > 0 && errors[`scores.${rate.id}` as any]">
-                {{ errors[`scores.${rate.id}` as any] }}
-              </p>
-            </div>
+            </template>
           </div>
         </section>
 
-        <section class="section-box">
+        <section class="section-box" v-if="apiData?.sections?.[2]">
           <div class="section-title">
-            <h3>PHẦN 3: CÁC CÂU HỎI TRỌNG TÂM/ 第三部分：核心問答</h3>
+            <h3>{{ apiData.sections[2].name }}</h3>
           </div>
 
-          <div v-for="ques in dynamicData.questions" :key="ques.id" class="question-block">
-            <label class="ques-label">
-              {{ ques.textVN }} <br />
-              <span class="cn-text">{{ ques.textCN }}</span>
+          <div v-for="child in apiData.sections[2].childs" :key="child.id" class="question-block">
+            <label class="ques-label-1">
+              {{ child.name }}
             </label>
 
-            <div v-if="ques.type === 'will_return'" class="return-logic">
-              <div class="radio-group">
-                <label class="pill-radio" :class="{
-                  'active': values.answers[ques.id].status === 'yes',
-                  'invalid-pill': submitCount > 0 && errors[`answers.${ques.id}.status` as any]
-                }">
-                  <input type="radio" value="yes" :checked="values.answers[ques.id].status === 'yes'"
-                    @change="setFieldValue(`answers.${ques.id}.status`, 'yes')">
-                  <span>Đồng ý / 願意</span>
-                </label>
+            <template v-for="ques in child.questions" :key="ques.id">
 
-                <label class="pill-radio" :class="{
-                  'active': values.answers[ques.id].status === 'no',
-                  'invalid-pill': submitCount > 0 && errors[`answers.${ques.id}.status` as any]
-                }">
-                  <input type="radio" value="no" :checked="values.answers[ques.id].status === 'no'"
-                    @change="setFieldValue(`answers.${ques.id}.status`, 'no')">
-                  <span>Không đồng ý / 不願意</span>
-                </label>
+              <label class="ques-label-2">
+                {{ ques.name }}
+              </label>
+
+              <div v-if="ques.answers.length > 1 && ques.answers[0].allowCheck" class="return-logic">
+                <div class="radio-group">
+                  <label v-for="ans in ques.answers" :key="ans.anwerId" class="pill-radio" :class="{
+                    'active': values.answers?.[`q${ques.id}`]?.status === ans.anwerId,
+                    'invalid-pill': submitCount > 0 && errors[`answers.q${ques.id}.status` as any]
+                  }">
+                    <input type="radio" :value="ans.anwerId"
+                      :checked="values.answers?.[`q${ques.id}`]?.status === ans.anwerId"
+                      @change="setFieldValue(`answers.q${ques.id}.status`, ans.anwerId)">
+                    <span>{{ ans.anwerName }}</span>
+                  </label>
+                </div>
+
+                <p class="error-msg" v-if="submitCount > 0 && errors[`answers.q${ques.id}.status` as any]">
+                  {{ errors[`answers.q${ques.id}.status` as any] }}
+                </p>
+
+                <template v-for="ans in ques.answers" :key="'reason-' + ans.anwerId">
+                  <transition name="fade">
+                    <div v-if="values.answers?.[`q${ques.id}`]?.status === ans.anwerId && ans.childs?.length > 0">
+                      <template v-for="childAns in ans.childs" :key="childAns.anwerId">
+                        <div v-if="childAns.allowText">
+                          <textarea :value="values.answers?.[`q${ques.id}`]?.reason"
+                            @input="setFieldValue(`answers.q${ques.id}.reason`, ($event.target as HTMLTextAreaElement).value)"
+                            :class="{ 'is-invalid': submitCount > 0 && errors[`answers.q${ques.id}.reason` as any] }"
+                            :placeholder="childAns.anwerName || 'Vui lòng cho biết lý do... / 請說明原因...'">
+                  </textarea>
+                          <p class="error-msg" v-if="submitCount > 0 && errors[`answers.q${ques.id}.reason` as any]">
+                            {{ errors[`answers.q${ques.id}.reason` as any] }}
+                          </p>
+                        </div>
+                      </template>
+                    </div>
+                  </transition>
+                </template>
               </div>
 
-              <p class="error-msg" v-if="submitCount > 0 && errors[`answers.${ques.id}.status` as any]">
-                {{ errors[`answers.${ques.id}.status` as any] }}
-              </p>
+              <div v-else-if="ques.answers.length > 0 && ques.answers[0].allowText">
+                <textarea :value="values.answers?.[`q${ques.id}`]?.text"
+                  @input="setFieldValue(`answers.q${ques.id}.text`, ($event.target as HTMLTextAreaElement).value)"
+                  :class="{ 'is-invalid': submitCount > 0 && errors[`answers.q${ques.id}.text` as any] }"
+                  :placeholder="ques.answers[0].anwerName || 'Trả lời / 答...'">
+    </textarea>
+                <p class="error-msg" v-if="submitCount > 0 && errors[`answers.q${ques.id}.text` as any]">
+                  {{ errors[`answers.q${ques.id}.text` as any] }}
+                </p>
+              </div>
 
-              <transition name="fade">
-                <div v-if="values.answers[ques.id].status === 'no'">
-                  <textarea :value="values.answers[ques.id].reason"
-                    @input="setFieldValue(`answers.${ques.id}.reason`, ($event.target as HTMLTextAreaElement).value)"
-                    :class="{ 'is-invalid': submitCount > 0 && errors[`answers.${ques.id}.reason` as any] }"
-                    placeholder="Vui lòng cho biết lý do... / 請說明原因...">
-                  </textarea>
-                  <p class="error-msg" v-if="submitCount > 0 && errors[`answers.${ques.id}.reason` as any]">
-                    {{ errors[`answers.${ques.id}.reason` as any] }}
-                  </p>
-                </div>
-              </transition>
-            </div>
-
-            <div v-else>
-              <textarea :value="values.answers[ques.id].text"
-                @input="setFieldValue(`answers.${ques.id}.text`, ($event.target as HTMLTextAreaElement).value)"
-                :class="{ 'is-invalid': submitCount > 0 && errors[`answers.${ques.id}.text` as any] }"
-                placeholder="Trả lời / 答...">
-              </textarea>
-              <p class="error-msg" v-if="submitCount > 0 && errors[`answers.${ques.id}.text` as any]">
-                {{ errors[`answers.${ques.id}.text` as any] }}
-              </p>
-            </div>
+            </template>
           </div>
         </section>
       </div>
@@ -225,6 +244,7 @@ import {
   IonSpinner, IonIcon, IonInput
 } from '@ionic/vue';
 import { informationCircleOutline } from 'ionicons/icons';
+import interviewApi from '@/api/interview';
 
 const loading = ref(true);
 const isConfirmed = ref(false);
@@ -232,10 +252,10 @@ const { t } = useI18n();
 
 interface ExitInterviewForm {
   userInfo: {
-    name: string;
-    code: string;
-    position: string;
-    resignDate: string;
+    employeeName: string;
+    employeeCode: string;
+    jobPositionName: string;
+    exitedAt: string;
   };
   selectedReasons: number[];
   scores: Record<string, number>;
@@ -243,63 +263,127 @@ interface ExitInterviewForm {
     [key: string]: any;
     q1: { text: string };
     q2: { text: string };
-    q3: { status: string; reason: string };
+    q3: { status: string | number; reason: string };
   };
 }
 
-const dynamicData = ref({
-  reasons: [
-    { id: 1, titleVN: 'Lương thưởng & Phúc lợi', titleCN: '薪資福利', description: 'Lương thấp, ít tăng ca, thưởng không minh bạch.' },
-    { id: 2, titleVN: 'Vấn đề quản lý', titleCN: '管理問題', description: 'Tổ trưởng gắt gỏng, không công bằng.' },
-    { id: 3, titleVN: 'Môi trường làm việc', titleCN: '工作環境', description: 'Xưởng nóng/ồn, nặng nhọc, quấy rối.' },
-    { id: 4, titleVN: 'Chế độ đãi ngộ', titleCN: '福利伙食', description: 'Cơm không ngon, ký túc xá kém.' },
-    { id: 5, titleVN: 'Lý do cá nhân', titleCN: '個人因素', description: 'Gia đình, sức khỏe, nhà xa, về quê.' },
-  ],
-  ratings: [
-    { id: 'r1', labelVN: 'Cách quản lý của cấp trên trực tiếp', labelCN: '現場主管的管理方式' },
-    { id: 'r2', labelVN: 'Sự công bằng trong phân công công việc', labelCN: '工作分配的公平性' },
-    { id: 'r3', labelVN: 'Tình trạng an toàn và thiết bị tại xưởng', labelCN: '現場安全與設備狀況' },
-    { id: 'r4', labelVN: 'Mức độ hài lòng chung đối với công ty', labelCN: '對公司的整體滿意度' },
-  ],
-  questions: [
-    { id: 'q1', type: 'text', textVN: 'Điểm nào của công việc mới tốt hơn công ty mình?', textCN: '新工作的哪一點比我們公司好？' },
-    { id: 'q2', type: 'text', textVN: 'Nếu bạn là sếp, bạn muốn thay đổi quy định nào nhất tại xưởng?', textCN: '如果你是老闆，你最想改變現場哪一個規定？' },
-    { id: 'q3', type: 'will_return', textVN: 'Sau này nếu điều kiện cải thiện, bạn có muốn quay lại không?', textCN: '未來如果條件改善，你願意回來工作嗎？' },
-  ]
-});
+const apiData = ref<any>(null);
 
-onMounted(() => {
-  setTimeout(() => {
-    loading.value = false;
-  }, 800);
+onMounted(async () => {
+  try {
+    const response = await interviewApi.getInterview();
+    apiData.value = response.data.data;
+
+    console.log('Dữ liệu chuẩn sau khi parse:', apiData.value);
+
+    setFieldValue('userInfo.employeeName', apiData.value.employeeName || '');
+    setFieldValue('userInfo.employeeCode', apiData.value.employeeCode || '');
+    setFieldValue('userInfo.employeeCode', apiData.value.jobPositionName || '');
+
+    // --- LOGIC CHO EDIT FORM ---
+    if (apiData.value?.sections?.[0]?.childs?.[0]?.answers) {
+      const answers = apiData.value.sections[0].childs[0].answers;
+      const initialChecked = answers
+        .filter((ans: any) => ans.checkValue === true)
+        .map((ans: any) => ans.anwerId);
+
+      setFieldValue('selectedReasons', initialChecked);
+    }
+
+    if (apiData.value?.sections?.[1]?.childs?.[0]?.answers) {
+      const answersPart2 = apiData.value.sections[1].childs[0].answers;
+      const initialScores: Record<string, number> = {};
+
+      answersPart2.forEach((ans: any) => {
+        if (ans.allowRating && ans.ratingValue > 0) {
+          initialScores[ans.anwerId.toString()] = ans.ratingValue;
+        }
+      });
+
+      setFieldValue('scores', initialScores);
+    }
+
+    if (apiData.value?.sections?.[2]?.childs) {
+      const part3Childs = apiData.value.sections[2].childs;
+
+      const initialAnswers: any = {
+        q1: { text: '' },
+        q2: { text: '' },
+        q3: { status: '', reason: '' }
+      };
+
+      part3Childs.forEach((child: any) => {
+        child.questions?.forEach((ques: any) => {
+          // Nếu là câu hỏi text thường (Q1, Q2)
+          if (ques.id === 1 || ques.id === 2) {
+            const textAnswer = ques.answers?.find((a: any) => a.allowText);
+            if (textAnswer) {
+              initialAnswers[`q${ques.id}`].text = textAnswer.textValue || '';
+            }
+          }
+          // Nếu là câu hỏi Yes/No (Q3)
+          else if (ques.id === 3) {
+            const yesAns = ques.answers?.find((a: any) => a.anwerId === 12);
+            const noAns = ques.answers?.find((a: any) => a.anwerId === 13);
+
+            if (yesAns?.checkValue) {
+              initialAnswers.q3.status = 'yes';
+            } else if (noAns?.checkValue) {
+              initialAnswers.q3.status = 'no';
+
+              const reasonAns = noAns.childs?.find((c: any) => c.anwerId === 14);
+              if (reasonAns) {
+                initialAnswers.q3.reason = reasonAns.textValue || '';
+              }
+            }
+          }
+        });
+      });
+
+      // Nạp dữ liệu vào Vee-Validate
+      setFieldValue('answers', initialAnswers);
+    }
+
+  } catch (error) {
+    console.error('Lỗi khi lấy thông tin phỏng vấn:', error);
+  } finally {
+    setTimeout(() => {
+      loading.value = false;
+    }, 800);
+  }
 });
 
 // Schema này sẽ tự động chạy lại mỗi khi ngôn ngữ (locale) thay đổi
 const validationSchema = computed(() => {
+  const maxSelect = apiData.value?.maxReasonSelect || 2;
+  const ratingQuestionsCount = apiData.value?.sections?.[1]?.childs?.[0]?.answers?.filter((a: any) => a.allowRating).length || 0;
+
   return toTypedSchema(
     zod.object({
       userInfo: zod.object({
-        name: zod.string().min(1, t('valid.required')),
-        code: zod.string().min(1, t('valid.required')),
-        position: zod.string().min(1, t('valid.required')),
-        resignDate: zod.string().min(1, t('valid.required')),
+        employeeName: zod.string().min(1, t('valid.required')),
+        employeeCode: zod.string().min(1, t('valid.required')),
+        jobPositionName: zod.string().min(1, t('valid.required')),
+        exitedAt: zod.string().min(1, t('valid.required')),
       }),
       selectedReasons: zod.array(zod.number())
         .min(1, t('valid.min_reason', { n: 1 }))
-        .max(2, t('valid.max_reason', { n: 2 })),
+        .max(maxSelect, t('valid.max_reason', { n: maxSelect })),
       scores: zod.record(zod.string(), zod.number({
         invalid_type_error: t('valid.rating_required')
       })).refine(
-        (val) => Object.keys(val).length === dynamicData.value.ratings.length,
+        (val) => Object.keys(val).length === ratingQuestionsCount && ratingQuestionsCount > 0,
         t('valid.rating_required')
       ),
       answers: zod.object({
         q1: zod.object({ text: zod.string().min(1, t('valid.required')) }),
         q2: zod.object({ text: zod.string().min(1, t('valid.required')) }),
         q3: zod.object({
-          status: zod.string().min(1, t('valid.required')),
+          status: zod.union([zod.string(), zod.number()]).refine(val => val !== 0 && val !== '', t('valid.required')),
           reason: zod.string().optional()
-        }).refine(data => data.status === 'no' ? !!data.reason : true, {
+        }).refine(data => {
+          return data.status === 13 ? !!data.reason : true;
+        }, {
           message: t('valid.required'),
           path: ['reason']
         })
@@ -312,33 +396,84 @@ const validationSchema = computed(() => {
 const { handleSubmit, errors, defineField, values, submitCount, setFieldValue } = useForm<ExitInterviewForm>({
   validationSchema,
   initialValues: {
-    userInfo: { name: '', code: '', position: '', resignDate: '' },
+    userInfo: { employeeName: '', employeeCode: '', jobPositionName: '', exitedAt: '' },
     selectedReasons: [],
     scores: {} as Record<string, number>,
     answers: {
       q1: { text: '' },
       q2: { text: '' },
-      q3: { status: '', reason: '' }
+      q3: { status: 0 as number | string, reason: '' }
     }
   }
 });
 
 // Mapping các trường để dùng v-model
-const [name] = defineField('userInfo.name');
-const [code] = defineField('userInfo.code');
-const [position] = defineField('userInfo.position');
-const [resignDate] = defineField('userInfo.resignDate');
+const [employeeName] = defineField('userInfo.employeeName');
+const [employeeCode] = defineField('userInfo.employeeCode');
+const [jobPositionName] = defineField('userInfo.jobPositionName');
+const [exitedAt] = defineField('userInfo.exitedAt');
 const [selectedReasons] = defineField('selectedReasons');
 
 // Hàm Submit
-const submitForm = handleSubmit(async (values) => {
-  console.log(values);
+const submitForm = handleSubmit(async (formValues) => {
   try {
-    console.log(1);
+    const payload = JSON.parse(JSON.stringify(apiData.value));
 
-    // await api.post('/exit-interview', values);
+    payload.employeeName = formValues.userInfo.employeeName;
+    payload.employeeCode = formValues.userInfo.employeeCode;
+    payload.jobPositionName = formValues.userInfo.jobPositionName;
+    if (formValues.userInfo.exitedAt) {
+      payload.exitedAt = new Date(formValues.userInfo.exitedAt).toISOString();
+    }
+
+    const part1Answers = payload.sections[0].childs[0].answers;
+    part1Answers.forEach((ans: any) => {
+      if (ans.allowCheck) {
+        ans.checkValue = formValues.selectedReasons.includes(ans.anwerId);
+      }
+    });
+
+    const part2Answers = payload.sections[1].childs[0].answers;
+    part2Answers.forEach((ans: any) => {
+      if (ans.allowRating) {
+        ans.ratingValue = formValues.scores[ans.anwerId] || 0;
+      }
+    });
+
+    const part3Childs = payload.sections[2].childs;
+    part3Childs.forEach((child: any) => {
+      child.questions?.forEach((ques: any) => {
+
+        if (ques.id === 1 || ques.id === 2) {
+          const textAnswer = ques.answers?.find((a: any) => a.allowText);
+          if (textAnswer) {
+            textAnswer.textValue = formValues.answers[`q${ques.id}`].text;
+          }
+        }
+        else if (ques.id === 3) {
+          const yesAns = ques.answers?.find((a: any) => a.anwerId === 12);
+          const noAns = ques.answers?.find((a: any) => a.anwerId === 13);
+
+          if (yesAns) {
+            yesAns.checkValue = (formValues.answers.q3.status === 12);
+          }
+          if (noAns) {
+            noAns.checkValue = (formValues.answers.q3.status === 13);
+
+            const reasonAns = noAns.childs?.find((c: any) => c.anwerId === 14);
+            if (reasonAns) {
+              reasonAns.textValue = (formValues.answers.q3.status === 13) ? formValues.answers.q3.reason : '';
+            }
+          }
+        }
+      });
+    });
+
+    // console.log('Payload chuẩn bị gửi lên server:', payload);
+    console.log('Payload chuẩn bị gửi lên server:\n', JSON.stringify(payload, null, 2));
     alert('Gửi thành công!');
   } catch (error) {
+    console.error(error);
     alert('Lỗi gửi dữ liệu');
   }
 });
@@ -438,6 +573,10 @@ const submitForm = handleSubmit(async (values) => {
 }
 
 /* Section Title */
+.section-box {
+  padding-bottom: 30px;
+}
+
 .section-title {
   background: #f7fafc;
   padding: 12px 20px;
@@ -446,23 +585,19 @@ const submitForm = handleSubmit(async (values) => {
 
   h3 {
     margin: 0;
-    font-size: 18px;
+    font-size: 17px;
     color: #2d3748;
-
-    small {
-      font-weight: normal;
-      color: #718096;
-      margin-left: 10px;
-    }
+    font-weight: bold;
   }
 }
 
 .instruction {
   font-style: italic;
   font-size: 13px;
-  color: #a0aec0;
+  color: #2d3748;
   margin-left: 20px;
   margin-bottom: 20px;
+  font-weight: bold;
 }
 
 /* Part 1: Grid Checkbox */
@@ -492,8 +627,7 @@ const submitForm = handleSubmit(async (values) => {
   .card-body {
     .title-vn-cn {
       display: block;
-      font-weight: 600;
-      color: #2d3748;
+      color: #1b1d1f;
       font-size: 15px;
       transition: all 0.2s;
     }
@@ -529,8 +663,8 @@ const submitForm = handleSubmit(async (values) => {
     max-width: 60%;
 
     .vn {
-      font-weight: 500;
-      color: #4a5568;
+      color: #1b1d1f;
+      font-size: 15px;
       margin: 0;
     }
 
@@ -586,17 +720,21 @@ const submitForm = handleSubmit(async (values) => {
   margin-bottom: 30px;
   padding: 0 10px;
 
-  .ques-label {
+  .ques-label-1 {
+    font-style: italic;
     display: block;
-    font-weight: 600;
+    font-weight: bold;
     color: #2d3748;
     margin-bottom: 12px;
+    font-size: 13px;
+    margin-left: 20px;
 
-    .cn-text {
-      font-weight: normal;
-      color: #a0aec0;
-      font-size: 14px;
-    }
+  }
+
+  .ques-label-2 {
+    display: block;
+    color: #2d3748;
+    margin-bottom: 12px;
   }
 
   textarea {
@@ -670,7 +808,7 @@ const submitForm = handleSubmit(async (values) => {
   border: 1px solid #feebc8;
   border-radius: 12px;
   padding: 25px;
-  margin: 40px 0;
+  margin-bottom: 40px;
 
   .guide-header {
     display: flex;

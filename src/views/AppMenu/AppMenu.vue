@@ -33,9 +33,11 @@ import {
 import { documentTextOutline } from 'ionicons/icons';
 import { useRouter } from 'vue-router';
 
+
 const router = useRouter();
 
-const goToFormExit = () => {
+// Thêm từ khóa async vào hàm
+const goToFormExit = async () => {
   router.push('/formExit');
 };
 </script>

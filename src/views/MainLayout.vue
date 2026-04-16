@@ -1,7 +1,6 @@
 <template>
   <ion-page>
     <ion-split-pane content-id="main-content" when="md" class="layout-container">
-
       <ion-menu content-id="main-content" type="overlay" class="verona-sidebar">
         <ion-content class="sidebar-content">
           <div class="sidebar-container">
@@ -59,28 +58,29 @@
           </ion-toolbar>
         </ion-header>
 
-        <ion-content class="verona-content">
+        <ion-content class="verona-content" :scroll-y="false">
           <div class="content-wrapper">
+            <div class="scrollable-area">
+              <div class="breadcrumb-wrapper">
+                <ion-breadcrumbs>
+                  <ion-breadcrumb @click="router.push('/dashboard')" class="breadcrumb-link">
+                    <ion-icon :icon="homeOutline"></ion-icon>
+                    Dashboard
+                  </ion-breadcrumb>
+                  <ion-breadcrumb v-if="route.path !== '/dashboard'" active>
+                    {{ currentRouteTitle }}
+                  </ion-breadcrumb>
+                </ion-breadcrumbs>
+              </div>
 
-            <div class="breadcrumb-wrapper">
-              <ion-breadcrumbs>
-                <ion-breadcrumb @click="router.push('/dashboard')" class="breadcrumb-link">
-                  <ion-icon :icon="homeOutline"></ion-icon>
-                  Dashboard
-                </ion-breadcrumb>
-                <ion-breadcrumb v-if="route.path !== '/dashboard'" active>
-                  {{ currentRouteTitle }}
-                </ion-breadcrumb>
-              </ion-breadcrumbs>
+              <div class="content-card">
+                <ion-router-outlet></ion-router-outlet>
+              </div>
+
+              <footer class="layout-footer">
+                <div class="copyright">© 2026 IT Jia Hsin CO., LTD</div>
+              </footer>
             </div>
-
-            <div class="content-card">
-              <ion-router-outlet></ion-router-outlet>
-            </div>
-
-            <footer class="layout-footer">
-              <div class="copyright">© 2026 IT Jia Hsin CO., LTD</div>
-            </footer>
           </div>
         </ion-content>
       </ion-page>
@@ -120,8 +120,7 @@ const menuItems = [
 const currentRouteTitle = computed(() => {
   switch (route.path) {
     case '/dashboard': return 'Dashboard';
-    case '/settings': return 'Settings';
-    default: return 'Current View';
+    case '/404': return '404';
   }
 });
 </script>
@@ -301,16 +300,51 @@ ion-menu.verona-sidebar {
 .content-wrapper {
   background-color: #f8fafc;
   border-top-left-radius: 30px;
-  padding: 2rem 2rem 0;
+  /* BỎ padding ở đây, đã chuyển xuống scrollable-area */
+
   display: flex;
   flex-direction: column;
   height: 100%;
+  /* Cố định chiều cao 100% thay vì min-height */
+  overflow: hidden;
+  /* Không cho phép cuộn ở lớp ngoài cùng này */
+
   border-top: 1px solid #e2e8f0;
   border-left: 1px solid #e2e8f0;
   position: relative;
   z-index: 1;
   box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+}
+
+/* --- THÊM CLASS MỚI NÀY --- */
+.scrollable-area {
+  flex: 1;
+  /* Chiếm toàn bộ không gian còn lại của content-wrapper */
+  overflow-y: auto;
+  /* Kích hoạt cuộn dọc tại đây */
+  padding: 2rem 2rem 0;
+  /* Padding được chuyển từ content-wrapper xuống đây */
+
+  display: flex;
+  flex-direction: column;
+
+  /* (Tuỳ chọn) Custom thanh cuộn cho mượt và đẹp hơn trên Web */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #94a3b8;
+  }
 }
 
 .content-card {
@@ -318,16 +352,30 @@ ion-menu.verona-sidebar {
   border-radius: 30px;
   border: 1px solid #e2e8f0;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  flex: 1;
-  display: flex;
-  flex-direction: column;
   position: relative;
-  overflow: hidden;
-  margin-bottom: 0.5rem;
+  margin-bottom: 2rem;
 
+  /* Ép ion-router-outlet hiển thị như block tĩnh thay vì absolute */
   ion-router-outlet {
-    height: 100%;
-    width: 100%;
+    position: relative;
+    height: auto;
+    display: block;
+    contain: none;
+  }
+
+  /* BÍ QUYẾT: Ép các ion-page lồng bên trong thành thẻ div bình thường. 
+     Nó sẽ tự động giãn chiều cao theo nội dung thay vì bóp chết layout */
+  :deep(.ion-page:not(.ion-page-hidden)) {
+    position: relative !important;
+    height: auto !important;
+    contain: none !important;
+    overflow: visible !important;
+    background: transparent !important;
+  }
+
+  /* Đảm bảo trang cũ bị ẩn hoàn toàn */
+  :deep(.ion-page-hidden) {
+    display: none !important;
   }
 }
 

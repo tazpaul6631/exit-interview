@@ -2,9 +2,10 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '@/store/auth';
 import storageService from '@/services/storage.service';
 import router from '@/router';
+import baseURLApi from '@/api/baseURLApi';
 
 // Lấy baseURL từ cấu hình của bạn
-const baseURL = 'https://your-api-url.com/api'; // Thay bằng baseURLMixin.url nếu cần
+const baseURL = baseURLApi.url;
 
 const api = axios.create({
   baseURL,
