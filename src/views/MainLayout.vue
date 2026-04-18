@@ -122,6 +122,7 @@ const handleLogout = async () => {
 const menuItems = [
   { title: 'Dashboard', url: '/dashboard', icon: homeOutline },
   // { title: 'FormCRUD', url: '/form-crud', icon: documentTextOutline },
+  { title: 'ReportExcel', url: '/report-excel', icon: documentTextOutline },
   { title: '404', url: '/404', icon: settingsOutline },
 ];
 
@@ -129,6 +130,7 @@ const currentRouteTitle = computed(() => {
   switch (route.path) {
     case '/dashboard': return 'Dashboard';
     // case '/form-crud': return 'FormCRUD';
+    case '/report-excel': return 'ReportExcel';
     case '/404': return '404';
     default: return '';
   }
