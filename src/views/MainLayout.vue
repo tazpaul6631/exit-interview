@@ -130,7 +130,7 @@ const currentRouteTitle = computed(() => {
   switch (route.path) {
     case '/dashboard': return 'Dashboard';
     // case '/form-crud': return 'FormCRUD';
-    case '/report-excel': return 'ReportExcel';
+    case '/report-excel': return 'Dữ Liệu Nghỉ Việc';
     case '/404': return '404';
     default: return '';
   }

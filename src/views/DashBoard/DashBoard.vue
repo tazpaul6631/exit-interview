@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <ion-grid class="ion-no-margin custom-grid">
+    <ion-grid class="custom-grid">
       <ion-row>
         <ion-col size="12" size-sm="6" size-lg="3" v-for="card in summaryCards" :key="card.title">
           <div class="stat-card" :style="{ '--accent': card.color }">
@@ -181,6 +181,7 @@ const summaryCards = [
 }
 
 .custom-grid {
+  margin: 0;
   padding: 30px;
   --ion-grid-column-padding: 12px;
 }

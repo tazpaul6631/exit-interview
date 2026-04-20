@@ -4,24 +4,16 @@ import router from './router';
 import i18n from '@/i18n';
 import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
-
-
+import PrimeVue from 'primevue/config';
+import Aura from '@primevue/themes/aura';
 import { IonicVue } from '@ionic/vue';
 
-/* Core CSS required for Ionic */
-import '@ionic/vue/css/core.css';
-import '@ionic/vue/css/normalize.css';
-import '@ionic/vue/css/structure.css';
-import '@ionic/vue/css/typography.css';
-import '@ionic/vue/css/padding.css';
-import '@ionic/vue/css/float-elements.css';
-import '@ionic/vue/css/text-alignment.css';
-import '@ionic/vue/css/text-transformation.css';
-import '@ionic/vue/css/flex-utils.css';
-import '@ionic/vue/css/display.css';
+// --- IMPORT FILE PLUGIN VỪA TẠO ---
+import PrimeComponents from '@/plugins/prime';
 
-/* Theme variables */
+import '@ionic/vue/css/core.css';
 import './theme/variables.css';
+import 'primeflex/primeflex.css';
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
@@ -30,7 +22,25 @@ const app = createApp(App)
   .use(IonicVue)
   .use(pinia)
   .use(router)
-  .use(i18n);
+  .use(i18n)
+  .use(PrimeVue, {
+    theme: {
+      preset: Aura,
+      options: {
+        prefix: 'p',
+        darkModeSelector: '.ion-palette-dark',
+      }
+    },
+    ripple: true,
+    zIndex: {
+      modal: 1100,
+      overlay: 1000,
+      menu: 1000,
+      tooltip: 1100
+    }
+  })
+  // --- KÍCH HOẠT ĐĂNG KÝ COMPONENT TẠI ĐÂY ---
+  .use(PrimeComponents);
 
 router.isReady().then(() => {
   app.mount('#app');
