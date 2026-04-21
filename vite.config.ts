@@ -16,6 +16,7 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2,wasm}'],
         cleanupOutdatedCaches: true,
+        maximumFileSizeToCacheInBytes: 5000000,
       },
       manifest: {
         name: 'My Security App',
@@ -71,6 +72,19 @@ export default defineConfig({
         drop_debugger: true,
       },
     },
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('@ionic')) return 'vendor-ionic';
+            if (id.includes('primevue') || id.includes('primeicons')) return 'vendor-primevue';
+            if (id.includes('vue') || id.includes('pinia') || id.includes('vue-router')) return 'vendor-vue-core';
+            if (id.includes('@capacitor')) return 'vendor-capacitor';
+            return 'vendor-others';
+          }
+        }
+      }
+    }
   },
 
   server: {
@@ -80,10 +94,10 @@ export default defineConfig({
     watch: {
       ignored: ['**/android/**'], // Không theo dõi các file trong thư mục android
     },
-    hmr: {
-      host: '10.0.149.28',
-      // port: 8101
-    },
+    // hmr: {
+    //   host: '10.0.149.28',
+    //   // port: 8101
+    // },
     strictPort: false,
   }
 })

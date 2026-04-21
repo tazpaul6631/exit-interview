@@ -1,0 +1,298 @@
+diff --git a/node_modules/@capacitor/camera/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml b/node_modules/@capacitor/camera/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml
+new file mode 100644
+index 0000000..cf1b814
+--- /dev/null
++++ b/node_modules/@capacitor/camera/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml
+@@ -0,0 +1,19 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.capacitorjs.plugins.camera" >
++
++    <uses-sdk android:minSdkVersion="24" />
++
++    <queries>
++        <intent>
++            <action android:name="android.media.action.IMAGE_CAPTURE" />
++        </intent>
++        <intent>
++            <action android:name="android.intent.action.GET_CONTENT" />
++        </intent>
++        <intent>
++            <action android:name="android.intent.action.PICK" />
++        </intent>
++    </queries>
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/@capacitor/camera/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/output-metadata.json b/node_modules/@capacitor/camera/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/output-metadata.json
+new file mode 100644
+index 0000000..8275c53
+--- /dev/null
++++ b/node_modules/@capacitor/camera/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/output-metadata.json
+@@ -0,0 +1,18 @@
++{
++  "version": 3,
++  "artifactType": {
++    "type": "AAPT_FRIENDLY_MERGED_MANIFESTS",
++    "kind": "Directory"
++  },
++  "applicationId": "com.capacitorjs.plugins.camera",
++  "variantName": "debug",
++  "elements": [
++    {
++      "type": "SINGLE",
++      "filters": [],
++      "attributes": [],
++      "outputFile": "AndroidManifest.xml"
++    }
++  ],
++  "elementType": "File"
++}
+\ No newline at end of file
+diff --git a/node_modules/@capacitor/camera/android/build/intermediates/aar_metadata/debug/aar-metadata.properties b/node_modules/@capacitor/camera/android/build/intermediates/aar_metadata/debug/aar-metadata.properties
+new file mode 100644
+index 0000000..1211b1e
+--- /dev/null
++++ b/node_modules/@capacitor/camera/android/build/intermediates/aar_metadata/debug/aar-metadata.properties
+@@ -0,0 +1,6 @@
++aarFormatVersion=1.0
++aarMetadataVersion=1.0
++minCompileSdk=1
++minCompileSdkExtension=0
++minAndroidGradlePluginVersion=1.0.0
++coreLibraryDesugaringEnabled=false
+diff --git a/node_modules/@capacitor/camera/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json b/node_modules/@capacitor/camera/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json
+new file mode 100644
+index 0000000..9e26dfe
+--- /dev/null
++++ b/node_modules/@capacitor/camera/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json
+@@ -0,0 +1 @@
++{}
+\ No newline at end of file
+diff --git a/node_modules/@capacitor/camera/android/build/intermediates/compile_r_class_jar/debug/R.jar b/node_modules/@capacitor/camera/android/build/intermediates/compile_r_class_jar/debug/R.jar
+new file mode 100644
+index 0000000..f5b66e6
+Binary files /dev/null and b/node_modules/@capacitor/camera/android/build/intermediates/compile_r_class_jar/debug/R.jar differ
+diff --git a/node_modules/@capacitor/camera/android/build/intermediates/compile_symbol_list/debug/R.txt b/node_modules/@capacitor/camera/android/build/intermediates/compile_symbol_list/debug/R.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/@capacitor/camera/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties b/node_modules/@capacitor/camera/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+new file mode 100644
+index 0000000..e20fd6e
+--- /dev/null
++++ b/node_modules/@capacitor/camera/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+@@ -0,0 +1 @@
++#Tue Apr 21 14:20:21 ICT 2026
+diff --git a/node_modules/@capacitor/camera/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml b/node_modules/@capacitor/camera/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+new file mode 100644
+index 0000000..bf610f4
+--- /dev/null
++++ b/node_modules/@capacitor/camera/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\debug\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\debug\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\build\generated\res\resValues\debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\build\generated\res\resValues\debug"/></dataSet><mergedItems/></merger>
+\ No newline at end of file
+diff --git a/node_modules/@capacitor/camera/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml b/node_modules/@capacitor/camera/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+new file mode 100644
+index 0000000..f6b111e
+--- /dev/null
++++ b/node_modules/@capacitor/camera/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\jniLibs"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\debug\jniLibs"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/@capacitor/camera/android/build/intermediates/incremental/mergeDebugShaders/merger.xml b/node_modules/@capacitor/camera/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
+new file mode 100644
+index 0000000..97d2581
+--- /dev/null
++++ b/node_modules/@capacitor/camera/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\shaders"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\debug\shaders"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/@capacitor/camera/android/build/intermediates/incremental/packageDebugAssets/merger.xml b/node_modules/@capacitor/camera/android/build/intermediates/incremental/packageDebugAssets/merger.xml
+new file mode 100644
+index 0000000..79cab77
+--- /dev/null
++++ b/node_modules/@capacitor/camera/android/build/intermediates/incremental/packageDebugAssets/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\assets"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\debug\assets"/></dataSet><dataSet config="generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\build\intermediates\shader_assets\debug\out"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/@capacitor/camera/android/build/intermediates/local_only_symbol_list/debug/R-def.txt b/node_modules/@capacitor/camera/android/build/intermediates/local_only_symbol_list/debug/R-def.txt
+new file mode 100644
+index 0000000..78ac5b8
+--- /dev/null
++++ b/node_modules/@capacitor/camera/android/build/intermediates/local_only_symbol_list/debug/R-def.txt
+@@ -0,0 +1,2 @@
++R_DEF: Internal format may change without notice
++local
+diff --git a/node_modules/@capacitor/camera/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt b/node_modules/@capacitor/camera/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt
+new file mode 100644
+index 0000000..bacb347
+--- /dev/null
++++ b/node_modules/@capacitor/camera/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt
+@@ -0,0 +1,29 @@
++1<?xml version="1.0" encoding="utf-8"?>
++2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++3    package="com.capacitorjs.plugins.camera" >
++4
++5    <uses-sdk android:minSdkVersion="24" />
++6
++7    <queries>
++7-->D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:2:5-12:15
++8        <intent>
++8-->D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:3:9-5:18
++9            <action android:name="android.media.action.IMAGE_CAPTURE" />
++9-->D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:4:13-73
++9-->D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:4:21-70
++10        </intent>
++11        <intent>
++11-->D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:6:9-8:18
++12            <action android:name="android.intent.action.GET_CONTENT" />
++12-->D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:7:13-72
++12-->D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:7:21-69
++13        </intent>
++14        <intent>
++14-->D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:9:9-11:18
++15            <action android:name="android.intent.action.PICK" />
++15-->D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:10:13-65
++15-->D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:10:21-62
++16        </intent>
++17    </queries>
++18
++19</manifest>
+diff --git a/node_modules/@capacitor/camera/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml b/node_modules/@capacitor/camera/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml
+new file mode 100644
+index 0000000..cf1b814
+--- /dev/null
++++ b/node_modules/@capacitor/camera/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml
+@@ -0,0 +1,19 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.capacitorjs.plugins.camera" >
++
++    <uses-sdk android:minSdkVersion="24" />
++
++    <queries>
++        <intent>
++            <action android:name="android.media.action.IMAGE_CAPTURE" />
++        </intent>
++        <intent>
++            <action android:name="android.intent.action.GET_CONTENT" />
++        </intent>
++        <intent>
++            <action android:name="android.intent.action.PICK" />
++        </intent>
++    </queries>
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/@capacitor/camera/android/build/intermediates/navigation_json/debug/navigation.json b/node_modules/@capacitor/camera/android/build/intermediates/navigation_json/debug/navigation.json
+new file mode 100644
+index 0000000..0637a08
+--- /dev/null
++++ b/node_modules/@capacitor/camera/android/build/intermediates/navigation_json/debug/navigation.json
+@@ -0,0 +1 @@
++[]
+\ No newline at end of file
+diff --git a/node_modules/@capacitor/camera/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt b/node_modules/@capacitor/camera/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt
+new file mode 100644
+index 0000000..ea6a574
+--- /dev/null
++++ b/node_modules/@capacitor/camera/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt
+@@ -0,0 +1 @@
++com.capacitorjs.plugins.camera
+diff --git a/node_modules/@capacitor/camera/android/build/kotlin/compileDebugKotlin/cacheable/dirty-sources.txt b/node_modules/@capacitor/camera/android/build/kotlin/compileDebugKotlin/cacheable/dirty-sources.txt
+new file mode 100644
+index 0000000..c939dea
+--- /dev/null
++++ b/node_modules/@capacitor/camera/android/build/kotlin/compileDebugKotlin/cacheable/dirty-sources.txt
+@@ -0,0 +1,8 @@
++D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\java\com\capacitorjs\plugins\camera\IonCameraSettings.kt
++D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\java\com\capacitorjs\plugins\camera\CameraPlugin.kt
++D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\java\com\capacitorjs\plugins\camera\PermissionHelper.kt
++D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\java\com\capacitorjs\plugins\camera\IonCameraUtils.kt
++D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\java\com\capacitorjs\plugins\camera\IonCameraFlow.kt
++D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\java\com\capacitorjs\plugins\camera\LegacyCameraSettings.kt
++D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\java\com\capacitorjs\plugins\camera\IonEditableMode.kt
++D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\java\com\capacitorjs\plugins\camera\IonGallerySettings.kt
+\ No newline at end of file
+diff --git a/node_modules/@capacitor/camera/android/build/kotlin/compileDebugKotlin/local-state/build-history.bin b/node_modules/@capacitor/camera/android/build/kotlin/compileDebugKotlin/local-state/build-history.bin
+new file mode 100644
+index 0000000..33ed9f4
+Binary files /dev/null and b/node_modules/@capacitor/camera/android/build/kotlin/compileDebugKotlin/local-state/build-history.bin differ
+diff --git a/node_modules/@capacitor/camera/android/build/outputs/logs/manifest-merger-debug-report.txt b/node_modules/@capacitor/camera/android/build/outputs/logs/manifest-merger-debug-report.txt
+new file mode 100644
+index 0000000..8743b86
+--- /dev/null
++++ b/node_modules/@capacitor/camera/android/build/outputs/logs/manifest-merger-debug-report.txt
+@@ -0,0 +1,36 @@
++-- Merging decision tree log ---
++manifest
++ADDED from D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:1:1-13:12
++INJECTED from D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:1:1-13:12
++	package
++		INJECTED from D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml
++	xmlns:android
++		ADDED from D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:1:11-69
++queries
++ADDED from D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:2:5-12:15
++intent#action:name:android.media.action.IMAGE_CAPTURE
++ADDED from D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:3:9-5:18
++action#android.media.action.IMAGE_CAPTURE
++ADDED from D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:4:13-73
++	android:name
++		ADDED from D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:4:21-70
++intent#action:name:android.intent.action.GET_CONTENT
++ADDED from D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:6:9-8:18
++action#android.intent.action.GET_CONTENT
++ADDED from D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:7:13-72
++	android:name
++		ADDED from D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:7:21-69
++intent#action:name:android.intent.action.PICK
++ADDED from D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:9:9-11:18
++action#android.intent.action.PICK
++ADDED from D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:10:13-65
++	android:name
++		ADDED from D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml:10:21-62
++uses-sdk
++INJECTED from D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml reason: use-sdk injection requested
++INJECTED from D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml
++INJECTED from D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml
++	android:targetSdkVersion
++		INJECTED from D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml
++	android:minSdkVersion
++		INJECTED from D:\IT JiaHsin 2026\exit-interview\node_modules\@capacitor\camera\android\src\main\AndroidManifest.xml
+diff --git a/node_modules/@capacitor/camera/android/src/main/java/com/capacitorjs/plugins/camera/CameraPlugin.kt b/node_modules/@capacitor/camera/android/src/main/java/com/capacitorjs/plugins/camera/CameraPlugin.kt
+index fbf333f..d7cb5e6 100644
+--- a/node_modules/@capacitor/camera/android/src/main/java/com/capacitorjs/plugins/camera/CameraPlugin.kt
++++ b/node_modules/@capacitor/camera/android/src/main/java/com/capacitorjs/plugins/camera/CameraPlugin.kt
+@@ -46,10 +46,10 @@ import org.json.JSONException
+ class CameraPlugin : Plugin() {
+ 
+     companion object {
+-        private const val CAMERA = "camera"
+-        private const val PHOTOS = "photos"
+-        private const val SAVE_GALLERY = "saveGallery"
+-        private const val READ_EXTERNAL_STORAGE = "readExternalStorage"
++        const val CAMERA = "camera"
++        const val PHOTOS = "photos"
++        const val SAVE_GALLERY = "saveGallery"
++        const val READ_EXTERNAL_STORAGE = "readExternalStorage"
+     }
+ 
+     private lateinit var legacyFlow: LegacyCameraFlow
+diff --git a/node_modules/@capacitor/camera/android/src/main/java/com/capacitorjs/plugins/camera/IonCameraFlow.kt b/node_modules/@capacitor/camera/android/src/main/java/com/capacitorjs/plugins/camera/IonCameraFlow.kt
+index 21cb005..256c915 100644
+--- a/node_modules/@capacitor/camera/android/src/main/java/com/capacitorjs/plugins/camera/IonCameraFlow.kt
++++ b/node_modules/@capacitor/camera/android/src/main/java/com/capacitorjs/plugins/camera/IonCameraFlow.kt
+@@ -537,7 +537,7 @@ class IonCameraFlow(
+                         putExtra(IONCAMRImageEditorActivity.IMAGE_OUTPUT_URI_EXTRAS, lastEditUri)
+                     }
+                 }
+-                processResultEditFromGallery(intent)
++                processResultEditFromGallery(intent!!)
+                 lastEditUri = null
+             }
+             Activity.RESULT_CANCELED -> {
