@@ -5,7 +5,7 @@ import i18n from '@/i18n';
 import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 import PrimeVue from 'primevue/config';
-import Aura from '@primevue/themes/aura';
+import Aura from '@primeuix/themes/aura';
 import { IonicVue } from '@ionic/vue';
 
 // --- IMPORT FILE PLUGIN VỪA TẠO ---

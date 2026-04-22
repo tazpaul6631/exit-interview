@@ -444,7 +444,7 @@ const submitForm = handleSubmit(
 .form-wrapper {
   display: flex;
   justify-content: center;
-  padding: 20px 10px;
+  padding: 70px 10px;
 }
 
 .paper-form {
