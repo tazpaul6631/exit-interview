@@ -12,6 +12,10 @@ import MultiSelect from 'primevue/multiselect';
 import Checkbox from 'primevue/checkbox';
 import DatePicker from 'primevue/datepicker';
 import Button from 'primevue/button';
+import Toast from 'primevue/toast';
+import ProgressBar from 'primevue/progressbar';
+import Skeleton from 'primevue/skeleton';
+import Chart from 'primevue/chart';
 import 'primeicons/primeicons.css';
 
 export default {
@@ -27,5 +31,9 @@ export default {
         app.component('Checkbox', Checkbox);
         app.component('DatePicker', DatePicker);
         app.component('Button', Button);
+        app.component('Toast', Toast);
+        app.component('ProgressBar', ProgressBar);
+        app.component('Skeleton', Skeleton);
+        app.component('Chart', Chart);
     }
 };

@@ -73,6 +73,8 @@ api.interceptors.response.use(
 const request = {
   get: (url: string, params?: any) => api.get(url, { params }),
   post: (url: string, data?: any) => api.post(url, data),
+  postBlob: (url: string, data?: any) =>
+    api.post(url, data, { responseType: 'blob', timeout: 120000 }),
   put: (url: string, data?: any) => api.put(url, data),
   patch: (url: string, data?: any) => api.patch(url, data),
   delete: (url: string) => api.delete(url),

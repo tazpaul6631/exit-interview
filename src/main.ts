@@ -11,6 +11,10 @@ import { IonicVue } from '@ionic/vue';
 // --- IMPORT FILE PLUGIN VỪA TẠO ---
 import PrimeComponents from '@/plugins/prime';
 
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
 import '@ionic/vue/css/core.css';
 import './theme/variables.css';
 import 'primeflex/primeflex.css';

@@ -12,7 +12,7 @@
           <ion-row>
             <ion-col size="12" size-md="6">
               <div class="custom-input">
-                <label>Tôi tên/ <span>姓名</span></label>
+                <label><span class="request">*</span>Tôi tên/ <span>姓名</span></label>
                 <input v-model="employeeName" type="text" placeholder="Nhập họ tên..."
                   :class="{ 'is-invalid': submitCount > 0 && errors['userInfo.employeeName'] }" />
                 <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.employeeName']">
@@ -23,7 +23,7 @@
 
             <ion-col size="12" size-md="6">
               <div class="custom-input">
-                <label>Mã Số/ <span>工號</span></label>
+                <label><span class="request">*</span>Mã Số/ <span>工號</span></label>
                 <input v-model="employeeCode" type="text" placeholder="Nhập mã nhân viên..."
                   :class="{ 'is-invalid': submitCount > 0 && errors['userInfo.employeeCode'] }" />
                 <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.employeeCode']">
@@ -34,7 +34,7 @@
 
             <ion-col size="12" size-md="6">
               <div class="custom-input">
-                <label>Chức vụ/ <span>任職</span></label>
+                <label><span class="request">*</span>Chức vụ/ <span>任職</span></label>
                 <input v-model="jobPositionName" type="text" placeholder="Bộ phận/Chức vụ..."
                   :class="{ 'is-invalid': submitCount > 0 && errors['userInfo.jobPositionName'] }" />
                 <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.jobPositionName']">
@@ -45,7 +45,7 @@
 
             <ion-col size="12" size-md="6">
               <div class="custom-input search-wrapper">
-                <label>Bộ phận/ Mã bộ phận <span>部門/ 部門代碼</span></label>
+                <label><span class="request">*</span>Bộ phận/ Mã bộ phận <span>部門/ 部門代碼</span></label>
                 <input :value="orgSearchKeyword" type="text" placeholder="Gõ để tìm kiếm phòng ban..."
                   @input="handleSearchOrg" @focus="organizationList.length > 0 && (showOrgList = true)"
                   @blur="showOrgList = false"
@@ -66,7 +66,7 @@
 
             <ion-col size="12" size-md="6">
               <div class="custom-input">
-                <label>Ngày thôi việc/ <span>離職日期</span></label>
+                <label><span class="request">*</span>Ngày thôi việc/ <span>離職日期</span></label>
                 <ion-input v-model="exitedAt" type="date" label-placement="stacked" class="ion-date-input"
                   :class="{ 'is-invalid': submitCount > 0 && errors['userInfo.exitedAt'] }"></ion-input>
                 <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.exitedAt']">
@@ -151,6 +151,7 @@ let requiredTexts: string[] = [];
 let requiredRatings: string[] = [];
 let conditionalTexts: { qId: string | null, parentAnsId: string, textId: string }[] = [];
 let checkboxIds: string[] = [];
+let mandatoryQuestions: string[] = [];
 
 const validationSchema = ref(toTypedSchema(zod.any()));
 
@@ -179,6 +180,7 @@ const initializeForm = async () => {
     requiredRatings = [];
     conditionalTexts = [];
     checkboxIds = [];
+    mandatoryQuestions = [];
     isConfirmed.value = false;
     orgSearchKeyword.value = '';
 
@@ -196,6 +198,9 @@ const initializeForm = async () => {
         checkboxIds.push(String(ans.answerId));
       }
       if (ans.allowCheck && qId && ans.checkValue) {
+        initData[`q_${qId}`] = ans.answerId;
+      }
+      if ((ans.allowCheck || ans.allowSelect) && qId && ans.checkValue) {
         initData[`q_${qId}`] = ans.answerId;
       }
       if (ans.allowText) {
@@ -218,11 +223,21 @@ const initializeForm = async () => {
       if (node.childs && node.childs.length > 0 && node.childs[0].sectionId) {
         node.childs.forEach((c: any) => scanTree(c, currentQId));
       }
+      if (node.questionId && node.allowSelect) {
+        mandatoryQuestions.push(String(node.questionId));
+      }
       if (node.answers) {
-        if (node.questionId && node.answers.some((a: any) => a.allowCheck)) {
+        // SỬA TẠI ĐÂY: Chấp nhận cả allowCheck hoặc allowSelect là Radio group
+        if (node.questionId && node.answers.some((a: any) => a.allowCheck || a.allowSelect)) {
           requiredRadios.push(String(node.questionId));
         }
-        node.answers.forEach((ans: any) => processAnswer(ans, currentQId, null));
+
+        node.answers.forEach((ans: any) => {
+          // Logic khởi tạo data: Nếu allowSelect hoặc allowCheck thì mới xử lý
+          if (ans.allowCheck || ans.allowSelect || ans.allowRating || ans.allowText) {
+            processAnswer(ans, currentQId, null);
+          }
+        });
       }
     };
 
@@ -245,6 +260,18 @@ const initializeForm = async () => {
       .superRefine((data, ctx) => {
         if (!data) return;
         const safeData: Record<string, any> = (data.answersData || {}) as Record<string, any>;
+        mandatoryQuestions.forEach(qId => {
+          const hasValue = safeData[`q_${qId}`] ||
+            checkboxIds.some(ansId => ansId.startsWith(qId) && safeData[ansId] === true);
+
+          if (!hasValue) {
+            ctx.addIssue({
+              code: zod.ZodIssueCode.custom,
+              message: 'Bắt buộc chọn mục này',
+              path: [`answersData.q_${qId}`]
+            });
+          }
+        });
         requiredRatings.forEach(id => {
           if (!safeData[id] || safeData[id] === 0) {
             ctx.addIssue({ code: zod.ZodIssueCode.custom, message: 'Vui lòng đánh giá', path: [`answersData.${id}`] });
@@ -332,7 +359,7 @@ const handleSearchOrg = (event: Event) => {
     isSearching.value = true;
     showOrgList.value = true;
     try {
-      const res = await organization.postOrganization({ keyword: keyword.trim(), active: true });
+      const res = await organization.postOrganization({ keyword: keyword.trim(), isActive: true });
       organizationList.value = res.data?.data || [];
     } catch (error) {
       console.error("Lỗi khi tìm phòng ban:", error);
@@ -369,7 +396,7 @@ const submitForm = handleSubmit(
 
         if (node.answerId !== undefined) {
           let isChecked = false;
-          if (node.allowCheck) {
+          if (node.allowCheck || node.allowSelect) {
             isChecked = currentQId
               ? (String(rawData[`q_${currentQId}`]) === String(node.answerId))
               : !!rawData[node.answerId];
@@ -444,7 +471,7 @@ const submitForm = handleSubmit(
 .form-wrapper {
   display: flex;
   justify-content: center;
-  padding: 70px 10px;
+  padding: 10px;
 }
 
 .paper-form {
@@ -503,6 +530,11 @@ const submitForm = handleSubmit(
   font-weight: normal;
   color: #4a5568;
   margin-left: 5px;
+
+  &.request {
+    color: red;
+    font-size: 17px;
+  }
 }
 
 .custom-input input {

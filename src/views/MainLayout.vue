@@ -61,23 +61,30 @@
         <ion-content class="verona-content" :scroll-y="false">
           <div class="content-wrapper">
             <div class="scrollable-area">
-              <div class="breadcrumb-wrapper">
-                <ion-breadcrumbs>
-                  <ion-breadcrumb @click="router.push('/dashboard')" class="breadcrumb-link">
-                    <ion-icon :icon="homeOutline"></ion-icon>
-                    Dashboard
+              <nav class="breadcrumb-wrapper" aria-label="Breadcrumb">
+                <ion-breadcrumbs class="app-breadcrumbs">
+                  <ion-breadcrumb class="breadcrumb-item breadcrumb-item--home" @click="router.push('/dashboard')">
+                    <span class="breadcrumb-item__inner">
+                      <ion-icon :icon="homeOutline" class="breadcrumb-item__icon" aria-hidden="true" />
+                      <span class="breadcrumb-item__label">Dashboard</span>
+                    </span>
                   </ion-breadcrumb>
-                  <ion-breadcrumb v-if="route.path !== '/dashboard'" active>
-                    {{ currentRouteTitle }}
+                  <ion-breadcrumb v-for="(item, index) in breadcrumbs" :key="item.title" class="breadcrumb-item"
+                    :class="{ 'breadcrumb-item--active': index === breadcrumbs.length - 1, 'breadcrumb-item--clickable': !!item.path }"
+                    :active="index === breadcrumbs.length - 1" @click="item.path && router.push(item.path)">
+                    <span class="breadcrumb-item__inner">
+                      <span class="breadcrumb-item__label">{{ item.title }}</span>
+                    </span>
                   </ion-breadcrumb>
                 </ion-breadcrumbs>
-              </div>
+              </nav>
 
               <div class="content-card">
                 <ion-router-outlet></ion-router-outlet>
               </div>
 
               <footer class="layout-footer">
+                <img src="/assets/logocompany.png" alt="JIA HSIN" class="layout-footer__logo" />
                 <div class="copyright">© 2026 IT Jia Hsin CO., LTD</div>
               </footer>
             </div>
@@ -122,17 +129,30 @@ const handleLogout = async () => {
 const menuItems = [
   { title: 'Dashboard', url: '/dashboard', icon: homeOutline },
   // { title: 'FormCRUD', url: '/form-crud', icon: documentTextOutline },
-  { title: 'ReportExcel', url: '/report-excel', icon: documentTextOutline },
+  { title: 'ListExitInterview', url: '/list-exit-interview', icon: documentTextOutline },
   { title: '404', url: '/404', icon: settingsOutline },
 ];
 
-const currentRouteTitle = computed(() => {
+interface BreadcrumbItem {
+  title: string;
+  path?: string;
+}
+
+const breadcrumbs = computed<BreadcrumbItem[]>(() => {
+  if (route.path.startsWith('/detail-exit-interview')) {
+    return [
+      { title: 'Dữ Liệu Nghỉ Việc', path: '/list-exit-interview' },
+      { title: 'Chi Tiết Đơn Nghỉ Việc' },
+    ];
+  }
+
   switch (route.path) {
-    case '/dashboard': return 'Dashboard';
-    // case '/form-crud': return 'FormCRUD';
-    case '/report-excel': return 'Dữ Liệu Nghỉ Việc';
-    case '/404': return '404';
-    default: return '';
+    case '/list-exit-interview':
+      return [{ title: 'Dữ Liệu Nghỉ Việc' }];
+    case '/404':
+      return [{ title: '404' }];
+    default:
+      return [];
   }
 });
 </script>
@@ -303,10 +323,13 @@ ion-menu.verona-sidebar {
   background: #ffffff;
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .verona-content {
   --background: transparent;
+  flex: 1;
+  min-height: 0;
 }
 
 .content-wrapper {
@@ -323,15 +346,26 @@ ion-menu.verona-sidebar {
   box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
-/* --- THÊM CLASS MỚI NÀY --- */
 .scrollable-area {
   flex: 1;
-  overflow-y: auto;
-  padding: 2rem 2rem 0;
-
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  padding: 0 2rem;
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+}
+
+.content-card {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+
+  &:has(.list-exit-interview-page:not(.ion-page-hidden)) {
+    overflow: hidden;
+  }
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -349,18 +383,6 @@ ion-menu.verona-sidebar {
   &::-webkit-scrollbar-thumb:hover {
     background-color: #94a3b8;
   }
-}
-
-.content-card {
-  background-color: #ffffff;
-  border-radius: 30px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: auto;
 
   ion-router-outlet {
     position: relative;
@@ -382,41 +404,148 @@ ion-menu.verona-sidebar {
   }
 }
 
-/* --- CUSTOM BREADCRUMB IONIC --- */
+/* --- BREADCRUMB --- */
 .breadcrumb-wrapper {
-  margin-bottom: 1.5rem;
+  flex-shrink: 0;
+  padding: 0.5rem 0;
+}
 
-  ion-breadcrumbs {
-    --color: #64748b;
-    --color-active: #0f172a;
-    --separator-color: #cbd5e1;
-    font-size: 0.875rem;
-    font-weight: 500;
+.app-breadcrumbs {
+  --color: #64748b;
+  --color-active: #0f172a;
+  --separator-color: #94a3b8;
+  --separator-size: 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+:deep(.app-breadcrumbs ion-breadcrumb) {
+  &::part(separator) {
+    margin-inline: 0;
+    opacity: 0.85;
   }
 
-  .breadcrumb-link {
-    cursor: pointer;
-    transition: color 0.2s ease;
+  &::part(native) {
+    padding: 0.2rem 0.35rem;
+    border-radius: 6px;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+}
 
-    &:hover {
+.breadcrumb-item__inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 100%;
+  padding: 0.28rem 0.55rem;
+  border-radius: 6px;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+}
+
+.breadcrumb-item__icon {
+  font-size: 1rem;
+  color: #6366f1;
+  flex-shrink: 0;
+  transition: color 0.2s ease, transform 0.15s ease;
+}
+
+.breadcrumb-item__label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 16rem;
+  transition: color 0.2s ease;
+}
+
+:deep(.breadcrumb-item--home) {
+  cursor: pointer;
+
+  &::part(native) {
+    color: #0f172a;
+  }
+
+  @media (hover: hover) {
+
+    &:hover::part(native),
+    &:focus-visible::part(native) {
+      background: transparent;
       color: #0f172a;
     }
 
-    ion-icon {
-      margin-right: 4px;
-      font-size: 1.1rem;
+    &:hover .breadcrumb-item__inner,
+    &:focus-visible .breadcrumb-item__inner {
+      color: #0f172a;
+      transform: translateY(-1px);
     }
+
+    &:hover .breadcrumb-item__icon,
+    &:focus-visible .breadcrumb-item__icon {
+      color: #4f46e5;
+      transform: scale(1.08);
+    }
+
+    &:hover .breadcrumb-item__label,
+    &:focus-visible .breadcrumb-item__label {
+      color: #0f172a;
+    }
+  }
+}
+
+:deep(.breadcrumb-item--clickable:not(.breadcrumb-item--active)) {
+  cursor: pointer;
+
+  &::part(native) {
+    color: #0f172a;
+  }
+
+  @media (hover: hover) {
+
+    &:hover .breadcrumb-item__inner,
+    &:focus-visible .breadcrumb-item__inner {
+      color: #0f172a;
+      transform: translateY(-1px);
+    }
+
+    &:hover .breadcrumb-item__label,
+    &:focus-visible .breadcrumb-item__label {
+      color: #0f172a;
+      font-weight: 600;
+      background: white;
+    }
+  }
+}
+
+:deep(.breadcrumb-item--active) {
+  cursor: default;
+
+  &::part(native) {
+    color: #0f172a;
+    font-weight: 600;
+    background: transparent;
   }
 }
 
 /* --- FOOTER TRONG CONTENT --- */
 .layout-footer {
+  flex-shrink: 0;
   display: flex;
-  justify-content: end;
+  justify-content: space-between;
   align-items: center;
   padding-top: 1rem;
   color: #64748b;
   font-size: 0.875rem;
+
+  &__logo {
+    height: 36px;
+    width: auto;
+    object-fit: contain;
+    padding-bottom: 15px;
+  }
 
   .copyright {
     width: fit-content;

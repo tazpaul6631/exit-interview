@@ -47,12 +47,21 @@ export default defineConfig({
   },
 
   optimizeDeps: {
-    exclude: ['@capacitor-community/sqlite']
+    exclude: ['@capacitor-community/sqlite'],
+    include: [
+      'vue',
+      'vue-router',
+      '@ionic/vue',
+      '@ionic/vue-router',
+      'primevue/chart',
+      'chart.js',
+    ],
   },
   esbuild: {
     drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
   },
   resolve: {
+    dedupe: ['vue', 'vue-router'],
     alias: {
       '@': path.resolve(__dirname, './src'),
     },

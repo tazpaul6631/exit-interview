@@ -98,6 +98,23 @@ defineEmits(['doLogin']);
   color: var(--ion-color-primary);
 }
 
+.mobile-logo {
+  background: white;
+  width: 90px;
+  height: 90px;
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-logo ion-icon {
+  font-size: 50px;
+  color: var(--ion-color-primary);
+}
+
 .login-header h3 {
   font-size: 2rem;
   font-weight: 800;

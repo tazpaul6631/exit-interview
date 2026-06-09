@@ -6,6 +6,7 @@
       </div>
 
       <div v-else class="section-title-child">
+        <span class="request">*</span>
         <h4>{{ node.sectionName }}</h4>
       </div>
     </template>
@@ -48,13 +49,14 @@ const props = defineProps({
 const values = useFormValues();
 
 const isSelected = (ans: any) => {
-  if (!ans.allowCheck) return false;
+  if (!ans.allowCheck && !ans.allowSelect) return false;
 
   const answersData = (values.value.answersData || {}) as Record<string, any>;
 
   if (props.parentQuestionId) {
-    return answersData[`q_${props.parentQuestionId}`] === ans.answerId;
+    return String(answersData[`q_${props.parentQuestionId}`]) === String(ans.answerId);
   }
+
   return !!answersData[ans.answerId];
 };
 </script>
@@ -92,6 +94,7 @@ const isSelected = (ans: any) => {
 ----------------------------- */
 .section-title-child {
   margin: 10px 0 16px 4px; // Căn lề lùi nhẹ vào khớp với input
+  display: flex;
 
   h4 {
     margin: 0;
@@ -100,6 +103,11 @@ const isSelected = (ans: any) => {
     font-weight: 600;
     font-style: italic; // In nghiêng giống thiết kế cũ của bạn
     line-height: 1.4;
+  }
+
+  .request {
+    color: red;
+    font-size: 17px;
   }
 }
 

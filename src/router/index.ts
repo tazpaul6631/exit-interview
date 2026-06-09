@@ -32,9 +32,14 @@ const routes: Array<RouteRecordRaw> = [
       //   component: () => import('@/views/FormExitInterview/FormCRUD.vue')
       // },
       {
-        path: 'report-excel',
-        name: 'ReprotExcel',
-        component: () => import('@/views/ReportExcel/ReportExcel.vue')
+        path: 'list-exit-interview',
+        name: 'ListExitInterview',
+        component: () => import('@/views/ListExitInterview/ListExitInterview.vue')
+      },
+      {
+        path: 'detail-exit-interview/:id',
+        name: 'DetailExitInterview',
+        component: () => import('@/views/ListExitInterview/DetailExitInterview.vue')
       },
       {
         path: '404',

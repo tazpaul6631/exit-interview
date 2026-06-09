@@ -1,41 +1,178 @@
-/* For information on how to create your own theme, please refer to:
-http://ionicframework.com/docs/theming/ */
-.custom-page-content {
-    /* Ép nền trong suốt để lộ màu nền của .content-card bên Layout */
-    /* --background: transparent; */
+/* ==========================================================================
+   GLOBAL CSS - IONIC & PRIMEVUE
+   Font: Inter (@fontsource/inter — import trong main.ts)
+   ========================================================================== */
 
-    /* Tạo khoảng cách padding giống như thẻ div lúc nãy */
-    --padding-top: 1rem;
-    --padding-bottom: 1rem;
-    --padding-start: 1rem;
-    --padding-end: 1rem;
+:root {
+    --app-font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
-    padding: 20px 10px 20px 20px;
-    height: auto;
+    /* Ionic */
+    --ion-font-family: var(--app-font-family);
+    --ion-font-size-base: 14px;
+
+    /* PrimeVue 4 design tokens */
+    --p-font-family: var(--app-font-family);
+    --primevue-font-size-base: 15px;
 }
 
-/* Tùy chỉnh thanh cuộn cho ion-content (Cần dùng ::part(scroll)) */
-.custom-page-content::part(scroll)::-webkit-scrollbar {
-    width: 6px;
+/* --- 1. BASE — toàn trang --- */
+html {
+    font-size: var(--ion-font-size-base) !important;
 }
 
-.custom-page-content::part(scroll)::-webkit-scrollbar-thumb {
-    background-color: #cbd5e1;
-    border-radius: 10px;
+html,
+body,
+#app,
+ion-app {
+    font-family: var(--app-font-family) !important;
 }
 
-/* Thu nhỏ ô chọn ngày cho khớp với InputText */
-:deep(.p-datepicker) {
-    font-size: 0.8rem;
+body {
+    --ion-font-family: var(--app-font-family);
+    font-family: var(--app-font-family) !important;
 }
 
-:deep(.p-datepicker-input) {
-    padding: 5px 10px !important;
-    font-size: 0.8rem;
+/* Ionic components */
+ion-content,
+ion-toolbar,
+ion-title,
+ion-label,
+ion-button,
+ion-item,
+ion-list,
+ion-menu,
+ion-split-pane,
+ion-header,
+ion-footer,
+ion-tab-button,
+ion-segment-button,
+ion-input,
+ion-textarea,
+ion-select,
+ion-alert,
+ion-modal,
+ion-popover,
+ion-toast,
+ion-breadcrumb {
+    font-family: var(--app-font-family) !important;
 }
 
-/* Ép các ô filter sát nhau hơn nữa */
-:deep(.p-datatable-filter-row td) {
-    padding: 4px !important;
-    /* Thu hẹp tối đa khoảng cách */
+* {
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+/* --- 2. PRIMEVUE --- */
+.p-component,
+.p-inputtext,
+.p-select,
+.p-select-label,
+.p-dropdown,
+.p-dropdown-label,
+.p-multiselect,
+.p-multiselect-label,
+.p-button,
+.p-button-label,
+.p-menuitem-link,
+.p-paginator,
+.p-datatable,
+.p-datatable-table,
+.p-column-title,
+.p-column-header-content,
+.p-tag,
+.p-checkbox-label,
+.p-radiobutton-label,
+.p-datepicker,
+.p-datepicker-input,
+.p-toast,
+.p-toast-message,
+.p-toast-summary,
+.p-toast-detail,
+.p-skeleton,
+.p-iconfield,
+.p-inputicon {
+    font-family: var(--app-font-family) !important;
+    font-size: var(--primevue-font-size-base) !important;
+}
+
+.p-component {
+    font-size: var(--primevue-font-size-base) !important;
+}
+
+.p-button:focus,
+.p-button:focus-visible,
+.p-menuitem-link:focus,
+.p-menuitem-link:focus-visible,
+.p-paginator-page:focus,
+.p-paginator-next:focus,
+.p-paginator-prev:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.p-datepicker-input {
+    padding: 8px 12px !important;
+}
+
+.p-datatable-filter-row td {
+    padding: 6px !important;
+}
+
+/* --- 3. IONIC OVERRIDES --- */
+ion-list {
+    padding: 0 !important;
+}
+
+.custom-error-alert {
+    --backdrop-opacity: 0.6;
+}
+
+.custom-error-alert .alert-sub-title {
+    color: #eb445a !important;
+    font-weight: bold !important;
+    text-transform: uppercase;
+}
+
+.custom-error-alert .alert-message {
+    color: #333 !important;
+    font-size: var(--ion-font-size-base) !important;
+}
+
+.custom-error-alert .highlight-point {
+    color: #2fdf75;
+    font-size: 1.2em;
+    text-decoration: underline;
+}
+
+/* --- 4. UTILITY & LAYOUT --- */
+.header-container {
+    margin-top: 27px;
+}
+
+.no-padding {
+    padding: 5px 0 !important;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    font-family: var(--app-font-family);
+}
+
+.main-container .p-component,
+.main-container .p-inputtext,
+.main-container .p-select,
+.main-container .p-dropdown,
+.main-container .p-button,
+.main-container .p-datatable,
+.main-container .p-paginator,
+.main-container .p-datepicker,
+.main-container .p-datepicker-input,
+.main-container .p-multiselect {
+    font-family: var(--app-font-family) !important;
+    font-size: var(--primevue-font-size-base) !important;
 }

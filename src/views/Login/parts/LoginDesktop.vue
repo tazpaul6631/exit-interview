@@ -131,6 +131,20 @@ const onLoginClick = () => {
   opacity: 0.9;
 }
 
+.side-info {
+  text-align: center;
+  min-width: 0;
+}
+
+.form-logo {
+  display: block;
+  width: fit-content;
+  height: fit-content;
+  max-width: 100%;
+  object-fit: contain;
+  margin: 0 auto 15px;
+}
+
 .form-side {
   flex: 5;
   display: flex;

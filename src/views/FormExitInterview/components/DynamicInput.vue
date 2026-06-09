@@ -1,43 +1,39 @@
 <template>
-  <div class="dynamic-field">
+  <div :class="isSelectable ? 'dynamic-field-radio' : 'dynamic-field'">
     <div v-if="answer.allowRating" class="rating-card">
       <div class="rating-info">
         <p class="vn">{{ answer.answerName }}</p>
       </div>
       <div class="rating-stars">
         <label v-for="n in (maxRating || 5)" :key="n" class="star-item">
-          <input type="radio" :name="'rating_' + answer.answerId" :value="n" :checked="Number(fieldValue) === n"
-            @change="fieldValue = n" />
+          <input type="radio" :value="n" :checked="Number(fieldValue) === n" @change="fieldValue = n" />
           <span class="num"
-            :class="{ 'num-error': submitCount > 0 && errorMessage, 'is-active': Number(fieldValue) === n }">{{ n
-            }}</span>
+            :class="{ 'num-error': submitCount > 0 && errorMessage, 'is-active': Number(fieldValue) === n }">
+            {{ n }}
+          </span>
         </label>
       </div>
     </div>
 
-    <label v-else-if="answer.allowCheck && !isRadio" class="checkbox-card" :class="{
-      'is-checked': !!fieldValue,
-      'is-disabled': isCheckboxDisabled,
-      'is-invalid': submitCount > 0 && errorMessage
-    }">
-      <input type="checkbox" v-model="fieldValue" :value="true" :disabled="isCheckboxDisabled" />
-      <div class="card-body">
-        <span class="title-vn-cn">{{ answer.answerName }}</span>
-      </div>
-    </label>
+    <template v-else-if="isSelectable">
+      <label v-if="isRadio" class="pill-radio"
+        :class="{ 'active': String(fieldValue) === String(answer.answerId), 'invalid-pill': submitCount > 0 && errorMessage }">
+        <input type="radio" :name="'radio_q_' + questionId" :value="answer.answerId"
+          :checked="String(fieldValue) === String(answer.answerId)" @change="fieldValue = answer.answerId" />
+        <span>{{ answer.answerName }}</span>
+      </label>
 
-    <label v-else-if="answer.allowCheck && isRadio" class="pill-radio" :class="{
-      'active': String(fieldValue) === String(answer.answerId),
-      'invalid-pill': submitCount > 0 && errorMessage
-    }">
-      <input type="radio" :name="'radio_q_' + questionId" :value="answer.answerId"
-        :checked="String(fieldValue) === String(answer.answerId)" @change="fieldValue = answer.answerId" />
-      <span>{{ answer.answerName }}</span>
-    </label>
+      <label v-else class="checkbox-card"
+        :class="{ 'is-checked': !!fieldValue, 'is-disabled': isCheckboxDisabled, 'is-invalid': submitCount > 0 && errorMessage }">
+        <input type="checkbox" v-model="fieldValue" :value="true" :disabled="isCheckboxDisabled" />
+        <div class="card-body"><span class="title-vn-cn">{{ answer.answerName }}</span></div>
+      </label>
+    </template>
 
     <div v-else-if="answer.allowText" class="text-input-box">
-      <p class="text-label" v-if="answer.answerName && answer.answerName !== 'Trả lời/答:'">
-        {{ answer.answerName }}
+      <p class="text-label" v-if="answer.answerName && answer.answerName !== 'Trả lời/答:'"><span
+          class="request">*</span>{{
+            answer.answerName }}
       </p>
       <textarea v-model="fieldValue" :class="{ 'is-invalid': submitCount > 0 && errorMessage }"
         :placeholder="answer.answerName || 'Vui lòng nhập lý do...'"></textarea>
@@ -58,64 +54,54 @@ const props = defineProps({
 });
 
 const isRadio = computed(() => !!props.questionId);
+const isSelectable = computed(() => props.answer.allowCheck || props.answer.allowSelect);
 
 const fieldName = computed(() => {
-  if (isRadio.value && props.answer.allowCheck) {
-    return `answersData.q_${props.questionId}`;
-  }
+  if (isRadio.value && isSelectable.value) return `answersData.q_${props.questionId}`;
   return `answersData.${props.answer.answerId}`;
 });
 
 const submitCount = useSubmitCount();
+const formValues = useFormValues();
 
-// ==========================================
-// CẤU HÌNH BÍ MẬT CỦA VEE-VALIDATE CHO RADIO
-// ==========================================
-// Nếu đây là 1 nút Radio, ta khai báo rõ type và giá trị của nó
-// để Vee-Validate tự động gom nhóm và chia sẻ lỗi cho tất cả các nút cùng tên
+// Cấu hình vee-validate cho Radio
 const fieldOptions: any = {};
-if (isRadio.value && props.answer.allowCheck) {
+if (isRadio.value && isSelectable.value) {
   fieldOptions.type = 'radio';
   fieldOptions.valueProp = props.answer.answerId;
 }
 
-// Lấy lại errorMessage từ useField và nhúng thêm cấu hình
 const { value: fieldValue, errorMessage } = useField<any>(fieldName, undefined, fieldOptions);
 
-// ==========================================
-// LOGIC KHÓA CHECKBOX
-// ==========================================
-const formValues = useFormValues();
 const currentSelectedCount = computed(() => {
-  const data = formValues.value.answersData || {};
-  return Object.values(data).filter(val => val === true).length;
+  const data = (formValues.value.answersData || {}) as Record<string, any>;
+  // Chỉ đếm các checkbox (không thuộc radio group nào)
+  return Object.keys(data).filter(key => !key.startsWith('q_') && data[key] === true).length;
 });
 
 const isCheckboxDisabled = computed(() => {
-  if (props.answer.allowCheck && !isRadio.value) {
+  if (isSelectable.value && !isRadio.value) {
     if (fieldValue.value === true) return false;
     return currentSelectedCount.value >= props.maxSelect;
   }
   return false;
 });
 
-// ==========================================
-// FORCE SYNC (CHỐNG MẤT DỮ LIỆU)
-// ==========================================
 onMounted(() => {
-  if (fieldValue.value === undefined || fieldValue.value === null || fieldValue.value === 0) {
-    if (props.answer.allowRating && props.answer.ratingValue) {
-      fieldValue.value = Number(props.answer.ratingValue);
-    } else if (props.answer.allowCheck && isRadio.value && props.answer.checkValue) {
-      fieldValue.value = props.answer.answerId;
-    } else if (props.answer.allowCheck && !isRadio.value) {
-      fieldValue.value = props.answer.checkValue || false;
-    }
+  if (fieldValue.value === undefined || fieldValue.value === null) {
+    if (props.answer.allowRating) fieldValue.value = props.answer.ratingValue || 5;
+    else if (isSelectable.value && isRadio.value && props.answer.checkValue) fieldValue.value = props.answer.answerId;
+    else if (isSelectable.value && !isRadio.value) fieldValue.value = props.answer.checkValue || false;
+    else if (props.answer.allowText) fieldValue.value = props.answer.textValue || '';
   }
 });
 </script>
 
 <style lang="scss" scoped>
+.dynamic-field-radio {
+  box-sizing: border-box;
+}
+
 .dynamic-field {
   width: 100%;
   box-sizing: border-box;
@@ -140,6 +126,11 @@ onMounted(() => {
   font-weight: 600;
   font-size: 15px;
   margin: 10px 0 8px 4px;
+
+  .request {
+    color: red;
+    font-size: 17px;
+  }
 }
 
 textarea {
