@@ -6,7 +6,7 @@
       <div class="form-container shadow-lg">
         <div class="form-inner">
           <div class="side-info">
-            <img src="/assets/icon/icon.png" alt="Logo" class="form-logo" />
+            <img :src="APP_LOGO_URL" :alt="APP_LOGO_ALT" class="form-logo" />
             <div class="login-header ion-padding">
               <h3>Xin chào!</h3>
               <p>Hệ thống phỏng vấn thôi việc</p>
@@ -45,6 +45,8 @@
 <script setup lang="ts">
 import { IonIcon, IonItem, IonInput, IonButton } from '@ionic/vue';
 import { personOutline, lockClosedOutline, arrowForwardOutline } from 'ionicons/icons';
+import { APP_LOGO_ALT, APP_LOGO_URL } from '@/constants/branding';
+
 defineEmits(['doLogin']);
 </script>
 
@@ -172,6 +174,14 @@ defineEmits(['doLogin']);
 
 .side-info {
   text-align: center;
+}
+
+.form-logo {
+  display: block;
+  width: min(200px, 70%);
+  height: 72px;
+  margin: 0 auto 12px;
+  object-fit: contain;
 }
 
 @media (orientation: landscape) and (min-width: 900px) {

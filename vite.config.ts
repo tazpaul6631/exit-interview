@@ -14,24 +14,21 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2,wasm}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,jpg,jpeg,webp,svg,json,vue,txt,woff2,wasm}'],
         cleanupOutdatedCaches: true,
         maximumFileSizeToCacheInBytes: 5000000,
       },
       manifest: {
-        name: 'My Security App',
-        short_name: 'SecurityApp',
-        description: 'Ứng dụng bảo mật tối ưu',
-        theme_color: '#ffffff',
+        name: 'HR Exit Interview',
+        short_name: 'HR Exit',
+        description: 'Hệ thống phỏng vấn thôi việc — HR Management',
+        theme_color: '#3182ce',
         background_color: '#ffffff',
         display: 'standalone',
         icons: [
-          {
-            src: '/assets/icon/icon.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
-          }
+          { src: '/assets/icons/icon-192.webp', sizes: '192x192', type: 'image/webp', purpose: 'any' },
+          { src: '/assets/icons/icon-512.webp', sizes: '512x512', type: 'image/webp', purpose: 'any' },
+          { src: '/assets/icons/icon-512.webp', sizes: '512x512', type: 'image/webp', purpose: 'maskable' },
         ]
       }
     })
@@ -55,6 +52,7 @@ export default defineConfig({
       '@ionic/vue-router',
       'primevue/chart',
       'chart.js',
+      '@lottiefiles/dotlottie-vue',
     ],
   },
   esbuild: {

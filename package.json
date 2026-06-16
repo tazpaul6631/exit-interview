@@ -9,7 +9,8 @@
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "test:e2e": "cypress run",
-    "test:unit": "vitest"
+    "test:unit": "vitest",
+    "assets:generate": "capacitor-assets generate --iconBackgroundColor \"#ffffff\" --splashBackgroundColor \"#ffffff\""
   },
   "dependencies": {
     "@capacitor-community/sqlite": "^8.1.0",
@@ -32,6 +33,7 @@
     "@fontsource/inter": "^5.2.8",
     "@ionic/vue": "^8.0.0",
     "@ionic/vue-router": "^8.0.0",
+    "@lottiefiles/dotlottie-vue": "^0.11.15",
     "@primeuix/themes": "^2.0.3",
     "@vee-validate/zod": "^4.15.1",
     "@vueuse/core": "^14.2.1",
@@ -57,6 +59,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "8.3.0",
     "@types/crypto-js": "^4.2.2",
     "@vitejs/plugin-legacy": "^5.0.0",

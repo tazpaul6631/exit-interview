@@ -1,5 +1,6 @@
 <template>
   <ion-app>
+    <Toast position="top-right" />
     <ion-router-outlet />
   </ion-app>
 </template>

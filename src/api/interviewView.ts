@@ -5,6 +5,6 @@ export default {
         return request.get(`/interviewview/getone/${id}`)
     },
     postInterviewView(data: any) {
-        return request.post(`/interviewview/getqueryresult`, data)
+        return request.post(`/interviewview/queryresult`, data)
     }
 };

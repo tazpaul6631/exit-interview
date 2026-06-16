@@ -89,11 +89,9 @@
             <template #body="{ data }">
               <div class="row-actions">
                 <Button icon="pi pi-file-word" size="small" severity="info" rounded outlined aria-label="Xuất Word"
-                  :loading="isRowExporting(data.id, 'word')" :disabled="!!exportingRowKey"
-                  @click="exportWord(data)" />
+                  :loading="isRowExporting(data.id, 'word')" :disabled="!!exportingRowKey" @click="exportWord(data)" />
                 <Button icon="pi pi-file-pdf" size="small" severity="danger" rounded outlined aria-label="Xuất PDF"
-                  :loading="isRowExporting(data.id, 'pdf')" :disabled="!!exportingRowKey"
-                  @click="exportPdf(data)" />
+                  :loading="isRowExporting(data.id, 'pdf')" :disabled="!!exportingRowKey" @click="exportPdf(data)" />
                 <Button icon="pi pi-eye" size="small" severity="secondary" rounded outlined aria-label="Xem chi tiết"
                   @click="handleSeen(data)" />
               </div>

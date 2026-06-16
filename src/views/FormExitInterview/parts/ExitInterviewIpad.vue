@@ -2,7 +2,7 @@
   <div class="form-wrapper">
     <div class="paper-form">
       <header class="form-header">
-        <div class="logo-placeholder"></div>
+        <img :src="APP_LOGO_URL" :alt="APP_LOGO_ALT" class="form-logo" />
         <h1>BIÊN BẢN PHỎNG VẤN NGHỈ VIỆC</h1>
         <p class="subtitle-cn">員工離職面談記錄表</p>
       </header>
@@ -135,6 +135,7 @@ import present from '@/mixins/present';
 import interviewApi from '@/api/interview';
 import organization from '@/api/organization';
 import RecursiveNode from '@/views/FormExitInterview/components/RecursiveNode.vue';
+import { APP_LOGO_ALT, APP_LOGO_URL } from '@/constants/branding';
 
 const loading = ref(true);
 const isConfirmed = ref(false);
@@ -499,6 +500,14 @@ const submitForm = handleSubmit(
 .form-header {
   text-align: center;
   margin-bottom: 40px;
+}
+
+.form-header .form-logo {
+  display: block;
+  width: min(260px, 80%);
+  height: 88px;
+  margin: 0 auto 16px;
+  object-fit: contain;
 }
 
 .form-header h1 {

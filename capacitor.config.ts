@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.thuan.exit.interview',
-  appName: 'exit-interview',
+  appName: 'HR Exit Interview',
   webDir: 'dist',
   plugins: {
     CapacitorHttp: {

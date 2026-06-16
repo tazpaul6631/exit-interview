@@ -4,11 +4,13 @@
       <ion-row>
         <ion-col size="12" size-sm="6" size-lg="3" v-for="card in summaryCards" :key="card.stt">
           <div class="stat-card" :style="{ '--accent': card.color }">
+            <div class="stat-card__icon">
+              <ion-icon :icon="getCardIcon(card.stt)" />
+            </div>
             <div class="card-content">
               <p class="label">{{ card.name }}</p>
               <h3>{{ card.totalItem }}</h3>
             </div>
-            <div class="mini-chart"></div>
           </div>
         </ion-col>
       </ion-row>
@@ -41,8 +43,20 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { IonGrid, IonRow, IonCol, IonPage } from '@ionic/vue';
+import { IonGrid, IonRow, IonCol, IonPage, IonIcon } from '@ionic/vue';
+import {
+  peopleOutline,
+  documentTextOutline,
+  homeOutline,
+  statsChartOutline,
+} from 'ionicons/icons';
 import report from '@/api/report';
+
+const CARD_ICONS = [
+  documentTextOutline,
+  homeOutline,
+  peopleOutline
+];
 
 interface SummaryCard {
   stt: number;
@@ -82,6 +96,10 @@ type BarChartData = {
 };
 
 const summaryCards = ref<SummaryCard[]>([]);
+
+function getCardIcon(stt: number) {
+  return CARD_ICONS[(stt - 1) % CARD_ICONS.length] ?? statsChartOutline;
+}
 const leaveReasonChartData = ref<BarChartData | null>(null);
 const ratingChartData = ref<BarChartData | null>(null);
 
@@ -226,6 +244,9 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .stat-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
   background: white;
   padding: 20px;
   border-radius: 16px;
@@ -240,8 +261,28 @@ onMounted(() => {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
   }
 
+  &__icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, white);
+
+    ion-icon {
+      font-size: 1.5rem;
+    }
+  }
+
+  .card-content {
+    min-width: 0;
+  }
+
   .label {
-    font-size: 11px;
+    font-size: 20px;
     font-weight: 700;
     color: #a0aec0;
     margin: 0;

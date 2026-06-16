@@ -5,6 +5,7 @@ import i18n from '@/i18n';
 import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 import PrimeVue from 'primevue/config';
+import ToastService from 'primevue/toastservice';
 import Aura from '@primeuix/themes/aura';
 import { IonicVue } from '@ionic/vue';
 
@@ -43,6 +44,7 @@ const app = createApp(App)
       tooltip: 1100
     }
   })
+  .use(ToastService)
   // --- KÍCH HOẠT ĐĂNG KÝ COMPONENT TẠI ĐÂY ---
   .use(PrimeComponents);
 

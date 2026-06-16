@@ -77,7 +77,7 @@ const request = {
     api.post(url, data, { responseType: 'blob', timeout: 120000 }),
   put: (url: string, data?: any) => api.put(url, data),
   patch: (url: string, data?: any) => api.patch(url, data),
-  delete: (url: string) => api.delete(url),
+  delete: (url: string, data?: any) => api.delete(url, data ? { data } : undefined),
 };
 
 export default request;

@@ -1,24 +1,19 @@
 <template>
   <ion-page>
     <ion-split-pane content-id="main-content" when="md" class="layout-container">
-      <ion-menu content-id="main-content" type="overlay" class="verona-sidebar">
+      <ion-menu content-id="main-content" menu-id="main-menu" type="overlay" class="verona-sidebar">
         <ion-content class="sidebar-content">
           <div class="sidebar-container">
             <div class="sidebar-top">
               <div class="logo-box">
-                <img src="/assets/icon/icon1.png" alt="logo-company">
+                <img src="/assets/icons/icon-48.webp" alt="logo-company" type="button"
+                  @click="router.push('/dashboard')" class="logo-box__img">
               </div>
 
               <div class="sidebar-menu">
-                <ion-list lines="none" class="menu-list">
-                  <ion-menu-toggle :auto-hide="false" v-for="item in menuItems" :key="item.title">
-                    <router-link :to="item.url" custom v-slot="{ navigate, isActive }">
-                      <button @click="navigate" :class="['nav-item', { 'active': isActive }]" :title="item.title">
-                        <ion-icon :icon="item.icon" />
-                      </button>
-                    </router-link>
-                  </ion-menu-toggle>
-                </ion-list>
+                <Button v-for="item in menuItems" :key="item.url" :icon="item.icon" :title="item.title" rounded text
+                  :severity="isMenuActive(item.url) ? 'primary' : 'secondary'"
+                  :class="['nav-item', { active: isMenuActive(item.url) }]" @click="handleMenuNav(item.url)" />
               </div>
             </div>
           </div>
@@ -32,24 +27,38 @@
               <ion-menu-button class="ion-hide-md-up"></ion-menu-button>
             </ion-buttons>
 
-            <ion-buttons slot="end">
-              <ion-chip id="profile-trigger" class="profile-chip">
-                <ion-avatar>
-                  <img alt="User Avatar" src="https://i.pravatar.cc/100?img=3" />
-                </ion-avatar>
-                <div class="profile-info ion-hide-sm-down">
-                  <span class="name">Thuận Cheat</span>
-                  <span class="role">Developer</span>
-                </div>
-                <ion-icon :icon="chevronDownOutline" class="dropdown-icon ion-hide-sm-down"></ion-icon>
-              </ion-chip>
+            <ion-buttons slot="end" class="header-actions">
+              <button id="profile-trigger" type="button" class="profile-trigger" aria-haspopup="true"
+                aria-label="Menu tài khoản">
+                <UserAvatar :label="userInitials" size="sm" />
+                <span class="profile-meta ion-hide-sm-down">
+                  <span class="profile-name">{{ displayName }}</span>
+                  <span class="profile-role">{{ userSubtitle }}</span>
+                </span>
+                <ion-icon :icon="chevronDownOutline" class="profile-chevron ion-hide-sm-down" aria-hidden="true" />
+              </button>
 
-              <ion-popover trigger="profile-trigger" dismiss-on-select="true">
-                <ion-content>
-                  <ion-list lines="none" class="ion-no-padding">
-                    <ion-item button @click="handleLogout" :detail="false">
-                      <ion-icon :icon="logOutOutline" slot="start" color="danger"></ion-icon>
-                      <ion-label color="danger">Đăng xuất</ion-label>
+              <ion-popover ref="profilePopoverRef" trigger="profile-trigger" :dismiss-on-select="false"
+                class="profile-popover">
+                <ion-content class="profile-popover__content">
+                  <div class="profile-popover__header">
+                    <UserAvatar :label="userInitials" size="md" />
+                    <div class="profile-popover__info">
+                      <p class="profile-popover__name">{{ displayName }}</p>
+                      <p class="profile-popover__role">{{ userSubtitle }}</p>
+                    </div>
+                  </div>
+                  <ion-list lines="none" class="profile-popover__menu">
+                    <LocaleSelect variant="popover" input-id="profile-language" show-label stop-propagation
+                      @change="dismissProfilePopover" />
+                    <ion-item button @click="handleChangePassword" :detail="false"
+                      class="profile-popover__change-password">
+                      <ion-icon :icon="keyOutline" slot="start" aria-hidden="true" />
+                      <ion-label>Đổi mật khẩu</ion-label>
+                    </ion-item>
+                    <ion-item button @click="handleLogout" :detail="false" class="profile-popover__logout">
+                      <ion-icon :icon="logOutOutline" slot="start" aria-hidden="true" />
+                      <ion-label>Đăng xuất</ion-label>
                     </ion-item>
                   </ion-list>
                 </ion-content>
@@ -80,7 +89,7 @@
               </nav>
 
               <div class="content-card">
-                <ion-router-outlet></ion-router-outlet>
+                <ion-router-outlet :animated="false" :key="outletKey" />
               </div>
 
               <footer class="layout-footer">
@@ -92,33 +101,96 @@
         </ion-content>
       </ion-page>
     </ion-split-pane>
+
+    <ChangePasswordDialog v-model:visible="changePasswordVisible" :user-initials="userInitials"
+      :display-name="displayName" :user-subtitle="userSubtitle" />
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import {
   IonSplitPane, IonMenu, IonList, IonPage,
   IonHeader, IonToolbar, IonButtons, IonMenuButton, IonRouterOutlet,
-  IonContent, IonMenuToggle, IonChip, IonAvatar,
-  IonIcon, IonBreadcrumbs, IonBreadcrumb, IonPopover, IonLabel, IonItem
+  IonContent,
+  IonIcon, IonBreadcrumbs, IonBreadcrumb, IonPopover, IonLabel, IonItem,
+  menuController,
 } from '@ionic/vue';
+import { Capacitor } from '@capacitor/core';
 import { useRouter, useRoute } from 'vue-router';
 import {
-  chevronDownOutline, homeOutline, settingsOutline,
+  chevronDownOutline, homeOutline,
   logOutOutline,
-  documentTextOutline
+  keyOutline
 } from 'ionicons/icons';
 
 import { useAuthStore } from '@/store/auth';
+import { useUserRole } from '@/composables/useUserRole';
+import LocaleSelect from '@/components/LocaleSelect.vue';
+import ChangePasswordDialog from '@/components/ChangePasswordDialog.vue';
+import UserAvatar from '@/components/UserAvatar.vue';
+import type { AuthMenuPermission } from '@/types/user';
 
 const router = useRouter();
 const route = useRoute();
 
+const profilePopoverRef = ref<{ $el: HTMLIonPopoverElement } | null>(null);
+
+const dismissProfilePopover = () => {
+  void profilePopoverRef.value?.$el.dismiss();
+};
+
+/** Web: remount outlet theo path → 404 hiện ngay, không cần F5. */
+const outletKey = computed(() =>
+  Capacitor.isNativePlatform() ? 'native' : route.fullPath,
+);
+
 // 2. Khởi tạo store
 const authStore = useAuthStore();
+useUserRole();
+
+const displayName = computed(() => {
+  const name = authStore.getUserName;
+  if (name !== 'Guest') return name;
+  return authStore.getUserCode || 'Quản lý HR';
+});
+
+const userSubtitle = computed(() => {
+  const code = authStore.getUserCode;
+  const role = authStore.getUserRoleLabel;
+  return code ? `${role} · ${code}` : role;
+});
+
+const userInitials = computed(() => {
+  const name = displayName.value.trim();
+  if (name) {
+    const words = name.split(/\s+/).filter(Boolean);
+    if (words.length >= 2) {
+      const first = words[0][0]?.toUpperCase() ?? '';
+      const last = words[words.length - 1][0]?.toUpperCase() ?? '';
+      if (first && last) return `${first}${last}`;
+    }
+    if (words.length === 1) {
+      const word = words[0];
+      if (word.length >= 2) {
+        return `${word[0]}${word[word.length - 1]}`.toUpperCase();
+      }
+      return word[0]?.toUpperCase() ?? '';
+    }
+  }
+
+  const code = authStore.getUserCode.trim();
+  if (code.length >= 2) {
+    return `${code[0]}${code[code.length - 1]}`.toUpperCase();
+  }
+  return code[0]?.toUpperCase() || 'HR';
+});
+
+const changePasswordVisible = ref(false);
 
 const handleLogout = async () => {
+  dismissProfilePopover();
+
   if (document.activeElement instanceof HTMLElement) {
     document.activeElement.blur();
   }
@@ -126,12 +198,75 @@ const handleLogout = async () => {
   await authStore.logout();
 };
 
-const menuItems = [
-  { title: 'Dashboard', url: '/dashboard', icon: homeOutline },
-  // { title: 'FormCRUD', url: '/form-crud', icon: documentTextOutline },
-  { title: 'ListExitInterview', url: '/list-exit-interview', icon: documentTextOutline },
-  { title: '404', url: '/404', icon: settingsOutline },
+const handleChangePassword = () => {
+  dismissProfilePopover();
+
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
+
+  changePasswordVisible.value = true;
+};
+
+type SidebarItem = {
+  title: string;
+  url: string;
+  icon: string;
+  permissionHints: string[];
+};
+
+const sidebarItems: SidebarItem[] = [
+  { title: 'Dashboard', url: '/dashboard', icon: 'pi pi-home', permissionHints: ['dashboard'] },
+  { title: 'ListUser', url: '/list-user', icon: 'pi pi-user', permissionHints: ['user'] },
+  { title: 'ListRole', url: '/list-role', icon: 'pi pi-key', permissionHints: ['role'] },
+  {
+    title: 'ListOrganization',
+    url: '/list-organization',
+    icon: 'pi pi-warehouse',
+    permissionHints: ['organization'],
+  },
+  {
+    title: 'ListExitInterview',
+    url: '/list-exit-interview',
+    icon: 'pi pi-file',
+    permissionHints: ['exitinterview'],
+  },
 ];
+
+const normalizeToken = (value: string) =>
+  value.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+const hasMenuAccess = (item: SidebarItem, menus: AuthMenuPermission[]) => {
+  if (menus.length === 0) return true;
+
+  return menus.some((menu) => {
+    const menuCode = normalizeToken(menu.code ?? '');
+    const menuName = normalizeToken(menu.name ?? '');
+    const matched = item.permissionHints.some((hint) => {
+      const token = normalizeToken(hint);
+      return token && (menuCode.includes(token) || menuName.includes(token));
+    });
+    return matched && menu.isAllow;
+  });
+};
+
+const menuItems = computed(() => {
+  const menus = authStore.user?.permissions ?? [];
+  return sidebarItems.filter((item) => hasMenuAccess(item, menus));
+});
+
+const isMenuActive = (url: string) =>
+  route.path === url || route.path.startsWith(`${url}/`);
+
+const handleMenuNav = async (url: string) => {
+  if (route.path !== url) {
+    await router.push(url);
+  }
+
+  if (await menuController.isOpen('main-menu')) {
+    await menuController.close('main-menu');
+  }
+};
 
 interface BreadcrumbItem {
   title: string;
@@ -141,14 +276,27 @@ interface BreadcrumbItem {
 const breadcrumbs = computed<BreadcrumbItem[]>(() => {
   if (route.path.startsWith('/detail-exit-interview')) {
     return [
-      { title: 'Dữ Liệu Nghỉ Việc', path: '/list-exit-interview' },
+      { title: 'Danh Sách Nghỉ Việc', path: '/list-exit-interview' },
       { title: 'Chi Tiết Đơn Nghỉ Việc' },
+    ];
+  }
+
+  if (route.path.startsWith('/detail-role')) {
+    return [
+      { title: 'Danh Sách Vai Trò', path: '/list-role' },
+      { title: 'Chi Tiết Vai Trò' },
     ];
   }
 
   switch (route.path) {
     case '/list-exit-interview':
-      return [{ title: 'Dữ Liệu Nghỉ Việc' }];
+      return [{ title: 'Danh Sách Nghỉ Việc' }];
+    case '/list-role':
+      return [{ title: 'Danh Sách Quyền' }];
+    case '/list-organization':
+      return [{ title: 'Danh Sách Phòng Ban' }];
+    case '/list-user':
+      return [{ title: 'Danh Sách Người Dùng' }];
     case '/404':
       return [{ title: '404' }];
     default:
@@ -201,12 +349,25 @@ ion-menu.verona-sidebar {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 42px;
-  height: 42px;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
 }
 
-.menu-list {
-  background: transparent;
+.logo-box__img:hover {
+  cursor: pointer;
+}
+
+.sidebar-menu {
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -215,32 +376,26 @@ ion-menu.verona-sidebar {
 }
 
 .nav-item {
-  background: transparent;
-  border: none;
-  width: 48px;
-  height: 48px;
+  width: 48px !important;
+  height: 48px !important;
   margin: 0.25rem auto;
-  border-radius: 8px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  padding: 0 !important;
+  border: none;
   color: #64748b;
-  cursor: pointer;
   transition: all 0.2s ease;
-  border-radius: 50%;
 
-  ion-icon {
+  :deep(.p-button-icon) {
     font-size: 1.25rem;
   }
 
   &:hover {
-    background-color: #f1f5f9;
-    color: #0f172a;
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
   }
 
   &.active {
-    background-color: #e0e7ff;
-    color: #4f46e5;
+    background-color: #e0e7ff !important;
+    color: #4f46e5 !important;
   }
 }
 
@@ -271,51 +426,64 @@ ion-menu.verona-sidebar {
   gap: 1rem;
 }
 
-/* --- PROFILE CHIP & DROPDOWN --- */
-.profile-chip {
-  --background: transparent;
-  border-radius: 30px;
-  padding: 0.25rem 0.5rem 0.25rem 0.25rem;
-  height: auto;
-  gap: 0.75rem;
+.header-actions {
+  margin-inline-end: 0;
+}
+
+.profile-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.35rem 0.65rem 0.35rem 0.35rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   cursor: pointer;
-  transition: background 0.2s;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 
   &:hover {
-    --background: #f1f5f9;
+    border-color: #c7d2fe;
+    background: #f8fafc;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
   }
 
-  ion-avatar {
-    width: 36px;
-    height: 36px;
-
-    &:first-child {
-      margin-inline: 0;
-    }
+  &:focus-visible {
+    outline: 2px solid #818cf8;
+    outline-offset: 2px;
   }
+}
 
-  .profile-info {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-    line-height: 1.2;
+.profile-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.25;
+  min-width: 0;
+}
 
-    .name {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: #0f172a;
-    }
+.profile-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+}
 
-    .role {
-      font-size: 0.75rem;
-      color: #64748b;
-    }
-  }
+.profile-role {
+  font-size: 0.75rem;
+  color: #64748b;
+  white-space: nowrap;
+}
 
-  .dropdown-icon {
-    font-size: 1rem;
-    color: #64748b;
-  }
+.profile-chevron {
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  color: #94a3b8;
+  transition: transform 0.2s ease;
+}
+
+.profile-trigger:hover .profile-chevron {
+  color: #6366f1;
 }
 
 /* NỘI DUNG CHÍNH */
@@ -387,8 +555,14 @@ ion-menu.verona-sidebar {
   ion-router-outlet {
     position: relative;
     flex: 1;
+    min-height: 0;
     display: block;
     contain: none;
+  }
+
+  :deep(.ion-page.ion-page-hidden) {
+    display: none !important;
+    pointer-events: none;
   }
 
   :deep(.ion-page:not(.ion-page-hidden)) {
@@ -396,10 +570,10 @@ ion-menu.verona-sidebar {
     flex: 1;
     display: flex !important;
     flex-direction: column;
-    height: auto !important;
+    width: 100%;
     min-height: 100%;
     contain: none !important;
-    overflow: visible !important;
+    overflow: auto !important;
     background: transparent !important;
   }
 }
@@ -460,6 +634,7 @@ ion-menu.verona-sidebar {
   text-overflow: ellipsis;
   max-width: 16rem;
   transition: color 0.2s ease;
+  font-size: 1.3rem;
 }
 
 :deep(.breadcrumb-item--home) {
@@ -515,7 +690,6 @@ ion-menu.verona-sidebar {
     &:focus-visible .breadcrumb-item__label {
       color: #0f172a;
       font-weight: 600;
-      background: white;
     }
   }
 }
@@ -541,8 +715,9 @@ ion-menu.verona-sidebar {
   font-size: 0.875rem;
 
   &__logo {
-    height: 36px;
+    height: 40px;
     width: auto;
+    max-width: 140px;
     object-fit: contain;
     padding-bottom: 15px;
   }
@@ -550,6 +725,93 @@ ion-menu.verona-sidebar {
   .copyright {
     width: fit-content;
     padding-bottom: 15px;
+  }
+}
+</style>
+
+<style lang="scss">
+.profile-popover {
+  --width: 268px;
+  --box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  --backdrop-opacity: 0.18;
+}
+
+.profile-popover__content {
+  --background: #fff;
+  --padding-top: 0;
+  --padding-bottom: 0;
+}
+
+.profile-popover__header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1rem 0.85rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.profile-popover__info {
+  min-width: 0;
+}
+
+.profile-popover__name {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.3;
+}
+
+.profile-popover__role {
+  margin: 0.15rem 0 0;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.profile-popover__menu {
+  padding: 0.35rem;
+  background: transparent;
+}
+
+.profile-popover__change-password {
+  --background: transparent;
+  --background-hover: #eef2ff;
+  --background-focused: #eef2ff;
+  --border-radius: 10px;
+  --padding-start: 12px;
+  --min-height: 44px;
+  font-size: 1rem;
+  font-weight: 500;
+
+  ion-icon {
+    font-size: 1.2rem !important;
+    margin-inline-end: 10px;
+  }
+
+  ion-label {
+    font-size: 1rem !important;
+  }
+}
+
+.profile-popover__logout {
+  --background: transparent;
+  --background-hover: #fef2f2;
+  --background-focused: #fef2f2;
+  --border-radius: 10px;
+  --padding-start: 12px;
+  --min-height: 44px;
+  font-size: 1rem;
+  font-weight: 500;
+
+  ion-icon {
+    color: #ef4444;
+    font-size: 1.2rem !important;
+    margin-inline-end: 10px;
+  }
+
+  ion-label {
+    font-size: 1rem !important;
+    color: #dc2626 !important;
   }
 }
 </style>
