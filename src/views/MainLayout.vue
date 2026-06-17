@@ -7,13 +7,13 @@
             <div class="sidebar-top">
               <div class="logo-box">
                 <img src="/assets/icons/icon-48.webp" alt="logo-company" type="button"
-                  @click="router.push('/dashboard')" class="logo-box__img">
+                  @click="navigateToPath('/dashboard')" class="logo-box__img">
               </div>
 
               <div class="sidebar-menu">
-                <Button v-for="item in menuItems" :key="item.url" :icon="item.icon" :title="item.title" rounded text
-                  :severity="isMenuActive(item.url) ? 'primary' : 'secondary'"
-                  :class="['nav-item', { active: isMenuActive(item.url) }]" @click="handleMenuNav(item.url)" />
+                <Button v-for="item in menuItems" :key="item.url" :icon="item.icon" :title="t(item.titleKey)" rounded
+                  text :severity="isMenuActive(item) ? 'primary' : 'secondary'"
+                  :class="['nav-item', { active: isMenuActive(item) }]" @click="handleMenuNav(item.url)" />
               </div>
             </div>
           </div>
@@ -26,10 +26,13 @@
             <ion-buttons slot="start" class="header-left">
               <ion-menu-button class="ion-hide-md-up"></ion-menu-button>
             </ion-buttons>
-
+            <ion-buttons slot="end" class="header-actions">
+              <LocaleSelect variant="popover" input-id="profile-language" show-label stop-propagation
+                @change="dismissProfilePopover" />
+            </ion-buttons>
             <ion-buttons slot="end" class="header-actions">
               <button id="profile-trigger" type="button" class="profile-trigger" aria-haspopup="true"
-                aria-label="Menu tài khoản">
+                :aria-label="t('layout.profile_menu')">
                 <UserAvatar :label="userInitials" size="sm" />
                 <span class="profile-meta ion-hide-sm-down">
                   <span class="profile-name">{{ displayName }}</span>
@@ -49,16 +52,14 @@
                     </div>
                   </div>
                   <ion-list lines="none" class="profile-popover__menu">
-                    <LocaleSelect variant="popover" input-id="profile-language" show-label stop-propagation
-                      @change="dismissProfilePopover" />
                     <ion-item button @click="handleChangePassword" :detail="false"
                       class="profile-popover__change-password">
                       <ion-icon :icon="keyOutline" slot="start" aria-hidden="true" />
-                      <ion-label>Đổi mật khẩu</ion-label>
+                      <ion-label>{{ t('layout.change_password') }}</ion-label>
                     </ion-item>
                     <ion-item button @click="handleLogout" :detail="false" class="profile-popover__logout">
                       <ion-icon :icon="logOutOutline" slot="start" aria-hidden="true" />
-                      <ion-label>Đăng xuất</ion-label>
+                      <ion-label>{{ t('layout.logout') }}</ion-label>
                     </ion-item>
                   </ion-list>
                 </ion-content>
@@ -70,17 +71,17 @@
         <ion-content class="verona-content" :scroll-y="false">
           <div class="content-wrapper">
             <div class="scrollable-area">
-              <nav class="breadcrumb-wrapper" aria-label="Breadcrumb">
+              <nav class="breadcrumb-wrapper" :aria-label="t('layout.breadcrumb_nav')">
                 <ion-breadcrumbs class="app-breadcrumbs">
-                  <ion-breadcrumb class="breadcrumb-item breadcrumb-item--home" @click="router.push('/dashboard')">
+                  <ion-breadcrumb class="breadcrumb-item breadcrumb-item--home" @click="navigateToPath('/dashboard')">
                     <span class="breadcrumb-item__inner">
                       <ion-icon :icon="homeOutline" class="breadcrumb-item__icon" aria-hidden="true" />
-                      <span class="breadcrumb-item__label">Dashboard</span>
+                      <span class="breadcrumb-item__label">{{ t('layout.dashboard') }}</span>
                     </span>
                   </ion-breadcrumb>
                   <ion-breadcrumb v-for="(item, index) in breadcrumbs" :key="item.title" class="breadcrumb-item"
                     :class="{ 'breadcrumb-item--active': index === breadcrumbs.length - 1, 'breadcrumb-item--clickable': !!item.path }"
-                    :active="index === breadcrumbs.length - 1" @click="item.path && router.push(item.path)">
+                    :active="index === breadcrumbs.length - 1" @click="item.path && navigateToPath(item.path)">
                     <span class="breadcrumb-item__inner">
                       <span class="breadcrumb-item__label">{{ item.title }}</span>
                     </span>
@@ -118,6 +119,7 @@ import {
 } from '@ionic/vue';
 import { Capacitor } from '@capacitor/core';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import {
   chevronDownOutline, homeOutline,
   logOutOutline,
@@ -129,10 +131,12 @@ import { useUserRole } from '@/composables/useUserRole';
 import LocaleSelect from '@/components/LocaleSelect.vue';
 import ChangePasswordDialog from '@/components/ChangePasswordDialog.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
-import type { AuthMenuPermission } from '@/types/user';
+import { APP_MENU_ITEMS, matchesRoutePrefix, type AppMenuItem } from '@/constants/appMenuItems';
+import { hasRouteMenuAccess } from '@/utils/menuAccess';
 
 const router = useRouter();
 const route = useRoute();
+const { t } = useI18n();
 
 const profilePopoverRef = ref<{ $el: HTMLIonPopoverElement } | null>(null);
 
@@ -140,9 +144,9 @@ const dismissProfilePopover = () => {
   void profilePopoverRef.value?.$el.dismiss();
 };
 
-/** Web: remount outlet theo path → 404 hiện ngay, không cần F5. */
+/** Web: giữ outlet ổn định; hiển thị page do router guard sync, không remount mỗi lần đổi path. */
 const outletKey = computed(() =>
-  Capacitor.isNativePlatform() ? 'native' : route.fullPath,
+  Capacitor.isNativePlatform() ? 'native' : 'web',
 );
 
 // 2. Khởi tạo store
@@ -152,7 +156,7 @@ useUserRole();
 const displayName = computed(() => {
   const name = authStore.getUserName;
   if (name !== 'Guest') return name;
-  return authStore.getUserCode || 'Quản lý HR';
+  return authStore.getUserCode || t('layout.guest_hr');
 });
 
 const userSubtitle = computed(() => {
@@ -208,63 +212,42 @@ const handleChangePassword = () => {
   changePasswordVisible.value = true;
 };
 
-type SidebarItem = {
-  title: string;
-  url: string;
-  icon: string;
-  permissionHints: string[];
-};
-
-const sidebarItems: SidebarItem[] = [
-  { title: 'Dashboard', url: '/dashboard', icon: 'pi pi-home', permissionHints: ['dashboard'] },
-  { title: 'ListUser', url: '/list-user', icon: 'pi pi-user', permissionHints: ['user'] },
-  { title: 'ListRole', url: '/list-role', icon: 'pi pi-key', permissionHints: ['role'] },
-  {
-    title: 'ListOrganization',
-    url: '/list-organization',
-    icon: 'pi pi-warehouse',
-    permissionHints: ['organization'],
-  },
-  {
-    title: 'ListExitInterview',
-    url: '/list-exit-interview',
-    icon: 'pi pi-file',
-    permissionHints: ['exitinterview'],
-  },
-];
-
-const normalizeToken = (value: string) =>
-  value.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-const hasMenuAccess = (item: SidebarItem, menus: AuthMenuPermission[]) => {
-  if (menus.length === 0) return true;
-
-  return menus.some((menu) => {
-    const menuCode = normalizeToken(menu.code ?? '');
-    const menuName = normalizeToken(menu.name ?? '');
-    const matched = item.permissionHints.some((hint) => {
-      const token = normalizeToken(hint);
-      return token && (menuCode.includes(token) || menuName.includes(token));
-    });
-    return matched && menu.isAllow;
-  });
-};
+const sidebarItems = APP_MENU_ITEMS;
 
 const menuItems = computed(() => {
   const menus = authStore.user?.permissions ?? [];
-  return sidebarItems.filter((item) => hasMenuAccess(item, menus));
+  return sidebarItems.filter((item) => hasRouteMenuAccess(menus, item.permissionHints));
 });
 
-const isMenuActive = (url: string) =>
-  route.path === url || route.path.startsWith(`${url}/`);
+const isMenuActive = (item: AppMenuItem) =>
+  item.routePrefixes.some((prefix) => matchesRoutePrefix(route.path, prefix));
 
 const handleMenuNav = async (url: string) => {
   if (route.path !== url) {
-    await router.push(url);
+    await router.replace(url);
   }
 
   if (await menuController.isOpen('main-menu')) {
     await menuController.close('main-menu');
+  }
+};
+
+const navigateToPath = async (path: string) => {
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
+
+  const backToListFromDetail =
+    (route.path.startsWith('/detail-role') && path === '/list-role') ||
+    (route.path.startsWith('/detail-exit-interview') && path === '/list-exit-interview');
+
+  if (backToListFromDetail && window.history.length > 1) {
+    router.back();
+    return;
+  }
+
+  if (route.path !== path) {
+    await router.replace(path);
   }
 };
 
@@ -276,29 +259,33 @@ interface BreadcrumbItem {
 const breadcrumbs = computed<BreadcrumbItem[]>(() => {
   if (route.path.startsWith('/detail-exit-interview')) {
     return [
-      { title: 'Danh Sách Nghỉ Việc', path: '/list-exit-interview' },
-      { title: 'Chi Tiết Đơn Nghỉ Việc' },
+      { title: t('layout.breadcrumb.exit_interview_list'), path: '/list-exit-interview' },
+      { title: t('layout.breadcrumb.exit_interview_detail') },
     ];
   }
 
   if (route.path.startsWith('/detail-role')) {
     return [
-      { title: 'Danh Sách Vai Trò', path: '/list-role' },
-      { title: 'Chi Tiết Vai Trò' },
+      { title: t('layout.breadcrumb.role_list'), path: '/list-role' },
+      { title: t('layout.breadcrumb.role_detail'), path: '/detail-role' },
     ];
   }
 
   switch (route.path) {
     case '/list-exit-interview':
-      return [{ title: 'Danh Sách Nghỉ Việc' }];
+      return [{ title: t('layout.breadcrumb.exit_interview_list') }];
+    case '/detail-exit-interview':
+      return [{ title: t('layout.breadcrumb.exit_interview_detail') }];
     case '/list-role':
-      return [{ title: 'Danh Sách Quyền' }];
+      return [{ title: t('layout.breadcrumb.role_list') }];
+    case '/detail-role':
+      return [{ title: t('layout.breadcrumb.role_detail') }];
     case '/list-organization':
-      return [{ title: 'Danh Sách Phòng Ban' }];
+      return [{ title: t('layout.breadcrumb.organization_list') }];
     case '/list-user':
-      return [{ title: 'Danh Sách Người Dùng' }];
+      return [{ title: t('layout.breadcrumb.user_list') }];
     case '/404':
-      return [{ title: '404' }];
+      return [{ title: t('layout.breadcrumb.not_found') }];
     default:
       return [];
   }
@@ -560,12 +547,12 @@ ion-menu.verona-sidebar {
     contain: none;
   }
 
-  :deep(.ion-page.ion-page-hidden) {
+  :deep(ion-router-outlet > .ion-page.ion-page-hidden) {
     display: none !important;
     pointer-events: none;
   }
 
-  :deep(.ion-page:not(.ion-page-hidden)) {
+  :deep(ion-router-outlet > .ion-page:not(.ion-page-hidden)) {
     position: relative !important;
     flex: 1;
     display: flex !important;

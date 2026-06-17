@@ -7,19 +7,19 @@
           :totalRecords="totalRecords" dataKey="id" filterDisplay="row" scrollable scrollHeight="flex"
           class="organization-table organization-full-height-table organization-compact-table" showGridlines
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-          currentPageReportTemplate="Hiển thị {first} đến {last} trên {totalRecords} phòng ban" @page="onPageChange"
-          @filter="onTableFilter">
+          :currentPageReportTemplate="t('organization.page_report', { first: first + 1, last: first + rows, totalRecords: totalRecords })"
+          @page="onPageChange" @filter="onTableFilter">
           <template #header>
             <div class="organization-toolbar">
-              <Button type="button" size="small" outlined
+              <Button type="button" size="small" outlined :disabled="!canCreate"
                 class="organization-toolbar__btn organization-toolbar__btn--create" @click="openCreateDialog">
                 <i class="pi pi-plus organization-toolbar__icon" aria-hidden="true" />
-                <span class="organization-toolbar__label">Thêm phòng ban</span>
+                <span class="organization-toolbar__label">{{ t('organization.add') }}</span>
               </Button>
               <Button type="button" outlined size="small"
                 class="organization-toolbar__btn organization-toolbar__btn--clear" @click="clearFilter">
                 <i class="pi pi-filter-slash organization-toolbar__icon" aria-hidden="true" />
-                <span class="organization-toolbar__label">Xóa lọc</span>
+                <span class="organization-toolbar__label">{{ t('organization.clear_filter') }}</span>
               </Button>
             </div>
           </template>
@@ -27,7 +27,7 @@
           <template #empty>
             <div class="organization-empty-state">
               <i class="pi pi-inbox organization-empty-state__icon" />
-              <p class="organization-empty-state__text">Không tìm thấy phòng ban.</p>
+              <p class="organization-empty-state__text">{{ t('organization.empty') }}</p>
             </div>
           </template>
 
@@ -42,7 +42,7 @@
 
               <template v-else-if="col.type === 'active'">
                 <Skeleton v-if="isLoading" width="4rem" height="1rem" />
-                <Tag v-else :value="data.isActive ? 'Hoạt động' : 'Ngưng'"
+                <Tag v-else :value="data.isActive ? t('organization.status.active') : t('organization.status.inactive')"
                   :severity="data.isActive ? 'success' : 'secondary'" />
               </template>
 
@@ -55,8 +55,8 @@
             <template #filter="{ filterModel, filterCallback }" v-if="col.filterable">
               <template v-if="col.type === 'active'">
                 <Select v-model="filterModel.value" :options="activeFilterOptions" optionLabel="label"
-                  optionValue="value" placeholder="Trạng thái" class="organization-filter-select" showClear
-                  @change="onSelectFilterChange(filterCallback)" />
+                  optionValue="value" :placeholder="t('organization.filters.status')" class="organization-filter-select"
+                  showClear @change="onSelectFilterChange(filterCallback)" />
               </template>
               <template v-else>
                 <InputText v-model="filterModel.value" type="text" :placeholder="col.filterPlaceholder" class="w-full"
@@ -65,12 +65,13 @@
             </template>
           </Column>
 
-          <Column class="text-center" header="Thao tác" style="width: auto">
+          <Column class="text-center" style="width: 200px">
             <template #body="{ data }">
               <div class="organization-row-actions">
-                <Button icon="pi pi-pencil" size="small" severity="info" rounded outlined aria-label="Sửa phòng ban"
-                  @click="openEditDialog(data)" />
-                <Button icon="pi pi-trash" size="small" severity="danger" rounded outlined aria-label="Xóa phòng ban"
+                <Button icon="pi pi-pencil" size="small" severity="info" rounded outlined
+                  :aria-label="t('organization.actions.edit')" :disabled="!canUpdate" @click="openEditDialog(data)" />
+                <Button icon="pi pi-trash" size="small" severity="danger" rounded outlined
+                  :aria-label="t('organization.actions.delete')" :disabled="!canDelete"
                   @click="openDeleteDialog(data)" />
               </div>
             </template>
@@ -80,66 +81,73 @@
     </div>
 
     <Dialog v-model:visible="formDialogVisible" modal :draggable="false"
-      :header="formMode === 'create' ? 'Thêm phòng ban' : 'Cập nhật phòng ban'" class="organization-form-dialog"
-      :style="{ width: '28rem' }" @hide="resetFormDialog">
+      :header="formMode === 'create' ? t('organization.form.create_title') : t('organization.form.edit_title')"
+      class="organization-form-dialog" :style="{ width: '28rem' }" @hide="resetFormDialog">
       <form class="organization-form" @submit.prevent="submitForm">
         <div class="organization-form__field">
           <label for="organization-name" class="organization-form__label">
-            Tên phòng ban <span class="organization-form__required">*</span>
+            {{ t('organization.form.name') }} <span class="organization-form__required">*</span>
           </label>
           <InputText id="organization-name" v-model="formState.name" class="organization-form__input"
-            placeholder="Nhập tên phòng ban" :invalid="!!formErrors.name" />
+            :placeholder="t('organization.form.name_placeholder')" :invalid="!!formErrors.name" />
           <small v-if="formErrors.name" class="organization-form__error">{{ formErrors.name }}</small>
         </div>
 
         <div class="organization-form__field">
           <label for="organization-priority" class="organization-form__label">
-            Thứ tự ưu tiên <span class="organization-form__required">*</span>
+            {{ t('organization.form.priority') }} <span class="organization-form__required">*</span>
           </label>
           <InputText id="organization-priority" v-model="formState.priority" type="number" min="0"
-            class="organization-form__input" placeholder="Nhập thứ tự ưu tiên" :invalid="!!formErrors.priority" />
+            class="organization-form__input" :placeholder="t('organization.form.priority_placeholder')"
+            :invalid="!!formErrors.priority" />
           <small v-if="formErrors.priority" class="organization-form__error">{{ formErrors.priority }}</small>
         </div>
 
         <div class="organization-form__field organization-form__field--checkbox">
           <Checkbox v-model="formState.isActive" inputId="organization-active" binary />
-          <label for="organization-active" class="organization-form__checkbox-label">Đang hoạt động</label>
+          <label for="organization-active" class="organization-form__checkbox-label">{{ t('organization.form.is_active')
+          }}</label>
         </div>
       </form>
 
       <template #footer>
-        <Button label="Hủy" text severity="secondary" @click="closeFormDialog" />
-        <Button :label="formMode === 'create' ? 'Tạo mới' : 'Lưu'" :loading="isSaving" @click="submitForm" />
+        <Button :label="t('common.cancel')" text severity="secondary" @click="closeFormDialog" />
+        <Button :label="formMode === 'create' ? t('organization.form.create_btn') : t('common.save')"
+          :loading="isSaving" @click="submitForm" />
       </template>
     </Dialog>
 
-    <Dialog v-model:visible="deleteDialogVisible" modal :draggable="false" header="Xóa phòng ban"
+    <Dialog v-model:visible="deleteDialogVisible" modal :draggable="false" :header="t('organization.delete.title')"
       class="organization-delete-dialog" :style="{ width: '24rem' }">
       <p class="organization-delete-dialog__message">
-        Bạn có chắc muốn xóa phòng ban
+        {{ t('organization.delete.confirm') }}
         <strong>{{ deletingOrganization?.name }}</strong>?
       </p>
 
       <template #footer>
-        <Button label="Hủy" text severity="secondary" @click="deleteDialogVisible = false" />
-        <Button label="Xóa" severity="danger" :loading="isDeleting" @click="confirmDelete" />
+        <Button :label="t('common.cancel')" text severity="secondary" @click="deleteDialogVisible = false" />
+        <Button :label="t('organization.delete.btn')" severity="danger" :loading="isDeleting" @click="confirmDelete" />
       </template>
     </Dialog>
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue';
-import { IonPage, onIonViewWillEnter } from '@ionic/vue';
+import { computed, nextTick, ref } from 'vue';
+import { IonPage } from '@ionic/vue';
+import { useI18n } from 'vue-i18n';
 import { useToast } from 'primevue/usetoast';
 import { FilterMatchMode } from '@primevue/core/api';
 import organizationApi from '@/api/organization';
+import { usePageDataRefresh } from '@/composables/usePageDataRefresh';
 import { useAuthStore } from '@/store/auth';
 import { getLocalDateTimeNow } from '@/utils/localDateTime';
 import type { Organization, OrganizationPagedData, OrganizationQueryPayload } from '@/types/organization';
+import { useMenuPermissions } from '@/composables/useMenuPermissions';
 
 const toast = useToast();
 const authStore = useAuthStore();
+const { t } = useI18n();
 
 const organizationList = ref<Organization[]>([]);
 const isLoading = ref(false);
@@ -156,6 +164,8 @@ const formMode = ref<'create' | 'edit'>('create');
 const editingOrganizationId = ref<number | null>(null);
 const deletingOrganization = ref<Organization | null>(null);
 
+const { canCreate, canUpdate, canDelete } = useMenuPermissions(['organization']);
+
 const formState = ref({
   name: '',
   priority: '0',
@@ -167,40 +177,40 @@ const formErrors = ref({
   priority: '',
 });
 
-const activeFilterOptions = [
-  { label: 'Hoạt động', value: true },
-  { label: 'Ngưng', value: false },
-];
+const activeFilterOptions = computed(() => [
+  { label: t('organization.status.active'), value: true },
+  { label: t('organization.status.inactive'), value: false },
+]);
 
 const serverFilterPassthrough = () => true;
 
-const tableColumns = [
+const tableColumns = computed(() => [
   { field: '#', header: '#', width: '3rem', type: '#', filterable: false },
   {
     field: 'code',
-    header: 'Mã',
+    header: t('organization.columns.code'),
     width: 'auto',
     type: 'text',
     filterable: true,
-    filterPlaceholder: 'Tìm mã',
+    filterPlaceholder: t('organization.filters.search_code'),
   },
   {
     field: 'name',
-    header: 'Tên phòng ban',
+    header: t('organization.columns.name'),
     width: 'auto',
     type: 'text',
     filterable: true,
-    filterPlaceholder: 'Tìm tên',
+    filterPlaceholder: t('organization.filters.search_name'),
   },
   {
     field: 'isActive',
-    header: 'Trạng thái',
+    header: t('organization.columns.status'),
     width: 'auto',
     type: 'active',
     filterable: true,
-    filterPlaceholder: 'Trạng thái',
+    filterPlaceholder: t('organization.filters.status'),
   },
-];
+]);
 
 const TEXT_FILTER_FIELDS = ['code', 'name', 'keyword'] as const;
 
@@ -296,10 +306,10 @@ const loadData = async (event?: { page?: number; rows?: number }) => {
       totalRecords.value = 0;
     }
   } catch (error) {
-    console.error('Lỗi tải danh sách phòng ban:', error);
+    console.error('Load organization list error:', error);
     organizationList.value = [];
     totalRecords.value = 0;
-    showToast('error', 'Lỗi', 'Không thể tải danh sách phòng ban.');
+    showToast('error', t('organization.toast.error'), t('organization.toast.load_failed'));
   } finally {
     isLoading.value = false;
   }
@@ -393,11 +403,11 @@ const validateForm = () => {
   const errors = { name: '', priority: '' };
 
   if (!name) {
-    errors.name = 'Vui lòng nhập tên phòng ban';
+    errors.name = t('organization.errors.name_required');
   }
 
   if (Number.isNaN(priority) || priority < 0) {
-    errors.priority = 'Thứ tự ưu tiên phải là số không âm';
+    errors.priority = t('organization.errors.priority_non_negative');
   }
 
   formErrors.value = errors;
@@ -408,7 +418,7 @@ const submitForm = async () => {
   if (!validateForm()) return;
 
   if (!currentUserId.value) {
-    showToast('error', 'Lỗi', 'Không tìm thấy tài khoản. Vui lòng đăng nhập lại.');
+    showToast('error', t('organization.toast.error'), t('organization.toast.account_missing'));
     return;
   }
 
@@ -432,13 +442,13 @@ const submitForm = async () => {
       });
 
       if (response.data?.success) {
-        showToast('success', 'Thành công', response.data.message || 'Tạo phòng ban thành công.');
+        showToast('success', t('organization.toast.success'), response.data.message || t('organization.toast.create_success'));
         closeFormDialog();
         await loadData();
         return;
       }
 
-      showToast('error', 'Thất bại', response.data?.message || 'Không thể tạo phòng ban.');
+      showToast('error', t('organization.toast.failure'), response.data?.message || t('organization.toast.create_failed'));
       return;
     }
 
@@ -453,17 +463,17 @@ const submitForm = async () => {
     );
 
     if (response.data?.success) {
-      showToast('success', 'Thành công', response.data.message || 'Cập nhật phòng ban thành công.');
+      showToast('success', t('organization.toast.success'), response.data.message || t('organization.toast.update_success'));
       closeFormDialog();
       await loadData();
       return;
     }
 
-    showToast('error', 'Thất bại', response.data?.message || 'Không thể cập nhật phòng ban.');
+    showToast('error', t('organization.toast.failure'), response.data?.message || t('organization.toast.update_failed'));
   } catch (error: unknown) {
-    console.error('Lỗi lưu phòng ban:', error);
+    console.error('Save organization error:', error);
     const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
-    showToast('error', 'Lỗi', message || 'Không thể lưu phòng ban. Vui lòng thử lại.');
+    showToast('error', t('organization.toast.error'), message || t('organization.toast.save_failed'));
   } finally {
     isSaving.value = false;
   }
@@ -473,7 +483,7 @@ const confirmDelete = async () => {
   if (!deletingOrganization.value) return;
 
   if (!currentUserId.value) {
-    showToast('error', 'Lỗi', 'Không tìm thấy tài khoản. Vui lòng đăng nhập lại.');
+    showToast('error', t('organization.toast.error'), t('organization.toast.account_missing'));
     return;
   }
 
@@ -488,26 +498,24 @@ const confirmDelete = async () => {
     );
 
     if (response.data?.success) {
-      showToast('success', 'Thành công', response.data.message || 'Xóa phòng ban thành công.');
+      showToast('success', t('organization.toast.success'), response.data.message || t('organization.toast.delete_success'));
       deleteDialogVisible.value = false;
       deletingOrganization.value = null;
       await loadData();
       return;
     }
 
-    showToast('error', 'Thất bại', response.data?.message || 'Không thể xóa phòng ban.');
+    showToast('error', t('organization.toast.failure'), response.data?.message || t('organization.toast.delete_failed'));
   } catch (error: unknown) {
-    console.error('Lỗi xóa phòng ban:', error);
+    console.error('Delete organization error:', error);
     const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
-    showToast('error', 'Lỗi', message || 'Không thể xóa phòng ban. Vui lòng thử lại.');
+    showToast('error', t('organization.toast.error'), message || t('organization.toast.delete_retry'));
   } finally {
     isDeleting.value = false;
   }
 };
 
-onMounted(() => { });
-
-onIonViewWillEnter(() => {
+usePageDataRefresh('ListOrganization', () => {
   loadData();
 });
 </script>

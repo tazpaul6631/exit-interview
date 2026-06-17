@@ -1,12 +1,17 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '@/store/auth';
 import baseURLApi from '@/api/baseURLApi';
+import i18n from '@/i18n';
 
 const baseURL = baseURLApi.url;
 
 const api = axios.create({
   baseURL,
   timeout: 10000, // 10 giây
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
 });
 
 /**
@@ -17,8 +22,12 @@ api.interceptors.request.use(
     const authStore = useAuthStore(); // Pinia cho phép gọi store
     const token = authStore.token; // Lấy token đã được Pinia tự động load từ Storage
 
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (config.headers) {
+      config.headers['Accept-Language'] = i18n.global.locale.value as string;
+
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },

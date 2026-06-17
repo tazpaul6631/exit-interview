@@ -16,5 +16,216 @@
   "messages": {
     "notifi": "Thông báo!",
     "submitted": "Đã gửi thành công, cám ơn!"
+  },
+  "login": {
+    "banner_title": "Ghi nhận phỏng vấn nghỉ việc",
+    "banner_subtitle": "HR Management",
+    "banner_dept": "Jia Hsin IT Department",
+    "greeting": "Xin chào!",
+    "subtitle": "Hệ thống phỏng vấn thôi việc dành cho quản lý",
+    "code_label": "Tài khoản quản lý",
+    "code_placeholder": "Mã số nhân viên",
+    "password_label": "Mật khẩu",
+    "password_placeholder": "Nhập mật khẩu",
+    "submit": "VÀO HỆ THỐNG",
+    "footer": "© 2026 Jia Hsin IT Department — HR Management",
+    "check_form": "Vui lòng kiểm tra",
+    "errors": {
+      "code_required": "Vui lòng nhập mã số nhân viên",
+      "code_max": "Mã số nhân viên không quá 50 ký tự",
+      "password_required": "Vui lòng nhập mật khẩu",
+      "password_max": "Mật khẩu không quá 100 ký tự"
+    }
+  },
+  "dashboard": {
+    "leave_reason_chart": "Lý do chính nghỉ việc theo bộ phận",
+    "rating_chart": "Đánh giá thực tế (1–5 điểm)",
+    "chart_empty": "Không có dữ liệu biểu đồ.",
+    "cards": {
+      "Interviews": "Phỏng vấn nghỉ việc",
+      "Organizations": "Phòng ban",
+      "Users": "Người dùng"
+    },
+    "reasons": {
+      "one": "(1) Lương thưởng & Phúc lợi",
+      "two": "(2) Vấn đề quản lý",
+      "three": "(3) Môi trường làm việc",
+      "four": "(4) Chế độ đãi ngộ",
+      "five": "(5) Lý do cá nhân"
+    },
+    "rating_scores": {
+      "one": "1 điểm",
+      "two": "2 điểm",
+      "three": "3 điểm",
+      "four": "4 điểm",
+      "five": "5 điểm"
+    }
+  },
+  "user": {
+    "page_report": "Hiển thị {first} đến {last} trên {totalRecords} người dùng",
+    "add": "Thêm người dùng",
+    "clear_filter": "Xóa lọc",
+    "empty": "Không tìm thấy người dùng.",
+    "columns": {
+      "code": "Mã NV",
+      "name": "Họ tên",
+      "role": "Vai trò"
+    },
+    "filters": {
+      "search_code": "Tìm mã",
+      "search_name": "Tìm họ tên",
+      "role": "Vai trò"
+    },
+    "actions": {
+      "edit": "Sửa người dùng",
+      "delete": "Xóa người dùng"
+    },
+    "form": {
+      "create_title": "Thêm người dùng",
+      "edit_title": "Cập nhật người dùng",
+      "code": "Mã NV",
+      "code_placeholder": "Nhập mã nhân viên",
+      "name": "Họ tên",
+      "name_placeholder": "Nhập họ tên",
+      "password": "Mật khẩu",
+      "password_placeholder": "Nhập mật khẩu",
+      "role": "Vai trò",
+      "role_placeholder": "Chọn vai trò",
+      "create_btn": "Tạo mới"
+    },
+    "delete": {
+      "title": "Xóa người dùng",
+      "confirm": "Bạn có chắc muốn xóa người dùng",
+      "btn": "Xóa"
+    },
+    "errors": {
+      "password_required": "Vui lòng nhập mật khẩu",
+      "password_min": "Mật khẩu phải có ít nhất 1 ký tự",
+      "password_max": "Mật khẩu không quá 100 ký tự",
+      "code_required": "Vui lòng nhập mã nhân viên",
+      "name_required": "Vui lòng nhập họ tên",
+      "role_required": "Vui lòng chọn vai trò"
+    },
+    "toast": {
+      "error": "Lỗi",
+      "success": "Thành công",
+      "failure": "Thất bại",
+      "load_failed": "Không thể tải danh sách người dùng.",
+      "account_missing": "Không tìm thấy tài khoản. Vui lòng đăng nhập lại.",
+      "create_success": "Tạo người dùng thành công.",
+      "create_failed": "Không thể tạo người dùng.",
+      "update_success": "Cập nhật người dùng thành công.",
+      "update_failed": "Không thể cập nhật người dùng.",
+      "save_failed": "Không thể lưu người dùng. Vui lòng thử lại.",
+      "delete_success": "Xóa người dùng thành công.",
+      "delete_failed": "Không thể xóa người dùng.",
+      "delete_retry": "Không thể xóa người dùng. Vui lòng thử lại."
+    }
+  },
+  "organization": {
+    "page_report": "Hiển thị {first} đến {last} trên {totalRecords} phòng ban",
+    "add": "Thêm phòng ban",
+    "clear_filter": "Xóa lọc",
+    "empty": "Không tìm thấy phòng ban.",
+    "columns": {
+      "code": "Mã",
+      "name": "Tên phòng ban",
+      "status": "Trạng thái"
+    },
+    "filters": {
+      "search_code": "Tìm mã",
+      "search_name": "Tìm tên",
+      "status": "Trạng thái"
+    },
+    "status": {
+      "active": "Hoạt động",
+      "inactive": "Ngưng"
+    },
+    "actions": {
+      "edit": "Sửa phòng ban",
+      "delete": "Xóa phòng ban"
+    },
+    "form": {
+      "create_title": "Thêm phòng ban",
+      "edit_title": "Cập nhật phòng ban",
+      "name": "Tên phòng ban",
+      "name_placeholder": "Nhập tên phòng ban",
+      "priority": "Thứ tự ưu tiên",
+      "priority_placeholder": "Nhập thứ tự ưu tiên",
+      "is_active": "Đang hoạt động",
+      "create_btn": "Tạo mới"
+    },
+    "delete": {
+      "title": "Xóa phòng ban",
+      "confirm": "Bạn có chắc muốn xóa phòng ban",
+      "btn": "Xóa"
+    },
+    "errors": {
+      "name_required": "Vui lòng nhập tên phòng ban",
+      "priority_non_negative": "Thứ tự ưu tiên phải là số không âm"
+    },
+    "toast": {
+      "error": "Lỗi",
+      "success": "Thành công",
+      "failure": "Thất bại",
+      "load_failed": "Không thể tải danh sách phòng ban.",
+      "account_missing": "Không tìm thấy tài khoản. Vui lòng đăng nhập lại.",
+      "create_success": "Tạo phòng ban thành công.",
+      "create_failed": "Không thể tạo phòng ban.",
+      "update_success": "Cập nhật phòng ban thành công.",
+      "update_failed": "Không thể cập nhật phòng ban.",
+      "save_failed": "Không thể lưu phòng ban. Vui lòng thử lại.",
+      "delete_success": "Xóa phòng ban thành công.",
+      "delete_failed": "Không thể xóa phòng ban.",
+      "delete_retry": "Không thể xóa phòng ban. Vui lòng thử lại."
+    }
+  },
+  "change_password": {
+    "description": "Cập nhật mật khẩu đăng nhập của bạn.",
+    "old_password": "Mật khẩu hiện tại",
+    "old_password_placeholder": "Nhập mật khẩu hiện tại",
+    "new_password": "Mật khẩu mới",
+    "new_password_placeholder": "Nhập mật khẩu mới",
+    "confirm_password": "Xác nhận mật khẩu",
+    "confirm_password_placeholder": "Nhập lại mật khẩu mới",
+    "errors": {
+      "old_password_required": "Vui lòng nhập mật khẩu hiện tại",
+      "new_password_min": "Mật khẩu mới phải có ít nhất 1 ký tự",
+      "confirm_password_required": "Vui lòng xác nhận mật khẩu",
+      "confirm_mismatch": "Mật khẩu xác nhận không khớp"
+    },
+    "toast": {
+      "error": "Lỗi",
+      "success": "Thành công",
+      "failure": "Thất bại",
+      "account_missing": "Không tìm thấy tài khoản. Vui lòng đăng nhập lại.",
+      "success_message": "Đổi mật khẩu thành công. Vui lòng đăng nhập lại.",
+      "failed": "Đổi mật khẩu thất bại.",
+      "retry": "Không thể đổi mật khẩu. Vui lòng thử lại."
+    }
+  },
+  "layout": {
+    "breadcrumb_nav": "Điều hướng",
+    "profile_menu": "Menu tài khoản",
+    "change_password": "Đổi mật khẩu",
+    "logout": "Đăng xuất",
+    "dashboard": "Trang chủ",
+    "guest_hr": "Quản lý HR",
+    "menu": {
+      "dashboard": "Trang chủ",
+      "list_user": "Người dùng",
+      "list_role": "Vai trò",
+      "list_organization": "Phòng ban",
+      "list_exit_interview": "Nghỉ việc"
+    },
+    "breadcrumb": {
+      "exit_interview_list": "Danh sách nghỉ việc",
+      "exit_interview_detail": "Chi tiết đơn nghỉ việc",
+      "role_list": "Danh sách vai trò",
+      "role_detail": "Chi tiết vai trò",
+      "organization_list": "Danh sách phòng ban",
+      "user_list": "Danh sách người dùng",
+      "not_found": "404"
+    }
   }
 }

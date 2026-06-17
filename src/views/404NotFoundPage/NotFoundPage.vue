@@ -26,11 +26,32 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage } from '@ionic/vue';
+import { onMounted, nextTick } from 'vue';
+import { IonPage, onIonViewDidEnter } from '@ionic/vue';
 import { DotLottieVue } from '@lottiefiles/dotlottie-vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+
+const revealNotFoundPage = async () => {
+  await nextTick();
+  const page = document.querySelector<HTMLElement>('.not-found-ion-page');
+  if (!page) return;
+
+  page.classList.remove('ion-page-hidden');
+  const outlet = page.closest('ion-router-outlet');
+  outlet?.querySelectorAll('.ion-page').forEach((node) => {
+    if (node !== page) node.classList.add('ion-page-hidden');
+  });
+};
+
+onIonViewDidEnter(() => {
+  void revealNotFoundPage();
+});
+
+onMounted(() => {
+  void revealNotFoundPage();
+});
 
 const handleGoBack = () => {
   if (document.activeElement instanceof HTMLElement) {

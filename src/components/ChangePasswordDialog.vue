@@ -11,46 +11,47 @@
       </div>
     </template>
 
-    <p class="change-password-dialog__desc">Cập nhật mật khẩu đăng nhập của bạn.</p>
+    <p class="change-password-dialog__desc">{{ t('change_password.description') }}</p>
 
     <form class="change-password-dialog__form" @submit.prevent="submitChangePassword">
       <div class="change-password-dialog__field">
-        <label for="old-password" class="change-password-dialog__label">Mật khẩu hiện tại <span
+        <label for="old-password" class="change-password-dialog__label">{{ t('change_password.old_password') }} <span
             class="field-required">*</span></label>
         <Password id="old-password" v-model="oldPassword" class="change-password-dialog__input" toggle-mask
-          :feedback="false" :invalid="!!errors.oldPassword" placeholder="Nhập mật khẩu hiện tại"
+          :feedback="false" :invalid="!!errors.oldPassword" :placeholder="t('change_password.old_password_placeholder')"
           autocomplete="current-password" />
         <small v-if="errors.oldPassword" class="change-password-dialog__error">{{ errors.oldPassword }}</small>
       </div>
 
       <div class="change-password-dialog__field">
-        <label for="new-password" class="change-password-dialog__label">Mật khẩu mới <span
+        <label for="new-password" class="change-password-dialog__label">{{ t('change_password.new_password') }} <span
             class="field-required">*</span></label>
         <Password id="new-password" v-model="newPassword" class="change-password-dialog__input" toggle-mask
-          :feedback="false" :invalid="!!errors.newPassword" placeholder="Nhập mật khẩu mới"
+          :feedback="false" :invalid="!!errors.newPassword" :placeholder="t('change_password.new_password_placeholder')"
           autocomplete="new-password" />
         <small v-if="errors.newPassword" class="change-password-dialog__error">{{ errors.newPassword }}</small>
       </div>
 
       <div class="change-password-dialog__field">
-        <label for="confirm-password" class="change-password-dialog__label">Xác nhận mật khẩu <span
+        <label for="confirm-password" class="change-password-dialog__label">{{ t('change_password.confirm_password') }} <span
             class="field-required">*</span></label>
         <Password id="confirm-password" v-model="confirmPassword" class="change-password-dialog__input" toggle-mask
-          :feedback="false" :invalid="!!errors.confirmPassword" placeholder="Nhập lại mật khẩu mới"
+          :feedback="false" :invalid="!!errors.confirmPassword" :placeholder="t('change_password.confirm_password_placeholder')"
           autocomplete="new-password" />
         <small v-if="errors.confirmPassword" class="change-password-dialog__error">{{ errors.confirmPassword }}</small>
       </div>
     </form>
 
     <template #footer>
-      <Button label="Hủy" text severity="secondary" @click="closeDialog" />
-      <Button label="Lưu" type="submit" :loading="isSavingPassword" @click="submitChangePassword" />
+      <Button :label="t('common.cancel')" text severity="secondary" @click="closeDialog" />
+      <Button :label="t('common.save')" type="submit" :loading="isSavingPassword" @click="submitChangePassword" />
     </template>
   </Dialog>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import { z } from 'zod';
@@ -67,19 +68,22 @@ defineProps<{
 
 const visible = defineModel<boolean>('visible', { default: false });
 
+const { t } = useI18n();
 const toast = useToast();
 const authStore = useAuthStore();
 const isSavingPassword = ref(false);
 
-const changePasswordSchema = toTypedSchema(
-  z.object({
-    oldPassword: z.string().min(1, 'Vui lòng nhập mật khẩu hiện tại'),
-    newPassword: z.string().min(1, 'Mật khẩu mới phải có ít nhất 1 ký tự'),
-    confirmPassword: z.string().min(1, 'Vui lòng xác nhận mật khẩu'),
-  }).refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'Mật khẩu xác nhận không khớp',
-    path: ['confirmPassword'],
-  }),
+const changePasswordSchema = computed(() =>
+  toTypedSchema(
+    z.object({
+      oldPassword: z.string().min(1, t('change_password.errors.old_password_required')),
+      newPassword: z.string().min(1, t('change_password.errors.new_password_min')),
+      confirmPassword: z.string().min(1, t('change_password.errors.confirm_password_required')),
+    }).refine((data) => data.newPassword === data.confirmPassword, {
+      message: t('change_password.errors.confirm_mismatch'),
+      path: ['confirmPassword'],
+    }),
+  ),
 );
 
 const {
@@ -131,7 +135,7 @@ const closeDialog = () => {
 
 const submitChangePassword = handleSubmit(async (values) => {
   if (!userId.value) {
-    showToast('error', 'Lỗi', 'Không tìm thấy tài khoản. Vui lòng đăng nhập lại.');
+    showToast('error', t('change_password.toast.error'), t('change_password.toast.account_missing'));
     return;
   }
 
@@ -147,18 +151,18 @@ const submitChangePassword = handleSubmit(async (values) => {
       closeDialog();
       showToast(
         'success',
-        'Thành công',
-        response.data.message || 'Đổi mật khẩu thành công. Vui lòng đăng nhập lại.',
+        t('change_password.toast.success'),
+        response.data.message || t('change_password.toast.success_message'),
       );
       await authStore.logout();
       return;
     }
 
-    showToast('error', 'Thất bại', response.data?.message || 'Đổi mật khẩu thất bại.');
+    showToast('error', t('change_password.toast.failure'), response.data?.message || t('change_password.toast.failed'));
   } catch (error: unknown) {
-    console.error('Lỗi đổi mật khẩu:', error);
+    console.error('Change password error:', error);
     const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
-    showToast('error', 'Lỗi', message || 'Không thể đổi mật khẩu. Vui lòng thử lại.');
+    showToast('error', t('change_password.toast.error'), message || t('change_password.toast.retry'));
   } finally {
     isSavingPassword.value = false;
   }

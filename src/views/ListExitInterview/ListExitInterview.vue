@@ -14,7 +14,7 @@
           <template #header>
             <div class="table-toolbar">
               <Button type="button" outlined size="small" class="toolbar-btn toolbar-btn--export" :loading="isExporting"
-                :disabled="isExporting" @click="exportExcel">
+                :disabled="isExporting || !canExport" @click="exportExcel">
                 <i class="pi pi-file-excel toolbar-btn__icon" aria-hidden="true"></i>
                 <span class="toolbar-btn__label">Xuất Excel</span>
               </Button>
@@ -85,15 +85,17 @@
             </template>
           </Column>
 
-          <Column class="text-center" style="width: 150px">
+          <Column class="text-center" style="width: 200px">
             <template #body="{ data }">
               <div class="row-actions">
                 <Button icon="pi pi-file-word" size="small" severity="info" rounded outlined aria-label="Xuất Word"
-                  :loading="isRowExporting(data.id, 'word')" :disabled="!!exportingRowKey" @click="exportWord(data)" />
+                  :loading="isRowExporting(data.id, 'word')" :disabled="!!exportingRowKey || !canExport"
+                  @click="exportWord(data)" />
                 <Button icon="pi pi-file-pdf" size="small" severity="danger" rounded outlined aria-label="Xuất PDF"
-                  :loading="isRowExporting(data.id, 'pdf')" :disabled="!!exportingRowKey" @click="exportPdf(data)" />
+                  :loading="isRowExporting(data.id, 'pdf')" :disabled="!!exportingRowKey || !canExport"
+                  @click="exportPdf(data)" />
                 <Button icon="pi pi-eye" size="small" severity="secondary" rounded outlined aria-label="Xem chi tiết"
-                  @click="handleSeen(data)" />
+                  :disabled="!canView" @click="handleSeen(data)" />
               </div>
             </template>
           </Column>
@@ -104,9 +106,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
-import { IonPage, onIonViewWillEnter } from '@ionic/vue';
+import { IonPage } from '@ionic/vue';
 import interviewView from "@/api/interviewView";
 import organizationApi from "@/api/organization";
 import reportApi, { type ReportExcelPayload } from "@/api/report";
@@ -122,6 +124,8 @@ import {
   exportInterviewWord,
 } from '@/utils/interviewDocumentExport';
 import format from '@/mixins/format';
+import { usePageDataRefresh } from '@/composables/usePageDataRefresh';
+import { useMenuPermissions } from '@/composables/useMenuPermissions';
 
 interface EmployeeRecord {
   id: number;
@@ -159,6 +163,8 @@ const first = ref(0);
 
 const orgSelectOptions = computed(() => (isOrgLoading.value ? [] : organizations.value));
 const rows = ref(10);
+
+const { canView, canExport } = useMenuPermissions(['exitinterview']);
 
 /** Lazy + server filter: không lọc client, chỉ dùng totalCount từ API */
 const serverFilterPassthrough = () => true;
@@ -441,20 +447,21 @@ const exportExcel = async () => {
   }
 };
 
-onMounted(() => {
-});
-
-onIonViewWillEnter(() => {
+usePageDataRefresh('ListExitInterview', () => {
   loadData();
 });
 </script>
 
 <style scoped lang="scss">
-.list-exit-interview-page {
+.list-exit-interview-page:not(.ion-page-hidden) {
   height: calc(100dvh - 70px - 44px - 50px - 50px) !important;
   min-height: 420px;
   max-height: calc(100dvh - 70px - 44px - 50px - 50px);
   overflow: hidden !important;
+}
+
+.list-exit-interview-page.ion-page-hidden {
+  display: none !important;
 }
 
 .page-container {

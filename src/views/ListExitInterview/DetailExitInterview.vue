@@ -1,5 +1,5 @@
 <template>
-  <ion-page>
+  <ion-page class="detail-exit-interview-page">
     <div class="page-container">
       <div class="detail-center">
 
@@ -111,6 +111,10 @@ onIonViewWillEnter(() => {
 </script>
 
 <style scoped lang="scss">
+.detail-exit-interview-page.ion-page-hidden {
+  display: none !important;
+}
+
 .page-container {
   padding: 30px;
   height: 100%;

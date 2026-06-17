@@ -1,22 +1,8 @@
 <template>
-  <div
-    class="locale-select"
-    :class="[`locale-select--${variant}`]"
-    @click="onWrapPointer"
-    @mousedown="onWrapPointer"
-  >
-    <label v-if="showLabel" :for="inputId" class="locale-select__label">{{ label }}</label>
-    <Select
-      :id="inputId"
-      v-model="selectedLanguage"
-      :options="languages"
-      optionLabel="name"
-      optionValue="code"
-      :appendTo="appendTo"
-      class="locale-select__control"
-      :aria-label="ariaLabel"
-      @change="onChange"
-    >
+  <div class="locale-select" :class="[`locale-select--${variant}`]" @click="onWrapPointer" @mousedown="onWrapPointer">
+    <!-- <label v-if="showLabel" :for="inputId" class="locale-select__label">{{ label }}</label> -->
+    <Select :id="inputId" v-model="selectedLanguage" :options="languages" optionLabel="name" optionValue="code"
+      :appendTo="appendTo" class="locale-select__control" :aria-label="ariaLabel" @change="onChange">
       <template #value="{ value }">
         <div v-if="value" class="locale-select__value">
           <img :src="getLocaleByCode(value)?.icon" alt="" class="locale-select__flag" />
@@ -108,6 +94,11 @@ const onChange = () => {
   gap: 0.55rem;
 }
 
+.locale-select__value span,
+.locale-select__option span {
+  font-size: 0.875rem;
+}
+
 .locale-select__placeholder {
   color: #94a3b8;
 }
@@ -122,7 +113,7 @@ const onChange = () => {
 }
 
 .locale-select--popover {
-  padding: 0.35rem 0.5rem 0.65rem;
+  padding-right: 0.5rem;
 }
 
 .locale-select--login {

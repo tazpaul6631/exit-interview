@@ -1,0 +1,231 @@
+{
+  "common": {
+    "welcome": "欢迎",
+    "save": "保存",
+    "cancel": "取消"
+  },
+  "home": {
+    "title": "首页"
+  },
+  "valid": {
+    "required": "请勿留空",
+    "min_reason": "请至少选择 {n} 个原因",
+    "max_reason": "最多只能选择 {n} 个原因",
+    "rating_required": "请为此项评分"
+  },
+  "messages": {
+    "notifi": "通知！",
+    "submitted": "提交成功，谢谢！"
+  },
+  "login": {
+    "banner_title": "离职面谈记录",
+    "banner_subtitle": "HR Management",
+    "banner_dept": "Jia Hsin IT Department",
+    "greeting": "您好！",
+    "subtitle": "离职面谈管理系统",
+    "code_label": "管理员账号",
+    "code_placeholder": "工号",
+    "password_label": "密码",
+    "password_placeholder": "请输入密码",
+    "submit": "进入系统",
+    "footer": "© 2026 Jia Hsin IT Department — HR Management",
+    "check_form": "请检查输入内容",
+    "errors": {
+      "code_required": "请输入工号",
+      "code_max": "工号不可超过 50 个字符",
+      "password_required": "请输入密码",
+      "password_max": "密码不可超过 100 个字符"
+    }
+  },
+  "dashboard": {
+    "leave_reason_chart": "主要离职原因（按部门）",
+    "rating_chart": "实际评分（1–5 分）",
+    "chart_empty": "没有图表数据。",
+    "cards": {
+      "Interviews": "离职面谈",
+      "Organizations": "部门",
+      "Users": "用户"
+    },
+    "reasons": {
+      "one": "(1) 薪资福利",
+      "two": "(2) 管理问题",
+      "three": "(3) 工作环境",
+      "four": "(4) 福利伙食",
+      "five": "(5) 个人因素"
+    },
+    "rating_scores": {
+      "one": "1 分",
+      "two": "2 分",
+      "three": "3 分",
+      "four": "4 分",
+      "five": "5 分"
+    }
+  },
+  "user": {
+    "page_report": "显示第 {first} 至 {last} 条，共 {totalRecords} 位用户",
+    "add": "新增用户",
+    "clear_filter": "清除筛选",
+    "empty": "找不到用户。",
+    "columns": {
+      "code": "工号",
+      "name": "姓名",
+      "role": "角色"
+    },
+    "filters": {
+      "search_code": "搜索工号",
+      "search_name": "搜索姓名",
+      "role": "角色"
+    },
+    "actions": {
+      "edit": "编辑用户",
+      "delete": "删除用户"
+    },
+    "form": {
+      "create_title": "新增用户",
+      "edit_title": "更新用户",
+      "code": "工号",
+      "code_placeholder": "请输入工号",
+      "name": "姓名",
+      "name_placeholder": "请输入姓名",
+      "password": "密码",
+      "password_placeholder": "请输入密码",
+      "role": "角色",
+      "role_placeholder": "请选择角色",
+      "create_btn": "创建"
+    },
+    "delete": {
+      "title": "删除用户",
+      "confirm": "确定要删除用户",
+      "btn": "删除"
+    },
+    "errors": {
+      "password_required": "请输入密码",
+      "password_min": "密码至少需要 1 个字符",
+      "password_max": "密码不可超过 100 个字符",
+      "code_required": "请输入工号",
+      "name_required": "请输入姓名",
+      "role_required": "请选择角色"
+    },
+    "toast": {
+      "error": "错误",
+      "success": "成功",
+      "failure": "失败",
+      "load_failed": "无法加载用户列表。",
+      "account_missing": "找不到账号，请重新登录。",
+      "create_success": "用户创建成功。",
+      "create_failed": "无法创建用户。",
+      "update_success": "用户更新成功。",
+      "update_failed": "无法更新用户。",
+      "save_failed": "无法保存用户，请重试。",
+      "delete_success": "用户删除成功。",
+      "delete_failed": "无法删除用户。",
+      "delete_retry": "无法删除用户，请重试。"
+    }
+  },
+  "organization": {
+    "page_report": "显示第 {first} 至 {last} 条，共 {totalRecords} 个部门",
+    "add": "新增部门",
+    "clear_filter": "清除筛选",
+    "empty": "找不到部门。",
+    "columns": {
+      "code": "编码",
+      "name": "部门名称",
+      "status": "状态"
+    },
+    "filters": {
+      "search_code": "搜索编码",
+      "search_name": "搜索名称",
+      "status": "状态"
+    },
+    "status": {
+      "active": "启用",
+      "inactive": "停用"
+    },
+    "actions": {
+      "edit": "编辑部门",
+      "delete": "删除部门"
+    },
+    "form": {
+      "create_title": "新增部门",
+      "edit_title": "更新部门",
+      "name": "部门名称",
+      "name_placeholder": "请输入部门名称",
+      "priority": "优先顺序",
+      "priority_placeholder": "请输入优先顺序",
+      "is_active": "启用中",
+      "create_btn": "创建"
+    },
+    "delete": {
+      "title": "删除部门",
+      "confirm": "确定要删除部门",
+      "btn": "删除"
+    },
+    "errors": {
+      "name_required": "请输入部门名称",
+      "priority_non_negative": "优先顺序必须为非负数"
+    },
+    "toast": {
+      "error": "错误",
+      "success": "成功",
+      "failure": "失败",
+      "load_failed": "无法加载部门列表。",
+      "account_missing": "找不到账号，请重新登录。",
+      "create_success": "部门创建成功。",
+      "create_failed": "无法创建部门。",
+      "update_success": "部门更新成功。",
+      "update_failed": "无法更新部门。",
+      "save_failed": "无法保存部门，请重试。",
+      "delete_success": "部门删除成功。",
+      "delete_failed": "无法删除部门。",
+      "delete_retry": "无法删除部门，请重试。"
+    }
+  },
+  "change_password": {
+    "description": "更新您的登录密码。",
+    "old_password": "当前密码",
+    "old_password_placeholder": "输入当前密码",
+    "new_password": "新密码",
+    "new_password_placeholder": "输入新密码",
+    "confirm_password": "确认密码",
+    "confirm_password_placeholder": "再次输入新密码",
+    "errors": {
+      "old_password_required": "请输入当前密码",
+      "new_password_min": "新密码至少需要 1 个字符",
+      "confirm_password_required": "请确认密码",
+      "confirm_mismatch": "确认密码不一致"
+    },
+    "toast": {
+      "error": "错误",
+      "success": "成功",
+      "failure": "失败",
+      "account_missing": "找不到账号，请重新登录。",
+      "success_message": "密码修改成功，请重新登录。",
+      "failed": "密码修改失败。",
+      "retry": "无法修改密码，请重试。"
+    }
+  },
+  "layout": {
+    "breadcrumb_nav": "导航路径",
+    "profile_menu": "账号菜单",
+    "change_password": "修改密码",
+    "logout": "退出登录",
+    "dashboard": "仪表板",
+    "guest_hr": "HR 管理",
+    "menu": {
+      "dashboard": "仪表板",
+      "list_user": "用户",
+      "list_role": "角色",
+      "list_organization": "部门",
+      "list_exit_interview": "离职面谈"
+    },
+    "breadcrumb": {
+      "exit_interview_list": "离职面谈列表",
+      "exit_interview_detail": "离职面谈详情",
+      "role_list": "角色列表",
+      "role_detail": "角色详情",
+      "organization_list": "部门列表",
+      "user_list": "用户列表",
+      "not_found": "404"
+    }
+  }
+}

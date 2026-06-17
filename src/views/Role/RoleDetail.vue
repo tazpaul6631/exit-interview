@@ -17,7 +17,7 @@
         <div v-else class="role-detail-body">
           <section class="role-detail-info">
             <div class="role-detail-info__item">
-              <span class="role-detail-info__label">Mã vai trò</span>
+              <span class="role-detail-info__label">Mã vai trò </span>
               <span class="role-detail-info__value">{{ role.code || '—' }}</span>
             </div>
             <div class="role-detail-info__item">
@@ -50,7 +50,6 @@
               <article v-for="menu in role.permissions" :key="menu.id" class="role-detail-menu-card">
                 <header class="role-detail-menu-card__header">
                   <h3 class="role-detail-menu-card__title">{{ menu.name }}</h3>
-                  <span class="role-detail-menu-card__code">{{ menu.code }}</span>
                 </header>
 
                 <ul class="role-detail-menu-card__list">
@@ -140,11 +139,15 @@ watch(
 </script>
 
 <style scoped lang="scss">
-.role-detail-page {
+.role-detail-page:not(.ion-page-hidden) {
   height: calc(100dvh - 70px - 44px - 50px - 50px) !important;
   min-height: 420px;
   max-height: calc(100dvh - 70px - 44px - 50px - 50px);
   overflow: hidden !important;
+}
+
+.role-detail-page.ion-page-hidden {
+  display: none !important;
 }
 
 .role-detail-page-container {
@@ -306,13 +309,6 @@ watch(
   font-size: 0.9375rem;
   font-weight: 700;
   color: #1e293b;
-}
-
-.role-detail-menu-card__code {
-  display: block;
-  margin-top: 0.125rem;
-  font-size: 0.75rem;
-  color: #94a3b8;
 }
 
 .role-detail-menu-card__list {

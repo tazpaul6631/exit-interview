@@ -1,10 +1,231 @@
 {
   "common": {
-    "welcome": "Chào mừng",
-    "save": "Lưu",
-    "cancel": "Hủy"
+    "welcome": "Welcome",
+    "save": "Save",
+    "cancel": "Cancel"
   },
   "home": {
-    "title": "Trang chủ"
+    "title": "Home"
+  },
+  "valid": {
+    "required": "This field is required",
+    "min_reason": "Please select at least {n} reasons",
+    "max_reason": "Maximum {n} reasons allowed",
+    "rating_required": "Please rate this item"
+  },
+  "messages": {
+    "notifi": "Notification!",
+    "submitted": "Submitted successfully, thank you!"
+  },
+  "login": {
+    "banner_title": "Exit Interview Record",
+    "banner_subtitle": "HR Management",
+    "banner_dept": "Jia Hsin IT Department",
+    "greeting": "Hello!",
+    "subtitle": "Exit interview system for managers",
+    "code_label": "Manager account",
+    "code_placeholder": "Employee ID",
+    "password_label": "Password",
+    "password_placeholder": "Enter password",
+    "submit": "SIGN IN",
+    "footer": "© 2026 Jia Hsin IT Department — HR Management",
+    "check_form": "Please check your input",
+    "errors": {
+      "code_required": "Please enter your employee ID",
+      "code_max": "Employee ID must not exceed 50 characters",
+      "password_required": "Please enter your password",
+      "password_max": "Password must not exceed 100 characters"
+    }
+  },
+  "dashboard": {
+    "leave_reason_chart": "Main exit reasons by department",
+    "rating_chart": "Actual ratings (1–5 points)",
+    "chart_empty": "No chart data available.",
+    "cards": {
+      "Interviews": "Exit interviews",
+      "Organizations": "Departments",
+      "Users": "Users"
+    },
+    "reasons": {
+      "one": "(1) Salary & benefits",
+      "two": "(2) Management issues",
+      "three": "(3) Work environment",
+      "four": "(4) Employee benefits",
+      "five": "(5) Personal reasons"
+    },
+    "rating_scores": {
+      "one": "1 pt",
+      "two": "2 pts",
+      "three": "3 pts",
+      "four": "4 pts",
+      "five": "5 pts"
+    }
+  },
+  "user": {
+    "page_report": "Showing {first} to {last} of {totalRecords} users",
+    "add": "Add user",
+    "clear_filter": "Clear filters",
+    "empty": "No users found.",
+    "columns": {
+      "code": "Employee ID",
+      "name": "Full name",
+      "role": "Role"
+    },
+    "filters": {
+      "search_code": "Search ID",
+      "search_name": "Search name",
+      "role": "Role"
+    },
+    "actions": {
+      "edit": "Edit user",
+      "delete": "Delete user"
+    },
+    "form": {
+      "create_title": "Add user",
+      "edit_title": "Update user",
+      "code": "Employee ID",
+      "code_placeholder": "Enter employee ID",
+      "name": "Full name",
+      "name_placeholder": "Enter full name",
+      "password": "Password",
+      "password_placeholder": "Enter password",
+      "role": "Role",
+      "role_placeholder": "Select role",
+      "create_btn": "Create"
+    },
+    "delete": {
+      "title": "Delete user",
+      "confirm": "Are you sure you want to delete user",
+      "btn": "Delete"
+    },
+    "errors": {
+      "password_required": "Please enter a password",
+      "password_min": "Password must be at least 1 characters",
+      "password_max": "Password must not exceed 100 characters",
+      "code_required": "Please enter an employee ID",
+      "name_required": "Please enter a full name",
+      "role_required": "Please select a role"
+    },
+    "toast": {
+      "error": "Error",
+      "success": "Success",
+      "failure": "Failed",
+      "load_failed": "Unable to load user list.",
+      "account_missing": "Account not found. Please sign in again.",
+      "create_success": "User created successfully.",
+      "create_failed": "Unable to create user.",
+      "update_success": "User updated successfully.",
+      "update_failed": "Unable to update user.",
+      "save_failed": "Unable to save user. Please try again.",
+      "delete_success": "User deleted successfully.",
+      "delete_failed": "Unable to delete user.",
+      "delete_retry": "Unable to delete user. Please try again."
+    }
+  },
+  "organization": {
+    "page_report": "Showing {first} to {last} of {totalRecords} departments",
+    "add": "Add department",
+    "clear_filter": "Clear filters",
+    "empty": "No departments found.",
+    "columns": {
+      "code": "Code",
+      "name": "Department name",
+      "status": "Status"
+    },
+    "filters": {
+      "search_code": "Search code",
+      "search_name": "Search name",
+      "status": "Status"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "edit": "Edit department",
+      "delete": "Delete department"
+    },
+    "form": {
+      "create_title": "Add department",
+      "edit_title": "Update department",
+      "name": "Department name",
+      "name_placeholder": "Enter department name",
+      "priority": "Priority order",
+      "priority_placeholder": "Enter priority order",
+      "is_active": "Active",
+      "create_btn": "Create"
+    },
+    "delete": {
+      "title": "Delete department",
+      "confirm": "Are you sure you want to delete department",
+      "btn": "Delete"
+    },
+    "errors": {
+      "name_required": "Please enter department name",
+      "priority_non_negative": "Priority order must be a non-negative number"
+    },
+    "toast": {
+      "error": "Error",
+      "success": "Success",
+      "failure": "Failed",
+      "load_failed": "Unable to load department list.",
+      "account_missing": "Account not found. Please sign in again.",
+      "create_success": "Department created successfully.",
+      "create_failed": "Unable to create department.",
+      "update_success": "Department updated successfully.",
+      "update_failed": "Unable to update department.",
+      "save_failed": "Unable to save department. Please try again.",
+      "delete_success": "Department deleted successfully.",
+      "delete_failed": "Unable to delete department.",
+      "delete_retry": "Unable to delete department. Please try again."
+    }
+  },
+  "change_password": {
+    "description": "Update your sign-in password.",
+    "old_password": "Current password",
+    "old_password_placeholder": "Enter current password",
+    "new_password": "New password",
+    "new_password_placeholder": "Enter new password",
+    "confirm_password": "Confirm password",
+    "confirm_password_placeholder": "Re-enter new password",
+    "errors": {
+      "old_password_required": "Please enter your current password",
+      "new_password_min": "New password must be at least 1 character",
+      "confirm_password_required": "Please confirm your password",
+      "confirm_mismatch": "Password confirmation does not match"
+    },
+    "toast": {
+      "error": "Error",
+      "success": "Success",
+      "failure": "Failed",
+      "account_missing": "Account not found. Please sign in again.",
+      "success_message": "Password changed successfully. Please sign in again.",
+      "failed": "Failed to change password.",
+      "retry": "Unable to change password. Please try again."
+    }
+  },
+  "layout": {
+    "breadcrumb_nav": "Breadcrumb",
+    "profile_menu": "Account menu",
+    "change_password": "Change password",
+    "logout": "Sign out",
+    "dashboard": "Dashboard",
+    "guest_hr": "HR Manager",
+    "menu": {
+      "dashboard": "Dashboard",
+      "list_user": "Users",
+      "list_role": "Roles",
+      "list_organization": "Departments",
+      "list_exit_interview": "Exit interviews"
+    },
+    "breadcrumb": {
+      "exit_interview_list": "Exit interview list",
+      "exit_interview_detail": "Exit interview detail",
+      "role_list": "Role list",
+      "role_detail": "Role detail",
+      "organization_list": "Department list",
+      "user_list": "User list",
+      "not_found": "404"
+    }
   }
 }

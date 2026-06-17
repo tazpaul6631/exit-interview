@@ -7,19 +7,19 @@
           :totalRecords="totalRecords" dataKey="id" filterDisplay="row" scrollable scrollHeight="flex"
           class="user-table user-full-height-table user-compact-table" showGridlines
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-          currentPageReportTemplate="Hiển thị {first} đến {last} trên {totalRecords} người dùng" @page="onPageChange"
-          @filter="onTableFilter">
+          :currentPageReportTemplate="t('user.page_report', { first: first + 1, last: first + rows, totalRecords: totalRecords })"
+          @page="onPageChange" @filter="onTableFilter">
           <template #header>
             <div class="user-toolbar">
               <Button type="button" size="small" outlined class="user-toolbar__btn user-toolbar__btn--create"
-                @click="openCreateDialog">
+                :disabled="!canCreate" @click="openCreateDialog">
                 <i class="pi pi-plus user-toolbar__icon" aria-hidden="true" />
-                <span class="user-toolbar__label">Thêm người dùng</span>
+                <span class="user-toolbar__label">{{ t('user.add') }}</span>
               </Button>
               <Button type="button" outlined size="small" class="user-toolbar__btn user-toolbar__btn--clear"
                 @click="clearFilter">
                 <i class="pi pi-filter-slash user-toolbar__icon" aria-hidden="true" />
-                <span class="user-toolbar__label">Xóa lọc</span>
+                <span class="user-toolbar__label">{{ t('user.clear_filter') }}</span>
               </Button>
             </div>
           </template>
@@ -27,7 +27,7 @@
           <template #empty>
             <div class="user-empty-state">
               <i class="pi pi-inbox user-empty-state__icon" />
-              <p class="user-empty-state__text">Không tìm thấy người dùng.</p>
+              <p class="user-empty-state__text">{{ t('user.empty') }}</p>
             </div>
           </template>
 
@@ -58,8 +58,8 @@
               </template>
               <template v-else-if="col.type === 'role'">
                 <Select v-model="filterModel.value" :options="roleOptions" optionLabel="name" optionValue="id"
-                  placeholder="Vai trò" class="user-filter-select" showClear :loading="isRoleLoading" @show="loadRoles"
-                  @change="onSelectFilterChange(filterCallback)" />
+                  :placeholder="t('user.filters.role')" class="user-filter-select" showClear :loading="isRoleLoading"
+                  @show="loadRoles" @change="onSelectFilterChange(filterCallback)" />
               </template>
               <template v-else>
                 <InputText v-model="filterModel.value" type="text" :placeholder="col.filterPlaceholder" class="w-full"
@@ -68,13 +68,13 @@
             </template>
           </Column>
 
-          <Column class="text-center" header="Thao tác" style="width: auto">
+          <Column class="text-center" style="width: 200px">
             <template #body="{ data }">
               <div class="user-row-actions">
-                <Button icon="pi pi-pencil" size="small" severity="info" rounded outlined aria-label="Sửa người dùng"
-                  @click="openEditDialog(data)" />
-                <Button icon="pi pi-trash" size="small" severity="danger" rounded outlined aria-label="Xóa người dùng"
-                  @click="openDeleteDialog(data)" />
+                <Button icon="pi pi-pencil" size="small" severity="info" rounded outlined
+                  :aria-label="t('user.actions.edit')" :disabled="!canUpdate" @click="openEditDialog(data)" />
+                <Button icon="pi pi-trash" size="small" severity="danger" rounded outlined
+                  :aria-label="t('user.actions.delete')" :disabled="!canDelete" @click="openDeleteDialog(data)" />
               </div>
             </template>
           </Column>
@@ -83,16 +83,16 @@
     </div>
 
     <Dialog v-model:visible="formDialogVisible" modal :draggable="false"
-      :header="formMode === 'create' ? 'Thêm người dùng' : 'Cập nhật người dùng'" class="user-form-dialog"
+      :header="formMode === 'create' ? t('user.form.create_title') : t('user.form.edit_title')" class="user-form-dialog"
       :style="{ width: '28rem' }" @show="onFormDialogShow" @hide="resetFormDialog">
       <form class="user-form" autocomplete="off" @submit.prevent="submitForm">
         <div class="user-form__field">
           <label :for="formMode === 'create' ? 'hr-new-employee-code' : 'hr-edit-employee-code'"
             class="user-form__label">
-            Mã NV <span class="user-form__required">*</span>
+            {{ t('user.form.code') }} <span class="user-form__required">*</span>
           </label>
           <InputText v-if="formMode === 'create'" :key="`create-code-${createFormKey}`" id="hr-new-employee-code"
-            v-model="formState.code" class="user-form__input" placeholder="Nhập mã nhân viên"
+            v-model="formState.code" class="user-form__input" :placeholder="t('user.form.code_placeholder')"
             :invalid="!!formErrors.code" name="hr-new-employee-code" autocomplete="off" :readonly="isCreateCodeReadonly"
             @focus="isCreateCodeReadonly = false" />
           <InputText v-else id="hr-edit-employee-code" v-model="formState.code" class="user-form__input" disabled />
@@ -107,10 +107,10 @@
 
           <div class="user-form__field">
             <label for="hr-new-employee-name" class="user-form__label">
-              Họ tên <span class="user-form__required">*</span>
+              {{ t('user.form.name') }} <span class="user-form__required">*</span>
             </label>
             <InputText :key="`create-name-${createFormKey}`" id="hr-new-employee-name" v-model="formState.name"
-              class="user-form__input" placeholder="Nhập họ tên" :invalid="!!formErrors.name"
+              class="user-form__input" :placeholder="t('user.form.name_placeholder')" :invalid="!!formErrors.name"
               name="hr-new-employee-name" autocomplete="off" :readonly="isCreateNameReadonly"
               @focus="isCreateNameReadonly = false" />
             <small v-if="formErrors.name" class="user-form__error">{{ formErrors.name }}</small>
@@ -118,13 +118,13 @@
 
           <div class="user-form__field">
             <label for="hr-new-employee-password" class="user-form__label">
-              Mật khẩu <span class="user-form__required">*</span>
+              {{ t('user.form.password') }} <span class="user-form__required">*</span>
             </label>
             <InputText :key="`create-password-${createFormKey}`" id="hr-new-employee-password"
-              v-model="formState.password" type="password" class="user-form__input" placeholder="Nhập mật khẩu"
-              :invalid="!!formErrors.password" name="hr-new-employee-password" autocomplete="new-password"
-              :readonly="isCreatePasswordReadonly" @focus="isCreatePasswordReadonly = false"
-              @blur="validatePasswordField" />
+              v-model="formState.password" type="password" class="user-form__input"
+              :placeholder="t('user.form.password_placeholder')" :invalid="!!formErrors.password"
+              name="hr-new-employee-password" autocomplete="new-password" :readonly="isCreatePasswordReadonly"
+              @focus="isCreatePasswordReadonly = false" @blur="validatePasswordField" />
             <small v-if="formErrors.password" class="user-form__error">{{ formErrors.password }}</small>
           </div>
         </template>
@@ -132,20 +132,21 @@
         <template v-else>
           <div class="user-form__field">
             <label for="hr-edit-employee-name" class="user-form__label">
-              Họ tên <span class="user-form__required">*</span>
+              {{ t('user.form.name') }} <span class="user-form__required">*</span>
             </label>
             <InputText id="hr-edit-employee-name" v-model="formState.name" class="user-form__input"
-              placeholder="Nhập họ tên" :invalid="!!formErrors.name" autocomplete="off" />
+              :placeholder="t('user.form.name_placeholder')" :invalid="!!formErrors.name" autocomplete="off" />
             <small v-if="formErrors.name" class="user-form__error">{{ formErrors.name }}</small>
           </div>
 
           <div class="user-form__field">
             <label for="hr-edit-employee-password" class="user-form__label">
-              Mật khẩu <span class="user-form__required">*</span>
+              {{ t('user.form.password') }} <span class="user-form__required">*</span>
             </label>
             <Password id="hr-edit-employee-password" v-model="formState.password" class="user-form__input"
-              :feedback="false" toggle-mask placeholder="Nhập mật khẩu" :invalid="!!formErrors.password"
-              input-id="hr-edit-employee-password-input" autocomplete="new-password" @blur="validatePasswordField" />
+              :feedback="false" toggle-mask :placeholder="t('user.form.password_placeholder')"
+              :invalid="!!formErrors.password" input-id="hr-edit-employee-password-input" autocomplete="new-password"
+              @blur="validatePasswordField" />
             <small v-if="formErrors.password" class="user-form__error">{{ formErrors.password }}</small>
           </div>
         </template>
@@ -153,32 +154,33 @@
         <div class="user-form__field">
           <label :for="formMode === 'create' ? 'hr-new-employee-role' : 'hr-edit-employee-role'"
             class="user-form__label">
-            Vai trò <span class="user-form__required">*</span>
+            {{ t('user.form.role') }} <span class="user-form__required">*</span>
           </label>
           <Select :id="formMode === 'create' ? 'hr-new-employee-role' : 'hr-edit-employee-role'"
             v-model="formState.roleId" :options="roleOptions" optionLabel="name" optionValue="id"
-            placeholder="Chọn vai trò" class="user-form__input" :loading="isRoleLoading" :invalid="!!formErrors.roleId"
-            @show="loadRoles" />
+            :placeholder="t('user.form.role_placeholder')" class="user-form__input" :loading="isRoleLoading"
+            :invalid="!!formErrors.roleId" @show="loadRoles" />
           <small v-if="formErrors.roleId" class="user-form__error">{{ formErrors.roleId }}</small>
         </div>
       </form>
 
       <template #footer>
-        <Button label="Hủy" text severity="secondary" @click="closeFormDialog" />
-        <Button :label="formMode === 'create' ? 'Tạo mới' : 'Lưu'" :loading="isSaving" @click="submitForm" />
+        <Button :label="t('common.cancel')" text severity="secondary" @click="closeFormDialog" />
+        <Button :label="formMode === 'create' ? t('user.form.create_btn') : t('common.save')" :loading="isSaving"
+          @click="submitForm" />
       </template>
     </Dialog>
 
-    <Dialog v-model:visible="deleteDialogVisible" modal :draggable="false" header="Xóa người dùng"
+    <Dialog v-model:visible="deleteDialogVisible" modal :draggable="false" :header="t('user.delete.title')"
       class="user-delete-dialog" :style="{ width: '24rem' }">
       <p class="user-delete-dialog__message">
-        Bạn có chắc muốn xóa người dùng
+        {{ t('user.delete.confirm') }}
         <strong>{{ deletingUser?.name }}</strong>?
       </p>
 
       <template #footer>
-        <Button label="Hủy" text severity="secondary" @click="deleteDialogVisible = false" />
-        <Button label="Xóa" severity="danger" :loading="isDeleting" @click="confirmDelete" />
+        <Button :label="t('common.cancel')" text severity="secondary" @click="deleteDialogVisible = false" />
+        <Button :label="t('user.delete.btn')" severity="danger" :loading="isDeleting" @click="confirmDelete" />
       </template>
     </Dialog>
   </ion-page>
@@ -186,7 +188,8 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref } from 'vue';
-import { IonPage, onIonViewWillEnter } from '@ionic/vue';
+import { useI18n } from 'vue-i18n';
+import { IonPage } from '@ionic/vue';
 import { useToast } from 'primevue/usetoast';
 import { FilterMatchMode } from '@primevue/core/api';
 import userApi from '@/api/user';
@@ -194,10 +197,14 @@ import roleApi from '@/api/role';
 import { parseRoleBaseList } from '@/utils/roleResponse';
 import type { Role } from '@/types/role';
 import type { PagedUserResponse, User, UserQueryPayload } from '@/types/user';
+import { usePageDataRefresh } from '@/composables/usePageDataRefresh';
+import { useMenuPermissions } from '@/composables/useMenuPermissions';
 import { useAuthStore } from '@/store/auth';
 
 const toast = useToast();
+const { t } = useI18n();
 const authStore = useAuthStore();
+const { canCreate, canUpdate, canDelete } = useMenuPermissions(['user']);
 
 const userList = ref<User[]>([]);
 const roles = ref<Role[]>([]);
@@ -246,33 +253,33 @@ const roleNameMap = computed(() =>
 
 const serverFilterPassthrough = () => true;
 
-const tableColumns = [
+const tableColumns = computed(() => [
   { field: '#', header: '#', width: '3rem', type: '#', filterable: false },
   {
     field: 'code',
-    header: 'Mã NV',
+    header: t('user.columns.code'),
     width: 'auto',
     type: 'text',
     filterable: true,
-    filterPlaceholder: 'Tìm mã',
+    filterPlaceholder: t('user.filters.search_code'),
   },
   {
     field: 'name',
-    header: 'Họ tên',
+    header: t('user.columns.name'),
     width: 'auto',
     type: 'text',
     filterable: true,
-    filterPlaceholder: 'Tìm họ tên',
+    filterPlaceholder: t('user.filters.search_name'),
   },
   {
     field: 'roleId',
-    header: 'Vai trò',
+    header: t('user.columns.role'),
     width: 'auto',
     type: 'role',
     filterable: true,
-    filterPlaceholder: 'Vai trò',
-  }
-];
+    filterPlaceholder: t('user.filters.role'),
+  },
+]);
 
 const TEXT_FILTER_FIELDS = ['code', 'name', 'keyword'] as const;
 
@@ -390,7 +397,7 @@ const loadData = async (event?: { page?: number; rows?: number }) => {
     console.error('Lỗi tải danh sách người dùng:', error);
     userList.value = [];
     totalRecords.value = 0;
-    showToast('error', 'Lỗi', 'Không thể tải danh sách người dùng.');
+    showToast('error', t('user.toast.error'), t('user.toast.load_failed'));
   } finally {
     isLoading.value = false;
   }
@@ -501,9 +508,9 @@ const openDeleteDialog = (user: User) => {
 const getPasswordError = (password: string) => {
   const value = password.trim();
 
-  if (!value) return 'Vui lòng nhập mật khẩu';
-  if (value.length < 1) return 'Mật khẩu phải có ít nhất 6 ký tự';
-  if (password.length > 100) return 'Mật khẩu không quá 100 ký tự';
+  if (!value) return t('user.errors.password_required');
+  if (value.length < 1) return t('user.errors.password_min');
+  if (password.length > 100) return t('user.errors.password_max');
   return '';
 };
 
@@ -523,15 +530,15 @@ const validateForm = () => {
   };
 
   if (formMode.value === 'create' && !code) {
-    errors.code = 'Vui lòng nhập mã nhân viên';
+    errors.code = t('user.errors.code_required');
   }
 
   if (!name) {
-    errors.name = 'Vui lòng nhập họ tên';
+    errors.name = t('user.errors.name_required');
   }
 
   if (roleId == null || Number.isNaN(Number(roleId))) {
-    errors.roleId = 'Vui lòng chọn vai trò';
+    errors.roleId = t('user.errors.role_required');
   }
 
   formErrors.value = errors;
@@ -548,7 +555,7 @@ const submitForm = async () => {
 
     if (formMode.value === 'create') {
       if (!currentUserId.value) {
-        showToast('error', 'Lỗi', 'Không tìm thấy tài khoản. Vui lòng đăng nhập lại.');
+        showToast('error', t('user.toast.error'), t('user.toast.account_missing'));
         return;
       }
 
@@ -562,20 +569,20 @@ const submitForm = async () => {
       });
 
       if (response.data?.success) {
-        showToast('success', 'Thành công', response.data.message || 'Tạo người dùng thành công.');
+        showToast('success', t('user.toast.success'), response.data.message || t('user.toast.create_success'));
         closeFormDialog();
         await loadData();
         return;
       }
 
-      showToast('error', 'Thất bại', response.data?.message || 'Không thể tạo người dùng.');
+      showToast('error', t('user.toast.failure'), response.data?.message || t('user.toast.create_failed'));
       return;
     }
 
     if (editingUserId.value == null) return;
 
     if (!currentUserId.value) {
-      showToast('error', 'Lỗi', 'Không tìm thấy tài khoản. Vui lòng đăng nhập lại.');
+      showToast('error', t('user.toast.error'), t('user.toast.account_missing'));
       return;
     }
 
@@ -588,17 +595,17 @@ const submitForm = async () => {
     });
 
     if (response.data?.success) {
-      showToast('success', 'Thành công', response.data.message || 'Cập nhật người dùng thành công.');
+      showToast('success', t('user.toast.success'), response.data.message || t('user.toast.update_success'));
       closeFormDialog();
       await loadData();
       return;
     }
 
-    showToast('error', 'Thất bại', response.data?.message || 'Không thể cập nhật người dùng.');
+    showToast('error', t('user.toast.failure'), response.data?.message || t('user.toast.update_failed'));
   } catch (error: unknown) {
     console.error('Lỗi lưu người dùng:', error);
     const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
-    showToast('error', 'Lỗi', message || 'Không thể lưu người dùng. Vui lòng thử lại.');
+    showToast('error', t('user.toast.error'), message || t('user.toast.save_failed'));
   } finally {
     isSaving.value = false;
   }
@@ -613,24 +620,24 @@ const confirmDelete = async () => {
     const response = await userApi.deleteUserById(deletingUser.value.id, { id: userId });
 
     if (response.data?.success) {
-      showToast('success', 'Thành công', response.data.message || 'Xóa người dùng thành công.');
+      showToast('success', t('user.toast.success'), response.data.message || t('user.toast.delete_success'));
       deleteDialogVisible.value = false;
       deletingUser.value = null;
       await loadData();
       return;
     }
 
-    showToast('error', 'Thất bại', response.data?.message || 'Không thể xóa người dùng.');
+    showToast('error', t('user.toast.failure'), response.data?.message || t('user.toast.delete_failed'));
   } catch (error: unknown) {
     console.error('Lỗi xóa người dùng:', error);
     const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
-    showToast('error', 'Lỗi', message || 'Không thể xóa người dùng. Vui lòng thử lại.');
+    showToast('error', t('user.toast.error'), message || t('user.toast.delete_retry'));
   } finally {
     isDeleting.value = false;
   }
 };
 
-onIonViewWillEnter(() => {
+usePageDataRefresh('ListUser', () => {
   void loadRoles();
   loadData();
 });

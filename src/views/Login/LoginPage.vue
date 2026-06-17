@@ -72,7 +72,7 @@ const handleLogin = async (credentials: { code: string; password: string }) => {
   } catch (error: unknown) {
     console.error('Lỗi gọi API đăng nhập:', error);
     const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message
-      || 'Không thể đăng nhập. Vui lòng thử lại.';
+      || 'Server đang bảo trì. Vui lòng thử lại sau.';
     notify(message, 'error', 'Lỗi');
   } finally {
     isLoading.value = false;

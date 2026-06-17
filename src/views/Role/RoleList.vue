@@ -12,7 +12,7 @@
           <template #header>
             <div class="role-toolbar">
               <Button type="button" size="small" outlined class="role-toolbar__btn role-toolbar__btn--create"
-                @click="openCreateDialog">
+                :disabled="!canCreate" @click="openCreateDialog">
                 <i class="pi pi-plus role-toolbar__icon" aria-hidden="true" />
                 <span class="role-toolbar__label">Thêm vai trò</span>
               </Button>
@@ -59,15 +59,15 @@
             </template>
           </Column>
 
-          <Column class="text-center" header="Thao tác" style="width: auto">
+          <Column class="text-center" style="width: 200px">
             <template #body="{ data }">
               <div class="role-row-actions">
                 <Button icon="pi pi-eye" size="small" severity="secondary" rounded outlined aria-label="Chi tiết"
-                  @click="goToDetail(data)" />
+                  :disabled="!canView" @click="goToDetail(data)" />
                 <Button icon="pi pi-pencil" size="small" severity="info" rounded outlined aria-label="Sửa vai trò"
-                  @click="openEditDialog(data)" />
+                  :disabled="!canUpdate" @click="openEditDialog(data)" />
                 <Button icon="pi pi-trash" size="small" severity="danger" rounded outlined aria-label="Xóa vai trò"
-                  @click="openDeleteDialog(data)" />
+                  :disabled="!canDelete" @click="openDeleteDialog(data)" />
               </div>
             </template>
           </Column>
@@ -93,17 +93,17 @@
           <label for="role-form-admin" class="role-form__checkbox-label">Quyền Admin</label>
         </div>
 
-        <div class="role-form__field">
+        <div class="role-form__field role-form__field--permissions">
           <label class="role-form__label">Phân quyền</label>
           <div v-if="isPermissionLoading" class="role-form__permission-loading">
-            <Skeleton width="100%" height="8rem" />
+            <Skeleton width="100%" height="3.5rem" />
           </div>
           <div v-else-if="permissionMenus.length === 0" class="role-form__permission-empty">
             Không có dữ liệu phân quyền.
           </div>
           <div v-else class="role-form__permission-list">
-            <div v-for="menu in permissionMenus" :key="menu.id" class="role-form__permission-group">
-              <div class="role-form__permission-group-title">{{ menu.name }}</div>
+            <div v-for="menu in permissionMenus" :key="menu.id" class="role-form__permission-row">
+              <span class="role-form__permission-menu">{{ menu.name }}</span>
               <div class="role-form__permission-items">
                 <label v-for="perm in menu.permissions" :key="perm.id" class="role-form__permission-item">
                   <Checkbox :modelValue="isPermissionSelected(menu.id, perm.id)" binary
@@ -140,7 +140,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { IonPage, onIonViewWillEnter } from '@ionic/vue';
+import { IonPage } from '@ionic/vue';
 import { useToast } from 'primevue/usetoast';
 import { FilterMatchMode } from '@primevue/core/api';
 import roleApi from '@/api/role';
@@ -154,6 +154,8 @@ import {
   permissionKey,
 } from '@/utils/roleResponse';
 import type { Role, RolePermissionGroup, RolePermissionPayload, RoleQueryPayload } from '@/types/role';
+import { useMenuPermissions } from '@/composables/useMenuPermissions';
+import { usePageDataRefresh } from '@/composables/usePageDataRefresh';
 
 const toast = useToast();
 const router = useRouter();
@@ -176,6 +178,8 @@ const deleteDialogVisible = ref(false);
 const formMode = ref<'create' | 'edit'>('create');
 const editingRoleId = ref<number | null>(null);
 const deletingRole = ref<Role | null>(null);
+
+const { canView, canCreate, canUpdate, canDelete } = useMenuPermissions(['role']);
 
 const formState = ref({
   name: '',
@@ -568,7 +572,7 @@ const confirmDelete = async () => {
   }
 };
 
-onIonViewWillEnter(() => {
+usePageDataRefresh('ListRole', () => {
   loadData();
 });
 </script>
@@ -762,17 +766,21 @@ onIonViewWillEnter(() => {
 .role-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .role-form__field {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.35rem;
 
   &--checkbox {
     flex-direction: row;
     align-items: center;
+    gap: 0.5rem;
+  }
+
+  &--permissions {
     gap: 0.5rem;
   }
 }
@@ -799,44 +807,56 @@ onIonViewWillEnter(() => {
 
 .role-form__permission-loading,
 .role-form__permission-empty {
-  padding: 0.75rem 0;
+  padding: 0.5rem 0.625rem;
   color: #64748b;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
 }
 
 .role-form__permission-list {
-  max-height: 280px;
-  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  padding: 0.75rem;
+  padding: 0.5rem 0.625rem;
+  background: #f8fafc;
 }
 
-.role-form__permission-group+.role-form__permission-group {
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid #f1f5f9;
+.role-form__permission-row {
+  display: grid;
+  grid-template-columns: minmax(5.5rem, 7rem) 1fr;
+  gap: 0.375rem 0.625rem;
+  align-items: center;
+  padding: 0.375rem 0;
 }
 
-.role-form__permission-group-title {
+.role-form__permission-row+.role-form__permission-row {
+  border-top: 1px solid #e2e8f0;
+}
+
+.role-form__permission-menu {
+  font-size: 0.8125rem;
   font-weight: 600;
   color: #334155;
-  margin-bottom: 0.5rem;
+  line-height: 1.3;
 }
 
 .role-form__permission-items {
   display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
+  gap: 0.25rem 0.625rem;
 }
 
 .role-form__permission-item {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
   color: #475569;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .role-delete-dialog__message {

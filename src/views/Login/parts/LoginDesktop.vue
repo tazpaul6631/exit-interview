@@ -7,10 +7,10 @@
       </div>
       <div class="banner-overlay"></div>
       <div class="banner-content animate__animated animate__fadeInUp">
-        <h1>員工離職面談記錄表</h1>
+        <h1>{{ t('login.banner_title') }}</h1>
         <div class="divider"></div>
-        <h2>HR Management</h2>
-        <p>Jia Hsin IT Department</p>
+        <h2>{{ t('login.banner_subtitle') }}</h2>
+        <p>{{ t('login.banner_dept') }}</p>
       </div>
     </div>
 
@@ -22,38 +22,38 @@
           <div class="logo-wrap">
             <img :src="APP_LOGO_URL" :alt="APP_LOGO_ALT" class="form-logo" />
           </div>
-          <h3>Xin chào!</h3>
-          <p>Hệ thống phỏng vấn thôi việc dành cho quản lý</p>
+          <h3>{{ t('login.greeting') }}</h3>
+          <p>{{ t('login.subtitle') }}</p>
         </div>
 
         <form class="login-form" @submit.prevent="onLoginSubmit">
           <div class="field">
             <label for="login-code" class="field-label">
-              Tài khoản quản lý <span class="field-required">*</span>
+              {{ t('login.code_label') }} <span class="field-required">*</span>
             </label>
             <IconField iconPosition="left" class="login-icon-field">
-              <InputText id="login-code" v-model="code" placeholder="Mã số nhân viên" class="login-input"
+              <InputText id="login-code" v-model="code" :placeholder="t('login.code_placeholder')" class="login-input"
                 :invalid="submitCount > 0 && !!errors.code" autocomplete="username" fluid />
             </IconField>
           </div>
 
           <div class="field">
             <label for="login-password" class="field-label">
-              Mật khẩu <span class="field-required">*</span>
+              {{ t('login.password_label') }} <span class="field-required">*</span>
             </label>
             <IconField iconPosition="left" class="login-icon-field">
-              <Password id="login-password" v-model="password" placeholder="Nhập mật khẩu"
+              <Password id="login-password" v-model="password" :placeholder="t('login.password_placeholder')"
                 class="login-input login-password" :invalid="submitCount > 0 && !!errors.password" toggle-mask
                 :feedback="false" autocomplete="current-password" fluid />
             </IconField>
           </div>
 
-          <Button type="submit" label="VÀO HỆ THỐNG" icon="pi pi-arrow-right" icon-pos="right" class="w-full login-btn"
-            :loading="loading" />
+          <Button type="submit" :label="t('login.submit')" icon="pi pi-arrow-right" icon-pos="right"
+            class="w-full login-btn" :loading="loading" />
         </form>
 
         <div class="footer-text">
-          <p>© 2026 Jia Hsin IT Department — HR Management</p>
+          <p>{{ t('login.footer') }}</p>
         </div>
       </div>
     </div>
@@ -61,9 +61,11 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useForm, useField } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import { z } from 'zod';
+import { useI18n } from 'vue-i18n';
 import { useToast } from 'primevue/usetoast';
 import { DotLottieVue } from '@lottiefiles/dotlottie-vue';
 import { APP_LOGO_ALT, APP_LOGO_URL } from '@/constants/branding';
@@ -78,6 +80,7 @@ const emit = defineEmits<{
 }>();
 
 const toast = useToast();
+const { t } = useI18n();
 
 const showToast = (
   severity: 'success' | 'info' | 'warn' | 'error',
@@ -92,18 +95,20 @@ const showToast = (
   });
 };
 
-const loginSchema = toTypedSchema(
-  z.object({
-    code: z
-      .string({ required_error: 'Vui lòng nhập mã số nhân viên' })
-      .trim()
-      .min(1, 'Vui lòng nhập mã số nhân viên')
-      .max(50, 'Mã số nhân viên không quá 50 ký tự'),
-    password: z
-      .string({ required_error: 'Vui lòng nhập mật khẩu' })
-      .min(1, 'Vui lòng nhập mật khẩu')
-      .max(100, 'Mật khẩu không quá 100 ký tự'),
-  }),
+const loginSchema = computed(() =>
+  toTypedSchema(
+    z.object({
+      code: z
+        .string({ required_error: t('login.errors.code_required') })
+        .trim()
+        .min(1, t('login.errors.code_required'))
+        .max(50, t('login.errors.code_max')),
+      password: z
+        .string({ required_error: t('login.errors.password_required') })
+        .min(1, t('login.errors.password_required'))
+        .max(100, t('login.errors.password_max')),
+    }),
+  ),
 );
 
 const { handleSubmit, submitCount, errors } = useForm({
@@ -132,7 +137,7 @@ const onLoginSubmit = handleSubmit(
     const messages = [formErrors.code, formErrors.password].filter(Boolean);
     if (messages.length === 0) return;
 
-    showToast('warn', 'Vui lòng kiểm tra', messages.join('\n'));
+    showToast('warn', t('login.check_form'), messages.join('\n'));
   },
 );
 </script>
@@ -213,6 +218,7 @@ const onLoginSubmit = handleSubmit(
   letter-spacing: 0.04em;
   color: #587bb4;
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 .divider {
@@ -382,20 +388,12 @@ const onLoginSubmit = handleSubmit(
   letter-spacing: 0.04em;
   border-radius: 12px;
   border: none;
-  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
-  box-shadow: 0 10px 24px rgba(79, 70, 229, 0.28);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
 
-:deep(.login-btn:hover) {
-  background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
-  box-shadow: 0 12px 28px rgba(79, 70, 229, 0.34);
-  transform: translateY(-1px);
-}
-
-:deep(.login-btn:active) {
-  transform: translateY(0);
-  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.24);
+  &:hover {
+    box-shadow: 0 12px 28px rgba(67, 233, 136, 0.34);
+    transform: translateY(-1px);
+  }
 }
 
 .footer-text {

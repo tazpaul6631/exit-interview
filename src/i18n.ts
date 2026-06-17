@@ -1,21 +1,25 @@
 import { createI18n } from 'vue-i18n';
 import vi from './locales/vi.json';
 import en from './locales/en.json';
-import zh from './locales/zh-tw.json';
+import zhTw from './locales/zh-tw.json';
+import zhCn from './locales/zh-cn.json';
 import { readStoredLocale } from './constants/locales';
+
+type LocaleMessages = typeof vi;
+
+const messages: Record<string, LocaleMessages> = {
+  vi,
+  en,
+  'zh-TW': zhTw,
+  'zh-CN': zhCn,
+};
 
 const i18n = createI18n({
   legacy: false,
   locale: readStoredLocale() ?? 'vi',
   fallbackLocale: 'en',
   globalInjection: true,
-  messages: {
-    vi,
-    en,
-    zh,
-    'zh-TW': zh,
-    'zh-CN': zh,
-  } as Record<string, typeof vi>,
+  messages,
 });
 
 export default i18n;

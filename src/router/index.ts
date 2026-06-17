@@ -1,22 +1,19 @@
-import { nextTick } from 'vue';
 import { createRouter, createWebHashHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
 import { useAuthStore } from '@/store/auth';
 import { Capacitor } from '@capacitor/core'; // Import Capacitor API để nhận diện App Native
 import MainLayout from '../views/MainLayout.vue';
+import NotFoundPage from '@/views/404NotFoundPage/NotFoundPage.vue';
+import DashBoard from '@/views/DashBoard/DashBoard.vue';
+import { getRoutePermissionHints } from '@/constants/appMenuItems';
+import { hasRouteMenuAccess } from '@/utils/menuAccess';
+import {
+  NESTED_OUTLET_SELECTOR,
+  syncOutletPagesDeferred,
+} from '@/utils/ionicOutlet';
 
 const isNotFoundRoute = (path: string, name?: string | symbol | null) =>
   path === '/404' || name === 'NotFound';
-
-/** Web: ẩn page cũ trong ion-router-outlet để không bị chồng view khi đổi route. */
-function syncOutletPages(selector: string) {
-  const pages = document.querySelectorAll(`${selector} .ion-page`);
-  if (pages.length <= 1) return;
-
-  pages.forEach((page, index) => {
-    page.classList.toggle('ion-page-hidden', index !== pages.length - 1);
-  });
-}
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -38,7 +35,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'dashboard',
         name: 'Dashboard',
-        component: () => import('@/views/DashBoard/DashBoard.vue')
+        component: DashBoard,
       },
       {
         path: 'list-role',
@@ -73,7 +70,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: '404',
         name: 'NotFound',
-        component: () => import('@/views/404NotFoundPage/NotFoundPage.vue'),
+        component: NotFoundPage,
         meta: { requiresAuth: false },
       },
       {
@@ -158,15 +155,23 @@ router.beforeEach((to, from, next) => {
     return next('/dashboard');
   }
 
-  // Hợp lệ thì cho đi tiếp
+  if (isAuthenticated) {
+    const permissionHints = getRoutePermissionHints(to.path);
+    if (permissionHints) {
+      const menus = authStore.user?.permissions ?? [];
+      if (!hasRouteMenuAccess(menus, permissionHints)) {
+        return next({ path: '/404', replace: true });
+      }
+    }
+  }
+
   next();
 });
 
-router.afterEach(async () => {
+router.afterEach(async (to) => {
   if (Capacitor.isNativePlatform()) return;
 
-  await nextTick();
-  syncOutletPages('.content-card ion-router-outlet');
+  await syncOutletPagesDeferred(NESTED_OUTLET_SELECTOR, to.name);
 });
 
 export default router;
