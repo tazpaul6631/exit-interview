@@ -220,7 +220,7 @@
       "name": "角色名称",
       "name_placeholder": "请输入角色名称",
       "is_admin": "管理员权限",
-      "permissions": "权限分配",
+      "permissions": "权限分配 按菜单分组显示",
       "permissions_empty": "没有权限数据。",
       "create_btn": "创建"
     },

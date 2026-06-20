@@ -5,10 +5,10 @@
         <ion-toolbar class="transparent-toolbar">
           <ion-buttons slot="start">
             <ion-button @click="goBack" color="primary">
-              <ion-icon :icon="arrowBackOutline"></ion-icon>
+              <ion-icon class="icon-back" :icon="arrowBackOutline"></ion-icon>
+              <ion-title class="title-cn">Phỏng vấn thôi việc</ion-title>
             </ion-button>
           </ion-buttons>
-          <ion-title class="title-cn">Phỏng vấn thôi việc</ion-title>
         </ion-toolbar>
       </ion-header>
       <ExitInterviewIpad :key="viewKey" />
@@ -47,5 +47,12 @@ const goBack = () => {
 
 .title-cn {
   color: #3182ce;
+  font-size: 16px;
+  line-height: 50px;
+}
+
+.icon-back {
+  color: #3182ce;
+  font-size: 24px;
 }
 </style>

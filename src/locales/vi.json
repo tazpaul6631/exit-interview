@@ -220,7 +220,7 @@
       "name": "Tên vai trò",
       "name_placeholder": "Nhập tên vai trò",
       "is_admin": "Quyền Admin",
-      "permissions": "Phân quyền",
+      "permissions": "Phân quyền theo menu",
       "permissions_empty": "Không có dữ liệu phân quyền.",
       "create_btn": "Tạo mới"
     },

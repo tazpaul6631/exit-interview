@@ -10,15 +10,28 @@ import {
   NESTED_OUTLET_SELECTOR,
   syncOutletPagesDeferred,
 } from '@/utils/ionicOutlet';
+import { focusLoginField, releaseFocusDeferred } from '@/utils/releaseFocus';
 
 const isNotFoundRoute = (path: string, name?: string | symbol | null) =>
   path === '/404' || name === 'NotFound';
 
+const PUBLIC_WEB_PATHS = new Set(['/login', '/404']);
+
+const isPublicWebRoute = (path: string, name?: string | symbol | null) =>
+  PUBLIC_WEB_PATHS.has(path) || isNotFoundRoute(path, name);
+
+const isWebAuthenticated = () => {
+  const authStore = useAuthStore();
+  return authStore.isAuthenticated && !!authStore.token;
+};
+
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    // Điều hướng gốc: Nếu là App thì vào menu app, web thì vào dashboard (sẽ bị guard chặn bắt login)
-    redirect: () => Capacitor.isNativePlatform() ? '/app-menu' : '/dashboard'
+    redirect: () => {
+      if (Capacitor.isNativePlatform()) return '/app-menu';
+      return isWebAuthenticated() ? '/dashboard' : '/login';
+    },
   },
   {
     path: '/login',
@@ -106,9 +119,9 @@ const router = createRouter({
 /**
  * TÁCH BIỆT LUỒNG DỮ LIỆU BẰNG ROUTER GUARD
  */
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
-  const isAuthenticated = authStore.isAuthenticated;
+  const isAuthenticated = isWebAuthenticated();
 
   // Kiểm tra chính xác xem đang chạy trên Native App (iOS/Android thông qua Capacitor) hay Web
   const isApp = Capacitor.isNativePlatform();
@@ -134,33 +147,33 @@ router.beforeEach((to, from, next) => {
   // ==========================================
   // 2. LUỒNG DÀNH CHO WEB BROWSER
   // ==========================================
-  if (isNotFoundRoute(to.path, to.name)) {
+  if (isPublicWebRoute(to.path, to.name)) {
+    if (to.path === '/login' && isAuthenticated) {
+      return next('/dashboard');
+    }
     return next();
   }
 
-  const requiresAuth = to.matched.some(
-    (record) => record.meta.requiresAuth && record.name !== 'NotFound',
-  );
-
-  // Nếu người dùng Web cố gắng truy cập vào route dành riêng cho App
+  // Route app-only trên web
   if (to.path === '/app-menu' || to.path === '/formExit') {
-    return next(isAuthenticated ? '/dashboard' : '/login');
-  }
-
-  // Xử lý login bình thường cho Web
-  if (requiresAuth && !isAuthenticated) {
-    return next('/login');
-  } else if (to.path === '/login' && isAuthenticated) {
+    if (!isAuthenticated) {
+      await releaseFocusDeferred();
+      return next('/login');
+    }
     return next('/dashboard');
   }
 
-  if (isAuthenticated) {
-    const permissionHints = getRoutePermissionHints(to.path);
-    if (permissionHints) {
-      const menus = authStore.user?.permissions ?? [];
-      if (!hasRouteMenuAccess(menus, permissionHints)) {
-        return next({ path: '/404', replace: true });
-      }
+  // Chưa đăng nhập -> login (mọi route web còn lại)
+  if (!isAuthenticated) {
+    await releaseFocusDeferred();
+    return next({ path: '/login', replace: true });
+  }
+
+  const permissionHints = getRoutePermissionHints(to.path);
+  if (permissionHints) {
+    const menus = authStore.user?.permissions ?? [];
+    if (!hasRouteMenuAccess(menus, permissionHints)) {
+      return next({ path: '/404', replace: true });
     }
   }
 
@@ -169,6 +182,10 @@ router.beforeEach((to, from, next) => {
 
 router.afterEach(async (to) => {
   if (Capacitor.isNativePlatform()) return;
+
+  if (to.path === '/login') {
+    requestAnimationFrame(() => focusLoginField());
+  }
 
   await syncOutletPagesDeferred(NESTED_OUTLET_SELECTOR, to.name);
 });

@@ -220,7 +220,7 @@
       "name": "角色名稱",
       "name_placeholder": "請輸入角色名稱",
       "is_admin": "管理員權限",
-      "permissions": "權限設定",
+      "permissions": "權限設定 按選單分組顯示",
       "permissions_empty": "沒有權限資料。",
       "create_btn": "建立"
     },

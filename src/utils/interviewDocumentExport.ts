@@ -147,6 +147,10 @@ const DOCUMENT_CSS = `
     word-break: break-word;
   }
   .choice-line { margin: 4px 0; }
+  .choice-reason {
+    margin: 2px 0 8px 1.75em;
+    line-height: 1.45;
+  }
 `;
 
 let cachedLogoDataUrl: string | null = null;
@@ -332,6 +336,28 @@ function sortAnswersByPriority(answers: InterviewAnswer[] = []): InterviewAnswer
   );
 }
 
+function isDisagreeExportChoice(label: string): boolean {
+  const text = label.toLowerCase();
+  return /không\s*đồng\s*ý/.test(text) || /不同意/.test(label);
+}
+
+function isAgreeExportChoice(label: string): boolean {
+  if (isDisagreeExportChoice(label)) return false;
+  const text = label.toLowerCase();
+  return /đồng\s*ý/.test(text) || /同意/.test(label);
+}
+
+/** Export: Đồng ý trên, Không đồng ý dưới. */
+function sortExportChoices<T extends { label: string }>(choices: T[]): T[] {
+  const order = (label: string) => {
+    if (isAgreeExportChoice(label)) return 0;
+    if (isDisagreeExportChoice(label)) return 1;
+    return 2;
+  };
+
+  return [...choices].sort((a, b) => order(a.label) - order(b.label));
+}
+
 function collectPart1Items(sections: InterviewSection[]) {
   const child = getFirstChildSection(sections, 1);
   return sortAnswersByPriority(child?.answers ?? []).map((answer) => ({
@@ -372,10 +398,12 @@ function collectPart3Items(sections: InterviewSection[]) {
       sectionName: child.sectionName,
       question: question?.questionName ?? '',
       textAnswer: textAnswer?.textValue?.trim() ?? '',
-      choices: choices.map((answer) => ({
-        label: answer.answerName,
-        checked: !!(answer.checkValue || answer.selectValue),
-      })),
+      choices: sortExportChoices(
+        choices.map((answer) => ({
+          label: answer.answerName,
+          checked: !!(answer.checkValue || answer.selectValue),
+        })),
+      ),
       reasonText: findReasonText(answers),
     };
   });
@@ -468,17 +496,11 @@ function renderPart3ItemsHtml(
       const choicesHtml = hasChoices
         ? item.choices
           .map((choice) => {
-            const reasonSuffix =
-              choice.checked &&
-                item.reasonText &&
-                /không|不/.test(choice.label.toLowerCase())
-                ? ` (Lý do/原因: <span class="dots">${escapeHtml(item.reasonText)}</span>)`
-                : choice.checked &&
-                  /không|不/.test(choice.label.toLowerCase()) &&
-                  !item.reasonText
-                  ? ` (Lý do/原因: <span class="dots">................................</span>)`
-                  : '';
-            return `<div class="choice-line">${renderCheckbox(choice.checked)} ${escapeHtml(choice.label)}${reasonSuffix}</div>`;
+            const reasonBlock =
+              choice.checked && isDisagreeExportChoice(choice.label)
+                ? `<div class="choice-reason"><span class="answer-label">Lý do/原因:</span> <span class="dots">${escapeHtml(item.reasonText || '................................')}</span></div>`
+                : '';
+            return `<div class="choice-line">${renderCheckbox(choice.checked)} ${escapeHtml(choice.label)}</div>${reasonBlock}`;
           })
           .join('')
         : '';
@@ -884,26 +906,19 @@ async function saveInterviewAsDocx(
 
       if (item.choices.length > 0) {
         for (const choice of item.choices) {
-          const children: InstanceType<typeof TextRun>[] = [
-            checkboxRun(choice.checked),
-            run(choice.label),
-          ];
+          blocks.push(
+            paragraph([checkboxRun(choice.checked), run(choice.label)]),
+          );
 
-          if (choice.checked && /không|不/.test(choice.label.toLowerCase())) {
+          if (choice.checked && isDisagreeExportChoice(choice.label)) {
             const reason = item.reasonText || '................................';
-            children.push(
-              run(' (Lý do/原因:'),
-              new TextRun({
-                text: reason,
-                font: fontProps,
-                size: DOC_SIZE_BODY,
-                underline: { type: UnderlineType.DOTTED },
-              }),
-              run(')'),
+            blocks.push(
+              paragraph(
+                [run('Lý do/原因: '), dottedValue(reason)],
+                { indent: { left: 360 } },
+              ),
             );
           }
-
-          blocks.push(paragraph(children));
         }
       } else {
         blocks.push(paragraph([run('Trả lời/答:')]));

@@ -4,6 +4,7 @@ import router from '@/router';
 import type { AuthUser } from '@/types/user';
 import type { Role } from '@/types/role';
 import { normalizeAuthUser } from '@/utils/loginUser';
+import { releaseFocusDeferred } from '@/utils/releaseFocus';
 
 const ROLE_LABELS: Record<number, string> = {
   0: 'HR Management',
@@ -11,7 +12,7 @@ const ROLE_LABELS: Record<number, string> = {
   2: 'Manager',
 };
 
-const AUTH_STORAGE_KEY = 'patrol_auth_storage';
+const AUTH_STORAGE_KEY = 'auth_storage';
 const USER_BACKUP_KEY = 'web_user_backup';
 const TOKEN_BACKUP_KEY = 'web_token_backup';
 const ROLE_NAME_BACKUP_KEY = 'web_role_name';
@@ -143,7 +144,8 @@ export const useAuthStore = defineStore('auth', {
 
       await storageService.clear();
 
-      router.push('/login');
+      await releaseFocusDeferred();
+      await router.push('/login');
     },
   },
 

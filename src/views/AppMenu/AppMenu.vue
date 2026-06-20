@@ -294,6 +294,10 @@ const goToFormExit = () => {
     padding-bottom: 32px;
   }
 
+  .app-menu__locale {
+    width: 25%;
+  }
+
   .menu-card:hover {
     transform: translateY(-2px);
     box-shadow:

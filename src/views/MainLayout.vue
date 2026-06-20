@@ -42,7 +42,7 @@
               </button>
 
               <ion-popover ref="profilePopoverRef" trigger="profile-trigger" :dismiss-on-select="false"
-                class="profile-popover">
+                class="profile-popover" @didDismiss="onProfilePopoverDismiss">
                 <ion-content class="profile-popover__content">
                   <div class="profile-popover__header">
                     <UserAvatar :label="userInitials" size="md" />
@@ -109,7 +109,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import {
   IonSplitPane, IonMenu, IonList, IonPage,
   IonHeader, IonToolbar, IonButtons, IonMenuButton, IonRouterOutlet,
@@ -133,6 +133,7 @@ import ChangePasswordDialog from '@/components/ChangePasswordDialog.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
 import { APP_MENU_ITEMS, matchesRoutePrefix, type AppMenuItem } from '@/constants/appMenuItems';
 import { hasRouteMenuAccess } from '@/utils/menuAccess';
+import { releaseFocus, releaseFocusDeferred } from '@/utils/releaseFocus';
 
 const router = useRouter();
 const route = useRoute();
@@ -140,8 +141,20 @@ const { t } = useI18n();
 
 const profilePopoverRef = ref<{ $el: HTMLIonPopoverElement } | null>(null);
 
-const dismissProfilePopover = () => {
-  void profilePopoverRef.value?.$el.dismiss();
+const dismissProfilePopover = async () => {
+  const popover = profilePopoverRef.value?.$el;
+  if (!popover) return;
+
+  try {
+    await popover.dismiss();
+  } catch {
+    /* popover may already be closed */
+  }
+};
+
+const onProfilePopoverDismiss = () => {
+  document.getElementById('profile-trigger')?.blur();
+  releaseFocus();
 };
 
 /** Web: giữ outlet ổn định; hiển thị page do router guard sync, không remount mỗi lần đổi path. */
@@ -193,22 +206,15 @@ const userInitials = computed(() => {
 const changePasswordVisible = ref(false);
 
 const handleLogout = async () => {
-  dismissProfilePopover();
-
-  if (document.activeElement instanceof HTMLElement) {
-    document.activeElement.blur();
-  }
-
+  await dismissProfilePopover();
+  await releaseFocusDeferred();
   await authStore.logout();
 };
 
-const handleChangePassword = () => {
-  dismissProfilePopover();
-
-  if (document.activeElement instanceof HTMLElement) {
-    document.activeElement.blur();
-  }
-
+const handleChangePassword = async () => {
+  await dismissProfilePopover();
+  await nextTick();
+  releaseFocus();
   changePasswordVisible.value = true;
 };
 

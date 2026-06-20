@@ -220,7 +220,7 @@
       "name": "Role name",
       "name_placeholder": "Enter role name",
       "is_admin": "Admin permission",
-      "permissions": "Permissions",
+      "permissions": "Permissions by menu group",
       "permissions_empty": "No permission data available.",
       "create_btn": "Create"
     },

@@ -456,6 +456,5 @@ usePageDataRefresh('Dashboard', () => {
 
 .custom-grid {
   margin: 0;
-  --ion-grid-column-padding: 12px;
 }
 </style>
