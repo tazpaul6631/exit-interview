@@ -2,6 +2,12 @@
   "app": {
     "title": "HR Management"
   },
+  "app_menu": {
+    "subtitle": "Choose a feature to start",
+    "exit_interview_title": "Exit interview",
+    "exit_interview_desc": "Record feedback and reasons for leaving",
+    "footer": "Jia Hsin · HR Management - IT Department ©2026"
+  },
   "common": {
     "welcome": "Welcome",
     "save": "Save",

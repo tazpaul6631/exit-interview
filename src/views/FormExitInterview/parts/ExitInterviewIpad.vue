@@ -513,13 +513,13 @@ const submitForm = handleSubmit(
 .form-header h1 {
   font-size: 26px;
   font-weight: 800;
-  color: #2d3748;
+  color: #3182ce;
   margin-bottom: 5px;
 }
 
 .form-header .subtitle-cn {
   font-size: 18px;
-  color: #718096;
+  color: #3182ce;
   letter-spacing: 2px;
 }
 
@@ -531,13 +531,13 @@ const submitForm = handleSubmit(
   display: block;
   font-size: 14px;
   font-weight: 600;
-  color: #4a5568;
+  color: #3182ce;
   margin-bottom: 8px;
 }
 
 .custom-input label span {
   font-weight: normal;
-  color: #4a5568;
+  color: #3182ce;
   margin-left: 5px;
 
   &.request {

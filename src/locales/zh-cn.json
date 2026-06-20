@@ -2,6 +2,12 @@
   "app": {
     "title": "人资管理"
   },
+  "app_menu": {
+    "subtitle": "选择功能开始",
+    "exit_interview_title": "离职面谈",
+    "exit_interview_desc": "记录离职评价与原因",
+    "footer": "Jia Hsin · HR Management - IT Department ©2026"
+  },
   "common": {
     "welcome": "欢迎",
     "save": "保存",

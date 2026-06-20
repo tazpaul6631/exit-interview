@@ -8,7 +8,7 @@
               <ion-icon :icon="arrowBackOutline"></ion-icon>
             </ion-button>
           </ion-buttons>
-          <ion-title>Phỏng vấn thôi việc</ion-title>
+          <ion-title class="title-cn">Phỏng vấn thôi việc</ion-title>
         </ion-toolbar>
       </ion-header>
       <ExitInterviewIpad :key="viewKey" />
@@ -43,5 +43,9 @@ const goBack = () => {
 <style lang="scss" scoped>
 .custom-content {
   --background: #f4f7f9;
+}
+
+.title-cn {
+  color: #3182ce;
 }
 </style>

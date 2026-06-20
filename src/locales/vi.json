@@ -2,6 +2,12 @@
   "app": {
     "title": "Quản lý HR"
   },
+  "app_menu": {
+    "subtitle": "Chọn chức năng để bắt đầu",
+    "exit_interview_title": "Phỏng vấn nghỉ việc",
+    "exit_interview_desc": "Ghi nhận đánh giá và lý do thôi việc",
+    "footer": "Jia Hsin · HR Management - IT Department ©2026"
+  },
   "common": {
     "welcome": "Chào mừng",
     "save": "Lưu",
