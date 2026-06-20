@@ -327,13 +327,13 @@
     "guest_hr": "Quản lý HR",
     "menu": {
       "dashboard": "Trang chủ",
-      "list_user": "Người dùng",
-      "list_role": "Vai trò",
-      "list_organization": "Phòng ban",
-      "list_exit_interview": "Nghỉ việc"
+      "list_user": "Danh sách người dùng",
+      "list_role": "Danh sách vai trò",
+      "list_organization": "Danh sách phòng ban",
+      "list_exit_interview": "Danh sách đơn nghỉ việc"
     },
     "breadcrumb": {
-      "exit_interview_list": "Danh sách nghỉ việc",
+      "exit_interview_list": "Danh sách đơn nghỉ việc",
       "exit_interview_detail": "Chi tiết đơn nghỉ việc",
       "role_list": "Danh sách vai trò",
       "role_detail": "Chi tiết vai trò",

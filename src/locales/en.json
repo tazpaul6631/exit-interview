@@ -327,18 +327,18 @@
     "guest_hr": "HR Manager",
     "menu": {
       "dashboard": "Dashboard",
-      "list_user": "Users",
-      "list_role": "Roles",
-      "list_organization": "Departments",
-      "list_exit_interview": "Exit interviews"
+      "list_user": "List users",
+      "list_role": "List roles",
+      "list_organization": "List departments",
+      "list_exit_interview": "List exit interviews"
     },
     "breadcrumb": {
-      "exit_interview_list": "Exit interview list",
-      "exit_interview_detail": "Exit interview detail",
-      "role_list": "Role list",
-      "role_detail": "Role detail",
-      "organization_list": "Department list",
-      "user_list": "User list",
+      "exit_interview_list": "List exit interviews",
+      "exit_interview_detail": "Exit interview details",
+      "role_list": "List roles",
+      "role_detail": "Role details",
+      "organization_list": "List departments",
+      "user_list": "List users",
       "not_found": "404"
     }
   },

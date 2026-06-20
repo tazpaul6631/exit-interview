@@ -327,10 +327,10 @@
     "guest_hr": "HR 管理",
     "menu": {
       "dashboard": "仪表板",
-      "list_user": "用户",
-      "list_role": "角色",
-      "list_organization": "部门",
-      "list_exit_interview": "离职面谈"
+      "list_user": "用户列表",
+      "list_role": "角色列表",
+      "list_organization": "部门列表",
+      "list_exit_interview": "离职面谈列表"
     },
     "breadcrumb": {
       "exit_interview_list": "离职面谈列表",
