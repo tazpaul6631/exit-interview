@@ -56,6 +56,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import Chart from 'primevue/chart';
 import { IonGrid, IonRow, IonCol, IonPage, IonIcon } from '@ionic/vue';
 import { usePageDataRefresh } from '@/composables/usePageDataRefresh';
 import {

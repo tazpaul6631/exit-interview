@@ -18,7 +18,6 @@ import Avatar from 'primevue/avatar';
 import Toast from 'primevue/toast';
 import ProgressBar from 'primevue/progressbar';
 import Skeleton from 'primevue/skeleton';
-import Chart from 'primevue/chart';
 import FloatLabel from 'primevue/floatlabel';
 import 'primeicons/primeicons.css';
 
@@ -41,7 +40,6 @@ export default {
         app.component('Toast', Toast);
         app.component('ProgressBar', ProgressBar);
         app.component('Skeleton', Skeleton);
-        app.component('Chart', Chart);
         app.component('FloatLabel', FloatLabel);
     }
 };

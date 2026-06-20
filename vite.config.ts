@@ -50,8 +50,6 @@ export default defineConfig({
       'vue-router',
       '@ionic/vue',
       '@ionic/vue-router',
-      'primevue/chart',
-      'chart.js',
       '@lottiefiles/dotlottie-vue',
     ],
   },
@@ -82,13 +80,27 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('@ionic')) return 'vendor-ionic';
-            if (id.includes('primevue') || id.includes('primeicons')) return 'vendor-primevue';
-            if (id.includes('vue') || id.includes('pinia') || id.includes('vue-router')) return 'vendor-vue-core';
-            if (id.includes('@capacitor')) return 'vendor-capacitor';
-            return 'vendor-others';
+          if (!id.includes('node_modules')) return;
+
+          if (id.includes('@ionic')) return 'vendor-ionic';
+          if (id.includes('primevue') || id.includes('primeicons') || id.includes('@primeuix')) {
+            return 'vendor-primevue';
           }
+          if (id.includes('chart.js')) return 'vendor-chart';
+          if (id.includes('exceljs')) return 'vendor-excel';
+          if (id.includes('/docx')) return 'vendor-docx';
+          if (id.includes('jspdf') || id.includes('html2canvas')) return 'vendor-pdf';
+          if (id.includes('@capacitor')) return 'vendor-capacitor';
+          if (
+            id.includes('/node_modules/vue/') ||
+            id.includes('/node_modules/vue-router/') ||
+            id.includes('/node_modules/pinia/')
+          ) {
+            return 'vendor-vue-core';
+          }
+          if (id.includes('vue-i18n')) return 'vendor-i18n';
+
+          return 'vendor-others';
         }
       }
     }

@@ -116,17 +116,7 @@ import { IonPage } from '@ionic/vue';
 import interviewView from "@/api/interviewView";
 import organizationApi from "@/api/organization";
 import reportApi, { type ReportExcelPayload } from "@/api/report";
-import {
-  buildReportWorkbook,
-  downloadReportWorkbook,
-  extractReportData,
-  getDefaultReportFilename,
-} from "@/utils/reportExcelBuilder";
 import { FilterMatchMode } from '@primevue/core/api';
-import {
-  exportInterviewPdf,
-  exportInterviewWord,
-} from '@/utils/interviewDocumentExport';
 import format from '@/mixins/format';
 import { usePageDataRefresh } from '@/composables/usePageDataRefresh';
 import { useMenuPermissions } from '@/composables/useMenuPermissions';
@@ -449,14 +439,29 @@ const runRowExport = async (
   }
 };
 
-const exportWord = (emp: EmployeeRecord) => runRowExport(emp, 'word', exportInterviewWord);
-const exportPdf = (emp: EmployeeRecord) => runRowExport(emp, 'pdf', exportInterviewPdf);
+const exportWord = (emp: EmployeeRecord) =>
+  runRowExport(emp, 'word', async (id) => {
+    const { exportInterviewWord } = await import('@/utils/interviewDocumentExport');
+    await exportInterviewWord(id);
+  });
+
+const exportPdf = (emp: EmployeeRecord) =>
+  runRowExport(emp, 'pdf', async (id) => {
+    const { exportInterviewPdf } = await import('@/utils/interviewDocumentExport');
+    await exportInterviewPdf(id);
+  });
 
 const exportExcel = async () => {
   if (isExporting.value) return;
 
   isExporting.value = true;
   try {
+    const {
+      buildReportWorkbook,
+      downloadReportWorkbook,
+      extractReportData,
+      getDefaultReportFilename,
+    } = await import('@/utils/reportExcelBuilder');
     const payload = buildExportPayload();
     const response = await reportApi.postExcel(payload);
     const reportData = extractReportData(response?.data?.data);

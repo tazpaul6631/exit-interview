@@ -4,7 +4,6 @@ import { useAuthStore } from '@/store/auth';
 import { Capacitor } from '@capacitor/core'; // Import Capacitor API để nhận diện App Native
 import MainLayout from '../views/MainLayout.vue';
 import NotFoundPage from '@/views/404NotFoundPage/NotFoundPage.vue';
-import DashBoard from '@/views/DashBoard/DashBoard.vue';
 import { getRoutePermissionHints } from '@/constants/appMenuItems';
 import { hasRouteMenuAccess } from '@/utils/menuAccess';
 import {
@@ -35,7 +34,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'dashboard',
         name: 'Dashboard',
-        component: DashBoard,
+        component: () => import('@/views/DashBoard/DashBoard.vue'),
       },
       {
         path: 'list-role',
