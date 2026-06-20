@@ -3,7 +3,7 @@
     <div class="organization-page-container organization-flex-column">
       <div class="organization-table-responsive organization-flex-column">
         <DataTable :class="{ 'organization-table--empty': organizationList.length === 0 }" v-model:filters="filters"
-          v-model:first="first" :value="organizationList" lazy paginator :rows="rows" :rowsPerPageOptions="[10, 20, 50]"
+          v-model:first="first" :value="organizationList" lazy paginator :rows="rows" :rowsPerPageOptions="[13, 20, 50]"
           :totalRecords="totalRecords" dataKey="id" filterDisplay="row" scrollable scrollHeight="flex"
           class="organization-table organization-full-height-table organization-compact-table" showGridlines
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
@@ -32,12 +32,17 @@
           </template>
 
           <Column v-for="col in tableColumns" :key="`${col.field}-${col.header}`" :field="col.field"
-            :header="col.header" :style="{ width: col.width }" :showFilterMenu="false"
+            :header="col.header" :style="{ width: col.width }" :showFilterMenu="false" :bodyClass="col.bodyClass"
             :filterFunction="col.filterable ? serverFilterPassthrough : undefined" clearFilterButton="true">
             <template #body="{ data, index }">
               <template v-if="col.type === '#'">
                 <Skeleton v-if="isLoading" width="2rem" height="1rem" />
                 <span v-else class="organization-fw-bold">{{ first + index + 1 }}</span>
+              </template>
+
+              <template v-else-if="col.type === 'priority'">
+                <Skeleton v-if="isLoading" width="4rem" height="1rem" />
+                <span v-else>{{ data[col.field] }}</span>
               </template>
 
               <template v-else-if="col.type === 'active'">
@@ -106,7 +111,7 @@
         <div class="organization-form__field organization-form__field--checkbox">
           <Checkbox v-model="formState.isActive" inputId="organization-active" binary />
           <label for="organization-active" class="organization-form__checkbox-label">{{ t('organization.form.is_active')
-          }}</label>
+            }}</label>
         </div>
       </form>
 
@@ -156,7 +161,7 @@ const isDeleting = ref(false);
 const filters = ref<Record<string, { value: unknown; matchMode: string }>>();
 const totalRecords = ref(0);
 const first = ref(0);
-const rows = ref(10);
+const rows = ref(13);
 
 const formDialogVisible = ref(false);
 const deleteDialogVisible = ref(false);
@@ -185,7 +190,7 @@ const activeFilterOptions = computed(() => [
 const serverFilterPassthrough = () => true;
 
 const tableColumns = computed(() => [
-  { field: '#', header: '#', width: '3rem', type: '#', filterable: false },
+  { field: '#', header: '#', width: '3rem', type: '#', filterable: false, bodyClass: 'text-center' },
   {
     field: 'code',
     header: t('organization.columns.code'),
@@ -203,9 +208,17 @@ const tableColumns = computed(() => [
     filterPlaceholder: t('organization.filters.search_name'),
   },
   {
+    field: 'priority',
+    header: t('organization.columns.priority'),
+    width: '150px',
+    bodyClass: 'text-center',
+    type: 'priority',
+    filterable: false,
+  },
+  {
     field: 'isActive',
     header: t('organization.columns.status'),
-    width: 'auto',
+    width: '150px',
     type: 'active',
     filterable: true,
     filterPlaceholder: t('organization.filters.status'),

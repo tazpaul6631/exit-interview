@@ -4,23 +4,23 @@
       <div class="table-responsive flex-column-layout">
 
         <DataTable :class="{ 'is-empty-table': employeeList.length === 0 }" v-model:filters="filters"
-          v-model:first="first" :value="employeeList" lazy paginator :rows="rows" :rowsPerPageOptions="[10, 20, 50]"
+          v-model:first="first" :value="employeeList" lazy paginator :rows="rows" :rowsPerPageOptions="[13, 20, 50]"
           :totalRecords="totalRecords" dataKey="id" filterDisplay="row" scrollable scrollHeight="flex"
           class="full-height-table compact-table" showGridlines
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-          currentPageReportTemplate="Hiển thị {first} đến {last} trên {totalRecords} dữ liệu" @page="onPageChange"
-          @filter="onTableFilter" @sort="onTableFilter">
+          :currentPageReportTemplate="t('exit_interview.page_report', { first: first + 1, last: first + rows, totalRecords: totalRecords })"
+          @page="onPageChange" @filter="onTableFilter" @sort="onTableFilter">
 
           <template #header>
             <div class="table-toolbar">
               <Button type="button" outlined size="small" class="toolbar-btn toolbar-btn--export" :loading="isExporting"
                 :disabled="isExporting || !canExport" @click="exportExcel">
                 <i class="pi pi-file-excel toolbar-btn__icon" aria-hidden="true"></i>
-                <span class="toolbar-btn__label">Xuất Excel</span>
+                <span class="toolbar-btn__label">{{ t('exit_interview.export_excel') }}</span>
               </Button>
               <Button type="button" outlined size="small" class="toolbar-btn toolbar-btn--clear" @click="clearFilter">
                 <i class="pi pi-filter-slash toolbar-btn__icon" aria-hidden="true"></i>
-                <span class="toolbar-btn__label">Xóa lọc</span>
+                <span class="toolbar-btn__label">{{ t('exit_interview.clear_filter') }}</span>
               </Button>
             </div>
           </template>
@@ -28,12 +28,12 @@
           <template #empty>
             <div style="text-align: center; height: 300px; align-content: center;">
               <i class="pi pi-inbox" style="font-size: 2rem; color: #9ca3af; margin-bottom: 1rem;"></i>
-              <p style="margin: 0; color: #6b7280;"> Không tìm thấy dữ liệu nhân viên.</p>
+              <p style="margin: 0; color: #6b7280;">{{ t('exit_interview.empty') }}</p>
             </div>
           </template>
 
           <Column v-for="col in tableColumns" :key="col.field" :field="col.field" :header="col.header"
-            :style="{ width: col.width }" :showFilterMenu="false"
+            :style="{ width: col.width }" :showFilterMenu="false" :bodyClass="col.bodyClass"
             :filterFunction="col.filterable ? serverFilterPassthrough : undefined">
 
             <template #body="{ data, index }">
@@ -65,13 +65,15 @@
 
             <template #filter="{ filterModel, filterCallback }" v-if="col.filterable">
               <template v-if="col.type === 'date'">
-                <DatePicker v-model="filterModel.value" dateFormat="dd/mm/yy" placeholder="Chọn ngày" class="w-full"
-                  showClear showIcon @update:modelValue="onDateFilterChange(filterCallback)" />
+                <DatePicker v-model="filterModel.value" dateFormat="dd/mm/yy"
+                  :placeholder="t('exit_interview.filters.select_date')" class="w-full" showClear showIcon
+                  @update:modelValue="onDateFilterChange(filterCallback)" />
               </template>
 
               <template v-else-if="col.type === 'multiselect'">
                 <MultiSelect v-model="filterModel.value" :options="orgSelectOptions" optionLabel="name" optionValue="id"
-                  :loading="isOrgLoading" :placeholder="isOrgLoading ? 'Đang tải phòng ban...' : col.filterPlaceholder"
+                  :loading="isOrgLoading"
+                  :placeholder="isOrgLoading ? t('exit_interview.filters.loading_organization') : col.filterPlaceholder"
                   class="org-filter-multiselect" display="chip" filter showClear :maxSelectedLabels="1"
                   @show="onOrgMultiselectShow" @change="onOrgFilterApply(filterCallback)"
                   @clear="onOrgFilterApply(filterCallback)" @hide="onOrgFilterApply(filterCallback)" />
@@ -88,14 +90,15 @@
           <Column class="text-center" style="width: 200px">
             <template #body="{ data }">
               <div class="row-actions">
-                <Button icon="pi pi-file-word" size="small" severity="info" rounded outlined aria-label="Xuất Word"
-                  :loading="isRowExporting(data.id, 'word')" :disabled="!!exportingRowKey || !canExport"
-                  @click="exportWord(data)" />
-                <Button icon="pi pi-file-pdf" size="small" severity="danger" rounded outlined aria-label="Xuất PDF"
-                  :loading="isRowExporting(data.id, 'pdf')" :disabled="!!exportingRowKey || !canExport"
-                  @click="exportPdf(data)" />
-                <Button icon="pi pi-eye" size="small" severity="secondary" rounded outlined aria-label="Xem chi tiết"
-                  :disabled="!canView" @click="handleSeen(data)" />
+                <Button icon="pi pi-file-word" size="small" severity="info" rounded outlined
+                  :aria-label="t('exit_interview.actions.export_word')" :loading="isRowExporting(data.id, 'word')"
+                  :disabled="!!exportingRowKey || !canExport" @click="exportWord(data)" />
+                <Button icon="pi pi-file-pdf" size="small" severity="danger" rounded outlined
+                  :aria-label="t('exit_interview.actions.export_pdf')" :loading="isRowExporting(data.id, 'pdf')"
+                  :disabled="!!exportingRowKey || !canExport" @click="exportPdf(data)" />
+                <Button icon="pi pi-eye" size="small" severity="secondary" rounded outlined
+                  :aria-label="t('exit_interview.actions.view_detail')" :disabled="!canView"
+                  @click="handleSeen(data)" />
               </div>
             </template>
           </Column>
@@ -108,6 +111,7 @@
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { IonPage } from '@ionic/vue';
 import interviewView from "@/api/interviewView";
 import organizationApi from "@/api/organization";
@@ -150,6 +154,7 @@ interface InterviewViewPagedData {
 }
 
 const router = useRouter();
+const { t } = useI18n();
 const employeeList = ref<EmployeeRecord[]>([]);
 const organizations = ref<any[]>([]);
 const isLoading = ref(false);
@@ -162,43 +167,62 @@ let orgLoadPromise: Promise<void> | null = null;
 const first = ref(0);
 
 const orgSelectOptions = computed(() => (isOrgLoading.value ? [] : organizations.value));
-const rows = ref(10);
+const rows = ref(13);
 
 const { canView, canExport } = useMenuPermissions(['exitinterview']);
 
 /** Lazy + server filter: không lọc client, chỉ dùng totalCount từ API */
 const serverFilterPassthrough = () => true;
 
-const tableColumns = [
-  { field: '#', header: '#', width: '2rem', type: '#' },
+const tableColumns = computed(() => [
+  { field: '#', header: '#', width: '3rem', type: '#', bodyClass: 'text-center' },
   {
     field: 'employeeCode',
-    header: 'Mã NV',
+    header: t('exit_interview.columns.employee_code'),
     width: 'auto',
     type: 'code',
     filterable: true,
-    filterPlaceholder: 'Tìm mã NV',
+    filterPlaceholder: t('exit_interview.filters.search_code'),
   },
   {
     field: 'employeeName',
-    header: 'Họ Tên',
+    header: t('exit_interview.columns.employee_name'),
     width: 'auto',
     type: 'text',
     filterable: true,
-    filterPlaceholder: 'Tìm họ tên',
+    filterPlaceholder: t('exit_interview.filters.search_name'),
   },
   {
     field: 'jobPositionName',
-    header: 'Chức Vụ',
+    header: t('exit_interview.columns.job_position'),
     width: 'auto',
     type: 'badge',
     filterable: true,
-    filterPlaceholder: 'Tìm chức vụ',
+    filterPlaceholder: t('exit_interview.filters.search_position'),
   },
-  { field: 'organizationName', header: 'Phòng Ban', width: '180px', type: 'multiselect', filterable: true, filterPlaceholder: 'Chọn phòng ban' },
-  { field: 'exitedAt', header: 'Ngày Nghỉ', width: '250px', type: 'date', filterable: true },
-  { field: 'createdAt', header: 'Ngày Tạo', width: '250px', type: 'date', filterable: true }
-];
+  {
+    field: 'organizationName',
+    header: t('exit_interview.columns.organization'),
+    width: '180px',
+    type: 'multiselect',
+    filterable: true,
+    filterPlaceholder: t('exit_interview.filters.select_organization'),
+  },
+  {
+    field: 'exitedAt',
+    header: t('exit_interview.columns.exited_at'),
+    width: '250px',
+    type: 'date',
+    filterable: true,
+  },
+  {
+    field: 'createdAt',
+    header: t('exit_interview.columns.created_at'),
+    width: '250px',
+    type: 'date',
+    filterable: true,
+  },
+]);
 
 const TEXT_FILTER_FIELDS = ['employeeCode', 'employeeName', 'jobPositionName'] as const;
 
@@ -418,7 +442,7 @@ const runRowExport = async (
     const message =
       error instanceof Error
         ? error.message
-        : `Không thể xuất file ${type === 'word' ? 'Word' : 'PDF'}. Vui lòng thử lại.`;
+        : t(type === 'word' ? 'exit_interview.errors.export_word_failed' : 'exit_interview.errors.export_pdf_failed');
     alert(message);
   } finally {
     exportingRowKey.value = null;
@@ -440,7 +464,7 @@ const exportExcel = async () => {
     await downloadReportWorkbook(workbook, getDefaultReportFilename());
   } catch (error: unknown) {
     console.error('Lỗi xuất Excel:', error);
-    const message = error instanceof Error ? error.message : 'Không thể xuất file Excel. Vui lòng thử lại.';
+    const message = error instanceof Error ? error.message : t('exit_interview.errors.export_excel_failed');
     alert(message);
   } finally {
     isExporting.value = false;
@@ -581,7 +605,7 @@ usePageDataRefresh('ListExitInterview', () => {
 .action-bar {
   display: flex;
   justify-content: end;
-  margin-bottom: 24px;
+  margin-bottom: 30px;
   gap: 4px;
 }
 

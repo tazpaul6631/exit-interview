@@ -72,6 +72,7 @@ import format from '@/mixins/format';
 import RecursiveNodeView from '@/views/FormExitInterview/components/RecursiveNodeView.vue';
 import {
   logInterviewDetailAnswers,
+  normalizeInterviewDetail,
 } from '@/utils/interviewDetailExtract';
 import type { InterviewDetail } from '@/utils/interviewDetailExtract';
 
@@ -95,8 +96,8 @@ const loadDetail = async () => {
     const data = response?.data?.data as InterviewDetail | undefined;
 
     if (data) {
-      detail.value = data;
-      logInterviewDetailAnswers(data);
+      detail.value = normalizeInterviewDetail(data);
+      logInterviewDetailAnswers(detail.value);
     }
   } catch (error) {
     console.error('Lỗi tải chi tiết phỏng vấn:', error);
@@ -154,7 +155,7 @@ onIonViewWillEnter(() => {
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 24px 20px;
+  padding: 20px 20px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
@@ -193,7 +194,7 @@ onIonViewWillEnter(() => {
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 24px 20px;
+  padding: 20px 20px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 

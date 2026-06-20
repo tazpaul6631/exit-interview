@@ -1,4 +1,7 @@
 {
+  "app": {
+    "title": "Quản lý HR"
+  },
   "common": {
     "welcome": "Chào mừng",
     "save": "Lưu",
@@ -39,6 +42,9 @@
   },
   "dashboard": {
     "leave_reason_chart": "Lý do chính nghỉ việc theo bộ phận",
+    "leave_reason_org_filter": "Chọn phòng ban",
+    "leave_reason_org_label": "Chọn số lượng phòng ban",
+    "leave_reason_org_selected": "Đã chọn {count} phòng ban",
     "rating_chart": "Đánh giá thực tế (1–5 điểm)",
     "chart_empty": "Không có dữ liệu biểu đồ.",
     "cards": {
@@ -130,7 +136,8 @@
     "columns": {
       "code": "Mã",
       "name": "Tên phòng ban",
-      "status": "Trạng thái"
+      "status": "Trạng thái",
+      "priority": "Thứ tự ưu tiên"
     },
     "filters": {
       "search_code": "Tìm mã",
@@ -180,6 +187,107 @@
       "delete_retry": "Không thể xóa phòng ban. Vui lòng thử lại."
     }
   },
+  "role": {
+    "page_report": "Hiển thị {first} đến {last} trên {totalRecords} vai trò",
+    "add": "Thêm vai trò",
+    "clear_filter": "Xóa lọc",
+    "empty": "Không tìm thấy vai trò.",
+    "columns": {
+      "code": "Mã",
+      "name": "Tên vai trò"
+    },
+    "filters": {
+      "search": "Tìm kiếm...",
+      "search_code": "Tìm mã",
+      "search_name": "Tìm tên",
+      "admin": "Admin",
+      "normal": "Thường"
+    },
+    "actions": {
+      "view": "Chi tiết",
+      "edit": "Sửa vai trò",
+      "delete": "Xóa vai trò"
+    },
+    "form": {
+      "create_title": "Thêm vai trò",
+      "edit_title": "Cập nhật vai trò",
+      "name": "Tên vai trò",
+      "name_placeholder": "Nhập tên vai trò",
+      "is_admin": "Quyền Admin",
+      "permissions": "Phân quyền",
+      "permissions_empty": "Không có dữ liệu phân quyền.",
+      "create_btn": "Tạo mới"
+    },
+    "delete": {
+      "title": "Xóa vai trò",
+      "confirm": "Bạn có chắc muốn xóa vai trò",
+      "btn": "Xóa"
+    },
+    "errors": {
+      "name_required": "Vui lòng nhập tên vai trò"
+    },
+    "detail": {
+      "code": "Mã vai trò",
+      "name": "Tên vai trò",
+      "account_type": "Loại tài khoản",
+      "total_permissions": "Tổng quyền được cấp",
+      "permissions_by_menu": "Phân quyền theo menu",
+      "menu_count": "{count} menu",
+      "permissions_empty": "Chưa có phân quyền.",
+      "allowed": "Cho phép",
+      "denied": "Không"
+    },
+    "toast": {
+      "error": "Lỗi",
+      "success": "Thành công",
+      "failure": "Thất bại",
+      "load_permissions_failed": "Không thể tải danh sách menu phân quyền.",
+      "load_role_permissions_failed": "Không thể tải phân quyền của vai trò.",
+      "load_failed": "Không thể tải danh sách vai trò.",
+      "load_detail_failed": "Không thể tải chi tiết vai trò.",
+      "account_missing": "Không tìm thấy tài khoản. Vui lòng đăng nhập lại.",
+      "create_success": "Tạo vai trò thành công.",
+      "create_failed": "Không thể tạo vai trò.",
+      "update_success": "Cập nhật vai trò thành công.",
+      "update_failed": "Không thể cập nhật vai trò.",
+      "save_failed": "Không thể lưu vai trò. Vui lòng thử lại.",
+      "delete_success": "Xóa vai trò thành công.",
+      "delete_failed": "Không thể xóa vai trò.",
+      "delete_retry": "Không thể xóa vai trò. Vui lòng thử lại."
+    }
+  },
+  "exit_interview": {
+    "page_report": "Hiển thị {first} đến {last} trên {totalRecords} dữ liệu",
+    "export_excel": "Xuất Excel",
+    "clear_filter": "Xóa lọc",
+    "empty": "Không tìm thấy dữ liệu nhân viên.",
+    "columns": {
+      "employee_code": "Mã NV",
+      "employee_name": "Họ Tên",
+      "job_position": "Chức Vụ",
+      "organization": "Phòng Ban",
+      "exited_at": "Ngày Nghỉ",
+      "created_at": "Ngày Tạo"
+    },
+    "filters": {
+      "search_code": "Tìm mã NV",
+      "search_name": "Tìm họ tên",
+      "search_position": "Tìm chức vụ",
+      "select_organization": "Chọn phòng ban",
+      "select_date": "Chọn ngày",
+      "loading_organization": "Đang tải phòng ban..."
+    },
+    "actions": {
+      "export_word": "Xuất Word",
+      "export_pdf": "Xuất PDF",
+      "view_detail": "Xem chi tiết"
+    },
+    "errors": {
+      "export_word_failed": "Không thể xuất file Word. Vui lòng thử lại.",
+      "export_pdf_failed": "Không thể xuất file PDF. Vui lòng thử lại.",
+      "export_excel_failed": "Không thể xuất file Excel. Vui lòng thử lại."
+    }
+  },
   "change_password": {
     "description": "Cập nhật mật khẩu đăng nhập của bạn.",
     "old_password": "Mật khẩu hiện tại",
@@ -227,5 +335,11 @@
       "user_list": "Danh sách người dùng",
       "not_found": "404"
     }
+  },
+  "not_found": {
+    "title": "Không tìm thấy trang",
+    "subtitle": "Trang bạn đang truy cập không tồn tại hoặc đã bị di chuyển.",
+    "description": "Vui lòng quay lại trang chủ để tiếp tục.",
+    "back_to_dashboard": "Quay lại Dashboard"
   }
 }

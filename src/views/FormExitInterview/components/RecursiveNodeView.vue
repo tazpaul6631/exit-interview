@@ -11,47 +11,22 @@
 
     <label v-if="node.questionName" class="ques-label">{{ node.questionName }}</label>
 
-    <div
-      v-if="node.answers?.length"
-      class="answers-wrapper"
-      :class="{ 'radio-group': parentQuestionId }"
-    >
-      <DynamicInputView
-        v-for="ans in node.answers"
-        :key="ans.answerId"
-        :answer="ans"
-        :question-id="parentQuestionId"
-        :max-rating="maxRating"
-      />
+    <div v-if="node.answers?.length" class="answers-wrapper" :class="{ 'radio-group': parentQuestionId }">
+      <DynamicInputView v-for="ans in node.answers" :key="ans.answerId" :answer="ans" :question-id="parentQuestionId"
+        :max-rating="maxRating" />
 
       <template v-for="ans in node.answers" :key="'child-' + ans.answerId">
         <div v-if="ans.childs?.length && isSelected(ans)" class="nested-childs">
-          <DynamicInputView
-            v-for="cAns in ans.childs"
-            :key="cAns.answerId"
-            :answer="cAns"
-          />
+          <DynamicInputView v-for="cAns in ans.childs" :key="cAns.answerId" :answer="cAns" />
         </div>
       </template>
     </div>
 
-    <RecursiveNodeView
-      v-for="ques in node.questions || []"
-      :key="ques.questionId"
-      :node="ques"
-      :parent-question-id="ques.questionId"
-      :max-rating="maxRating"
-      :level="level + 1"
-    />
+    <RecursiveNodeView v-for="ques in node.questions || []" :key="ques.questionId" :node="ques"
+      :parent-question-id="ques.questionId" :max-rating="maxRating" :level="level + 1" />
 
-    <RecursiveNodeView
-      v-for="child in node.childs || []"
-      :key="child.sectionId"
-      :node="child"
-      :parent-question-id="parentQuestionId"
-      :max-rating="maxRating"
-      :level="level + 1"
-    />
+    <RecursiveNodeView v-for="child in node.childs || []" :key="child.sectionId" :node="child"
+      :parent-question-id="parentQuestionId" :max-rating="maxRating" :level="level + 1" />
   </div>
 </template>
 
@@ -77,7 +52,7 @@ const isSelected = (ans: InterviewAnswer) => {
 
 <style lang="scss" scoped>
 .node-block {
-  margin-bottom: 24px;
+  margin-bottom: 30px;
   width: 100%;
 }
 
@@ -86,7 +61,6 @@ const isSelected = (ans: InterviewAnswer) => {
   padding: 14px 20px;
   border-left: 5px solid #3182ce;
   border-radius: 4px 8px 8px 4px;
-  margin: 30px 0 16px 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 
   h3 {

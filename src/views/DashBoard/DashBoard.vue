@@ -18,7 +18,19 @@
       <ion-row class="ion-margin-top">
         <ion-col size="12" size-lg="12">
           <div class="chart-main-card">
-            <h4>{{ t('dashboard.leave_reason_chart') }}</h4>
+            <div class="chart-main-card__header">
+              <h4>{{ t('dashboard.leave_reason_chart') }}</h4>
+              <div class="chart-main-card__filters">
+                <FloatLabel class="chart-org-filter-label" variant="on">
+                  <MultiSelect v-model="selectedOrganizationIds" :options="organizationOptions" optionLabel="name"
+                    optionValue="id" :placeholder="t('dashboard.leave_reason_org_filter')" class="chart-org-filter"
+                    display="chip" filter showClear :maxSelectedLabels="2"
+                    :selectedItemsLabel="t('dashboard.leave_reason_org_selected', { count: selectedOrganizationIds.length })"
+                    inputId="leave_reason_org_filter" variant="filled" />
+                  <label for="leave_reason_org_filter">{{ t('dashboard.leave_reason_org_label') }}</label>
+                </FloatLabel>
+              </div>
+            </div>
             <div class="chart-panel">
               <Chart v-if="leaveReasonChartData" type="bar" :data="leaveReasonChartData"
                 :options="leaveReasonChartOptions" class="dashboard-chart" />
@@ -103,6 +115,9 @@ type BarChartData = {
 const summaryCards = ref<SummaryCard[]>([]);
 const leaveReasonRows = ref<LeaveReasonRow[]>([]);
 const ratingRows = ref<RatingRow[]>([]);
+const selectedOrganizationIds = ref<number[]>([]);
+
+const DEFAULT_CHART_ORGS = 6;
 
 const reasonLabelKeys = ['one', 'two', 'three', 'four', 'five'] as const;
 const ratingScoreKeys = ['one', 'two', 'three', 'four', 'five'] as const;
@@ -124,8 +139,32 @@ function getCardIcon(stt: number) {
   return CARD_ICONS[(stt - 1) % CARD_ICONS.length] ?? statsChartOutline;
 }
 
+const organizationOptions = computed(() =>
+  leaveReasonRows.value.map((row) => ({
+    id: row.organizationId,
+    name: row.organizationName,
+  })),
+);
+
+const filteredLeaveReasonRows = computed(() => {
+  if (!selectedOrganizationIds.value.length) {
+    return [];
+  }
+
+  const idSet = new Set(selectedOrganizationIds.value);
+  return leaveReasonRows.value.filter((row) => idSet.has(row.organizationId));
+});
+
+function syncOrganizationSelection(rows: LeaveReasonRow[]) {
+  const ids = rows.map((row) => row.organizationId);
+  const preserved = selectedOrganizationIds.value.filter((id) => ids.includes(id));
+  selectedOrganizationIds.value = preserved.length
+    ? preserved
+    : ids.slice(0, Math.min(DEFAULT_CHART_ORGS, ids.length));
+}
+
 const leaveReasonChartData = computed(() =>
-  leaveReasonRows.value.length ? buildLeaveReasonChart(leaveReasonRows.value) : null,
+  filteredLeaveReasonRows.value.length ? buildLeaveReasonChart(filteredLeaveReasonRows.value) : null,
 );
 const ratingChartData = computed(() =>
   ratingRows.value.length ? buildRatingChart(ratingRows.value) : null,
@@ -252,9 +291,11 @@ async function loadLeaveReasonChart() {
   try {
     const response = await report.getLrChartData();
     leaveReasonRows.value = parseArrayResponse<LeaveReasonRow>(response);
+    syncOrganizationSelection(leaveReasonRows.value);
   } catch (error) {
     console.error('Không tải được biểu đồ lý do nghỉ việc:', error);
     leaveReasonRows.value = [];
+    selectedOrganizationIds.value = [];
   }
 }
 
@@ -356,11 +397,40 @@ usePageDataRefresh('Dashboard', () => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 
   h4 {
-    margin: 0 0 16px 0;
+    margin: 0;
     font-size: 16px;
     font-weight: 600;
     color: #2d3748;
   }
+}
+
+.chart-main-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.chart-main-card__filters {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 8px;
+  flex: 1;
+  min-width: 200px;
+  max-width: 400px;
+}
+
+.chart-org-filter-label {
+  width: 100%;
+  max-width: 300px;
+  flex-shrink: 0;
+}
+
+.chart-org-filter {
+  width: 100%;
 }
 
 .chart-panel {

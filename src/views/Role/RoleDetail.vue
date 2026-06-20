@@ -11,25 +11,25 @@
 
         <div v-else-if="!role" class="role-detail-empty">
           <i class="pi pi-inbox role-detail-empty__icon" />
-          <p>Không tìm thấy vai trò.</p>
+          <p>{{ t('role.empty') }}</p>
         </div>
 
         <div v-else class="role-detail-body">
           <section class="role-detail-info">
             <div class="role-detail-info__item">
-              <span class="role-detail-info__label">Mã vai trò </span>
+              <span class="role-detail-info__label">{{ t('role.detail.code') }}</span>
               <span class="role-detail-info__value">{{ role.code || '—' }}</span>
             </div>
             <div class="role-detail-info__item">
-              <span class="role-detail-info__label">Tên vai trò</span>
+              <span class="role-detail-info__label">{{ t('role.detail.name') }}</span>
               <span class="role-detail-info__value">{{ role.name }}</span>
             </div>
             <div class="role-detail-info__item">
-              <span class="role-detail-info__label">Loại tài khoản</span>
-              <Tag :value="role.isAdmin ? 'Admin' : 'Thường'" :severity="role.isAdmin ? 'warn' : 'secondary'" />
+              <span class="role-detail-info__label">{{ t('role.detail.account_type') }}</span>
+              <Tag :value="role.isAdmin ? t('role.filters.admin') : t('role.filters.normal')" :severity="role.isAdmin ? 'warn' : 'secondary'" />
             </div>
             <div class="role-detail-info__item">
-              <span class="role-detail-info__label">Tổng quyền được cấp</span>
+              <span class="role-detail-info__label">{{ t('role.detail.total_permissions') }}</span>
               <span class="role-detail-info__value role-detail-info__value--highlight">
                 {{ allowedPermissionCount }} / {{ totalPermissionCount }}
               </span>
@@ -38,12 +38,12 @@
 
           <section class="role-detail-permissions">
             <div class="role-detail-permissions__header">
-              <h2 class="role-detail-permissions__title">Phân quyền theo menu</h2>
-              <span class="role-detail-permissions__count">{{ role.permissions.length }} menu</span>
+              <h2 class="role-detail-permissions__title">{{ t('role.detail.permissions_by_menu') }}</h2>
+              <span class="role-detail-permissions__count">{{ t('role.detail.menu_count', { count: role.permissions.length }) }}</span>
             </div>
 
             <div v-if="role.permissions.length === 0" class="role-detail-permissions__empty">
-              Chưa có phân quyền.
+              {{ t('role.detail.permissions_empty') }}
             </div>
 
             <div v-else class="role-detail-permissions__grid">
@@ -57,7 +57,7 @@
                     :class="{ 'role-detail-menu-card__item--allowed': perm.isAllow }">
                     <i class="pi" :class="perm.isAllow ? 'pi-check-circle' : 'pi-times-circle'" />
                     <span class="role-detail-menu-card__perm-name">{{ perm.name }}</span>
-                    <Tag :value="perm.isAllow ? 'Cho phép' : 'Không'" :severity="perm.isAllow ? 'success' : 'secondary'"
+                    <Tag :value="perm.isAllow ? t('role.detail.allowed') : t('role.detail.denied')" :severity="perm.isAllow ? 'success' : 'secondary'"
                       class="role-detail-menu-card__tag" />
                   </li>
                 </ul>
@@ -73,6 +73,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { IonPage } from '@ionic/vue';
 import { useToast } from 'primevue/usetoast';
 import roleApi from '@/api/role';
@@ -82,6 +83,7 @@ import type { Role } from '@/types/role';
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
+const { t } = useI18n();
 
 const role = ref<Role | null>(null);
 const isLoading = ref(false);
@@ -100,7 +102,7 @@ const allowedPermissionCount = computed(() =>
 const showToast = (message: string) => {
   toast.add({
     severity: 'error',
-    summary: 'Lỗi',
+    summary: t('role.toast.error'),
     detail: message,
     life: 3000,
   });
@@ -118,7 +120,7 @@ const loadRole = async () => {
   } catch (error) {
     console.error('Lỗi tải chi tiết vai trò:', error);
     role.value = null;
-    showToast('Không thể tải chi tiết vai trò.');
+    showToast(t('role.toast.load_detail_failed'));
   } finally {
     isLoading.value = false;
   }

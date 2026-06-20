@@ -3,7 +3,7 @@
     <div class="user-page-container user-flex-column">
       <div class="user-table-responsive user-flex-column">
         <DataTable :class="{ 'user-table--empty': userList.length === 0 }" v-model:filters="filters"
-          v-model:first="first" :value="userList" lazy paginator :rows="rows" :rowsPerPageOptions="[10, 20, 50]"
+          v-model:first="first" :value="userList" lazy paginator :rows="rows" :rowsPerPageOptions="[13, 20, 50]"
           :totalRecords="totalRecords" dataKey="id" filterDisplay="row" scrollable scrollHeight="flex"
           class="user-table user-full-height-table user-compact-table" showGridlines
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
@@ -32,7 +32,7 @@
           </template>
 
           <Column v-for="col in tableColumns" :key="`${col.field}-${col.header}`" :field="col.field"
-            :header="col.header" :style="{ width: col.width }" :showFilterMenu="false"
+            :header="col.header" :style="{ width: col.width }" :showFilterMenu="false" :bodyClass="col.bodyClass"
             :filterFunction="col.filterable ? serverFilterPassthrough : undefined">
             <template #body="{ data, index }">
               <template v-if="col.type === '#'">
@@ -138,17 +138,6 @@
               :placeholder="t('user.form.name_placeholder')" :invalid="!!formErrors.name" autocomplete="off" />
             <small v-if="formErrors.name" class="user-form__error">{{ formErrors.name }}</small>
           </div>
-
-          <div class="user-form__field">
-            <label for="hr-edit-employee-password" class="user-form__label">
-              {{ t('user.form.password') }} <span class="user-form__required">*</span>
-            </label>
-            <Password id="hr-edit-employee-password" v-model="formState.password" class="user-form__input"
-              :feedback="false" toggle-mask :placeholder="t('user.form.password_placeholder')"
-              :invalid="!!formErrors.password" input-id="hr-edit-employee-password-input" autocomplete="new-password"
-              @blur="validatePasswordField" />
-            <small v-if="formErrors.password" class="user-form__error">{{ formErrors.password }}</small>
-          </div>
         </template>
 
         <div class="user-form__field">
@@ -215,7 +204,7 @@ const isDeleting = ref(false);
 const filters = ref<Record<string, { value: unknown; matchMode: string }>>();
 const totalRecords = ref(0);
 const first = ref(0);
-const rows = ref(10);
+const rows = ref(13);
 
 const formDialogVisible = ref(false);
 const deleteDialogVisible = ref(false);
@@ -254,7 +243,7 @@ const roleNameMap = computed(() =>
 const serverFilterPassthrough = () => true;
 
 const tableColumns = computed(() => [
-  { field: '#', header: '#', width: '3rem', type: '#', filterable: false },
+  { field: '#', header: '#', width: '3rem', type: '#', filterable: false, bodyClass: 'text-center' },
   {
     field: 'code',
     header: t('user.columns.code'),
@@ -274,7 +263,7 @@ const tableColumns = computed(() => [
   {
     field: 'roleId',
     header: t('user.columns.role'),
-    width: 'auto',
+    width: '200px',
     type: 'role',
     filterable: true,
     filterPlaceholder: t('user.filters.role'),
@@ -525,7 +514,7 @@ const validateForm = () => {
   const errors = {
     code: '',
     name: '',
-    password: getPasswordError(formState.value.password),
+    password: formMode.value === 'create' ? getPasswordError(formState.value.password) : '',
     roleId: '',
   };
 
@@ -589,7 +578,6 @@ const submitForm = async () => {
     const response = await userApi.patchUserUpdate(editingUserId.value, {
       code: formState.value.code.trim(),
       name: formState.value.name.trim(),
-      password: formState.value.password,
       roleId,
       updatedBy: currentUserId.value,
     });
@@ -866,10 +854,6 @@ usePageDataRefresh('ListUser', () => {
 }
 
 .user-form__input {
-  width: 100%;
-}
-
-.user-form__input :deep(.p-password-input) {
   width: 100%;
 }
 

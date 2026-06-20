@@ -176,8 +176,7 @@ const onLoginSubmit = handleSubmit(
 
 .banner-lottie__player {
   display: block;
-  width: min(90%, 640px);
-  height: min(78vh, 640px);
+  width: max(95%, 640px);
   filter: drop-shadow(0 24px 48px rgba(79, 70, 229, 0.12));
 }
 
@@ -208,7 +207,6 @@ const onLoginSubmit = handleSubmit(
   margin-top: 20px;
   align-self: flex-end;
   width: 100%;
-  max-width: 720px;
 }
 
 .banner-content h1 {
@@ -265,7 +263,6 @@ const onLoginSubmit = handleSubmit(
   width: 100%;
   max-width: 440px;
   padding: clamp(28px, 4vw, 40px);
-  padding-top: clamp(52px, 8vw, 60px);
   border-radius: 24px;
   background: #ffffff;
   border: 1px solid #e2e8f0;

@@ -5,6 +5,7 @@ export interface InterviewAnswer {
   answerParentId?: number | null;
   sectionId?: number | null;
   questionId?: number | null;
+  answerPriority?: number;
   checkValue?: boolean;
   selectValue?: boolean;
   ratingValue?: number;
@@ -21,6 +22,7 @@ export interface InterviewQuestion {
   questionId: number;
   questionName: string;
   sectionId?: number;
+  questionPriority?: number;
   answers?: InterviewAnswer[];
 }
 
@@ -68,6 +70,52 @@ export interface FlatAnswerRow {
   raw: InterviewAnswer;
 }
 
+const compareNumericId = (
+  a?: number | null,
+  b?: number | null,
+  fallbackA?: number,
+  fallbackB?: number,
+) => {
+  const left = a ?? fallbackA ?? 0;
+  const right = b ?? fallbackB ?? 0;
+  return left - right;
+};
+
+export const sortInterviewAnswers = (answers: InterviewAnswer[] = []): InterviewAnswer[] =>
+  [...answers]
+    .sort((a, b) =>
+      compareNumericId(a.answerPriority, b.answerPriority, a.answerId, b.answerId),
+    )
+    .map((answer) => ({
+      ...answer,
+      childs: answer.childs?.length ? sortInterviewAnswers(answer.childs) : answer.childs,
+    }));
+
+export const sortInterviewQuestions = (questions: InterviewQuestion[] = []): InterviewQuestion[] =>
+  [...questions]
+    .sort((a, b) =>
+      compareNumericId(a.questionPriority, b.questionPriority, a.questionId, b.questionId),
+    )
+    .map((question) => ({
+      ...question,
+      answers: question.answers?.length ? sortInterviewAnswers(question.answers) : question.answers,
+    }));
+
+export const sortInterviewSections = (sections: InterviewSection[] = []): InterviewSection[] =>
+  [...sections]
+    .sort((a, b) => compareNumericId(a.sectionId, b.sectionId, a.id, b.id))
+    .map((section) => ({
+      ...section,
+      answers: section.answers?.length ? sortInterviewAnswers(section.answers) : section.answers,
+      questions: section.questions?.length ? sortInterviewQuestions(section.questions) : section.questions,
+      childs: section.childs?.length ? sortInterviewSections(section.childs) : section.childs,
+    }));
+
+export const normalizeInterviewDetail = (detail: InterviewDetail): InterviewDetail => ({
+  ...detail,
+  sections: sortInterviewSections(detail.sections ?? []),
+});
+
 export const findSectionBySectionId = (
   sections: InterviewSection[] = [],
   sectionId: number
@@ -101,7 +149,7 @@ export const getSectionsByParentId = (
   };
 
   walk(sections);
-  return result;
+  return result.sort((a, b) => compareNumericId(a.sectionId, b.sectionId, a.id, b.id));
 };
 
 /** Full answers thuộc các section con của parentSectionId (không lọc hasAnswerData) */

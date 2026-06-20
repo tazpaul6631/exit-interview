@@ -1,4 +1,7 @@
 {
+  "app": {
+    "title": "人資管理"
+  },
   "common": {
     "welcome": "歡迎",
     "save": "儲存",
@@ -39,6 +42,9 @@
   },
   "dashboard": {
     "leave_reason_chart": "主要離職原因（依部門）",
+    "leave_reason_org_filter": "選擇部門",
+    "leave_reason_org_label": "選擇部門數量",
+    "leave_reason_org_selected": "已選擇 {count} 個部門",
     "rating_chart": "實際評分（1–5 分）",
     "chart_empty": "沒有圖表資料。",
     "cards": {
@@ -130,7 +136,8 @@
     "columns": {
       "code": "代碼",
       "name": "部門名稱",
-      "status": "狀態"
+      "status": "狀態",
+      "priority": "優先順序"
     },
     "filters": {
       "search_code": "搜尋代碼",
@@ -180,6 +187,107 @@
       "delete_retry": "無法刪除部門，請再試一次。"
     }
   },
+  "role": {
+    "page_report": "顯示第 {first} 至 {last} 筆，共 {totalRecords} 個角色",
+    "add": "新增角色",
+    "clear_filter": "清除篩選",
+    "empty": "找不到角色。",
+    "columns": {
+      "code": "代碼",
+      "name": "角色名稱"
+    },
+    "filters": {
+      "search": "搜尋...",
+      "search_code": "搜尋代碼",
+      "search_name": "搜尋名稱",
+      "admin": "管理員",
+      "normal": "一般"
+    },
+    "actions": {
+      "view": "詳情",
+      "edit": "編輯角色",
+      "delete": "刪除角色"
+    },
+    "form": {
+      "create_title": "新增角色",
+      "edit_title": "更新角色",
+      "name": "角色名稱",
+      "name_placeholder": "請輸入角色名稱",
+      "is_admin": "管理員權限",
+      "permissions": "權限設定",
+      "permissions_empty": "沒有權限資料。",
+      "create_btn": "建立"
+    },
+    "delete": {
+      "title": "刪除角色",
+      "confirm": "確定要刪除角色",
+      "btn": "刪除"
+    },
+    "errors": {
+      "name_required": "請輸入角色名稱"
+    },
+    "detail": {
+      "code": "角色代碼",
+      "name": "角色名稱",
+      "account_type": "帳號類型",
+      "total_permissions": "已授予權限總數",
+      "permissions_by_menu": "依選單分組權限",
+      "menu_count": "{count} 個選單",
+      "permissions_empty": "尚未設定權限。",
+      "allowed": "允許",
+      "denied": "不允許"
+    },
+    "toast": {
+      "error": "錯誤",
+      "success": "成功",
+      "failure": "失敗",
+      "load_permissions_failed": "無法載入權限選單清單。",
+      "load_role_permissions_failed": "無法載入角色權限。",
+      "load_failed": "無法載入角色清單。",
+      "load_detail_failed": "無法載入角色詳情。",
+      "account_missing": "找不到帳號，請重新登入。",
+      "create_success": "角色建立成功。",
+      "create_failed": "無法建立角色。",
+      "update_success": "角色更新成功。",
+      "update_failed": "無法更新角色。",
+      "save_failed": "無法儲存角色，請再試一次。",
+      "delete_success": "角色刪除成功。",
+      "delete_failed": "無法刪除角色。",
+      "delete_retry": "無法刪除角色，請再試一次。"
+    }
+  },
+  "exit_interview": {
+    "page_report": "顯示第 {first} 至 {last} 筆，共 {totalRecords} 筆資料",
+    "export_excel": "匯出 Excel",
+    "clear_filter": "清除篩選",
+    "empty": "找不到員工資料。",
+    "columns": {
+      "employee_code": "員工編號",
+      "employee_name": "姓名",
+      "job_position": "職務",
+      "organization": "部門",
+      "exited_at": "離職日期",
+      "created_at": "建立日期"
+    },
+    "filters": {
+      "search_code": "搜尋編號",
+      "search_name": "搜尋姓名",
+      "search_position": "搜尋職務",
+      "select_organization": "選擇部門",
+      "select_date": "選擇日期",
+      "loading_organization": "正在載入部門..."
+    },
+    "actions": {
+      "export_word": "匯出 Word",
+      "export_pdf": "匯出 PDF",
+      "view_detail": "查看詳情"
+    },
+    "errors": {
+      "export_word_failed": "無法匯出 Word 檔案，請再試一次。",
+      "export_pdf_failed": "無法匯出 PDF 檔案，請再試一次。",
+      "export_excel_failed": "無法匯出 Excel 檔案，請再試一次。"
+    }
+  },
   "change_password": {
     "description": "更新您的登入密碼。",
     "old_password": "目前密碼",
@@ -227,5 +335,11 @@
       "user_list": "使用者清單",
       "not_found": "404"
     }
+  },
+  "not_found": {
+    "title": "頁面未找到",
+    "subtitle": "您訪問的頁面不存在或已移動。",
+    "description": "請返回儀表板繼續。",
+    "back_to_dashboard": "返回儀表板"
   }
 }

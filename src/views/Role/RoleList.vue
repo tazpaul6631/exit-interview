@@ -3,23 +3,23 @@
     <div class="role-page-container role-flex-column">
       <div class="role-table-responsive role-flex-column">
         <DataTable :class="{ 'role-table--empty': roleList.length === 0 }" v-model:filters="filters"
-          v-model:first="first" :value="roleList" lazy paginator :rows="rows" :rowsPerPageOptions="[10, 20, 50]"
+          v-model:first="first" :value="roleList" lazy paginator :rows="rows" :rowsPerPageOptions="[13, 20, 50]"
           :totalRecords="totalRecords" dataKey="id" filterDisplay="row" scrollable scrollHeight="flex"
           class="role-table role-full-height-table role-compact-table" showGridlines
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-          currentPageReportTemplate="Hiển thị {first} đến {last} trên {totalRecords} vai trò" @page="onPageChange"
-          @filter="onTableFilter">
+          :currentPageReportTemplate="t('role.page_report', { first: first + 1, last: first + rows, totalRecords: totalRecords })"
+          @page="onPageChange" @filter="onTableFilter">
           <template #header>
             <div class="role-toolbar">
               <Button type="button" size="small" outlined class="role-toolbar__btn role-toolbar__btn--create"
                 :disabled="!canCreate" @click="openCreateDialog">
                 <i class="pi pi-plus role-toolbar__icon" aria-hidden="true" />
-                <span class="role-toolbar__label">Thêm vai trò</span>
+                <span class="role-toolbar__label">{{ t('role.add') }}</span>
               </Button>
               <Button type="button" outlined size="small" class="role-toolbar__btn role-toolbar__btn--clear"
                 @click="clearFilter">
                 <i class="pi pi-filter-slash role-toolbar__icon" aria-hidden="true" />
-                <span class="role-toolbar__label">Xóa lọc</span>
+                <span class="role-toolbar__label">{{ t('role.clear_filter') }}</span>
               </Button>
             </div>
           </template>
@@ -27,12 +27,12 @@
           <template #empty>
             <div class="role-empty-state">
               <i class="pi pi-inbox role-empty-state__icon" />
-              <p class="role-empty-state__text">Không tìm thấy vai trò.</p>
+              <p class="role-empty-state__text">{{ t('role.empty') }}</p>
             </div>
           </template>
 
           <Column v-for="col in tableColumns" :key="`${col.field}-${col.header}`" :field="col.field"
-            :header="col.header" :style="{ width: col.width }" :showFilterMenu="false"
+            :header="col.header" :style="{ width: col.width }" :showFilterMenu="false" :bodyClass="col.bodyClass"
             :filterFunction="col.filterable ? serverFilterPassthrough : undefined">
             <template #body="{ data, index }">
               <template v-if="col.type === '#'">
@@ -49,7 +49,7 @@
             <template #filter="{ filterModel, filterCallback }" v-if="col.filterable">
               <template v-if="col.type === 'admin'">
                 <Select v-model="filterModel.value" :options="adminFilterOptions" optionLabel="label"
-                  optionValue="value" placeholder="Tìm kiếm..." class="role-filter-select" showClear
+                  optionValue="value" :placeholder="t('role.filters.search')" class="role-filter-select" showClear
                   @change="onSelectFilterChange(filterCallback)" />
               </template>
               <template v-else>
@@ -62,12 +62,12 @@
           <Column class="text-center" style="width: 200px">
             <template #body="{ data }">
               <div class="role-row-actions">
-                <Button icon="pi pi-eye" size="small" severity="secondary" rounded outlined aria-label="Chi tiết"
-                  :disabled="!canView" @click="goToDetail(data)" />
-                <Button icon="pi pi-pencil" size="small" severity="info" rounded outlined aria-label="Sửa vai trò"
-                  :disabled="!canUpdate" @click="openEditDialog(data)" />
-                <Button icon="pi pi-trash" size="small" severity="danger" rounded outlined aria-label="Xóa vai trò"
-                  :disabled="!canDelete" @click="openDeleteDialog(data)" />
+                <Button icon="pi pi-eye" size="small" severity="secondary" rounded outlined
+                  :aria-label="t('role.actions.view')" :disabled="!canView" @click="goToDetail(data)" />
+                <Button icon="pi pi-pencil" size="small" severity="info" rounded outlined
+                  :aria-label="t('role.actions.edit')" :disabled="!canUpdate" @click="openEditDialog(data)" />
+                <Button icon="pi pi-trash" size="small" severity="danger" rounded outlined
+                  :aria-label="t('role.actions.delete')" :disabled="!canDelete" @click="openDeleteDialog(data)" />
               </div>
             </template>
           </Column>
@@ -76,30 +76,30 @@
     </div>
 
     <Dialog v-model:visible="formDialogVisible" modal :draggable="false"
-      :header="formMode === 'create' ? 'Thêm vai trò' : 'Cập nhật vai trò'" class="role-form-dialog"
+      :header="formMode === 'create' ? t('role.form.create_title') : t('role.form.edit_title')" class="role-form-dialog"
       :style="{ width: '36rem' }" @show="onFormDialogShow" @hide="resetFormDialog">
       <form class="role-form" autocomplete="off" @submit.prevent="submitForm">
         <div class="role-form__field">
           <label for="role-form-name" class="role-form__label">
-            Tên vai trò <span class="role-form__required">*</span>
+            {{ t('role.form.name') }} <span class="role-form__required">*</span>
           </label>
           <InputText id="role-form-name" v-model="formState.name" class="role-form__input"
-            placeholder="Nhập tên vai trò" :invalid="!!formErrors.name" autocomplete="off" />
+            :placeholder="t('role.form.name_placeholder')" :invalid="!!formErrors.name" autocomplete="off" />
           <small v-if="formErrors.name" class="role-form__error">{{ formErrors.name }}</small>
         </div>
 
         <div class="role-form__field role-form__field--checkbox">
           <Checkbox v-model="formState.isAdmin" inputId="role-form-admin" binary />
-          <label for="role-form-admin" class="role-form__checkbox-label">Quyền Admin</label>
+          <label for="role-form-admin" class="role-form__checkbox-label">{{ t('role.form.is_admin') }}</label>
         </div>
 
         <div class="role-form__field role-form__field--permissions">
-          <label class="role-form__label">Phân quyền</label>
+          <label class="role-form__label">{{ t('role.form.permissions') }}</label>
           <div v-if="isPermissionLoading" class="role-form__permission-loading">
             <Skeleton width="100%" height="3.5rem" />
           </div>
           <div v-else-if="permissionMenus.length === 0" class="role-form__permission-empty">
-            Không có dữ liệu phân quyền.
+            {{ t('role.form.permissions_empty') }}
           </div>
           <div v-else class="role-form__permission-list">
             <div v-for="menu in permissionMenus" :key="menu.id" class="role-form__permission-row">
@@ -117,21 +117,22 @@
       </form>
 
       <template #footer>
-        <Button label="Hủy" text severity="secondary" @click="closeFormDialog" />
-        <Button :label="formMode === 'create' ? 'Tạo mới' : 'Lưu'" :loading="isSaving" @click="submitForm" />
+        <Button :label="t('common.cancel')" text severity="secondary" @click="closeFormDialog" />
+        <Button :label="formMode === 'create' ? t('role.form.create_btn') : t('common.save')" :loading="isSaving"
+          @click="submitForm" />
       </template>
     </Dialog>
 
-    <Dialog v-model:visible="deleteDialogVisible" modal :draggable="false" header="Xóa vai trò"
+    <Dialog v-model:visible="deleteDialogVisible" modal :draggable="false" :header="t('role.delete.title')"
       class="role-delete-dialog" :style="{ width: '24rem' }">
       <p class="role-delete-dialog__message">
-        Bạn có chắc muốn xóa vai trò
+        {{ t('role.delete.confirm') }}
         <strong>{{ deletingRole?.name }}</strong>?
       </p>
 
       <template #footer>
-        <Button label="Hủy" text severity="secondary" @click="deleteDialogVisible = false" />
-        <Button label="Xóa" severity="danger" :loading="isDeleting" @click="confirmDelete" />
+        <Button :label="t('common.cancel')" text severity="secondary" @click="deleteDialogVisible = false" />
+        <Button :label="t('role.delete.btn')" severity="danger" :loading="isDeleting" @click="confirmDelete" />
       </template>
     </Dialog>
   </ion-page>
@@ -140,6 +141,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { IonPage } from '@ionic/vue';
 import { useToast } from 'primevue/usetoast';
 import { FilterMatchMode } from '@primevue/core/api';
@@ -159,6 +161,7 @@ import { usePageDataRefresh } from '@/composables/usePageDataRefresh';
 
 const toast = useToast();
 const router = useRouter();
+const { t } = useI18n();
 const authStore = useAuthStore();
 
 const roleList = ref<Role[]>([]);
@@ -171,7 +174,7 @@ const isDeleting = ref(false);
 const filters = ref<Record<string, { value: unknown; matchMode: string }>>();
 const totalRecords = ref(0);
 const first = ref(0);
-const rows = ref(10);
+const rows = ref(13);
 
 const formDialogVisible = ref(false);
 const deleteDialogVisible = ref(false);
@@ -190,10 +193,10 @@ const formErrors = ref({
   name: '',
 });
 
-const adminFilterOptions = [
-  { label: 'Admin', value: true },
-  { label: 'Thường', value: false },
-];
+const adminFilterOptions = computed(() => [
+  { label: t('role.filters.admin'), value: true },
+  { label: t('role.filters.normal'), value: false },
+]);
 
 const currentUserId = computed(() => {
   const id = authStore.getUserId;
@@ -202,25 +205,25 @@ const currentUserId = computed(() => {
 
 const serverFilterPassthrough = () => true;
 
-const tableColumns = [
-  { field: '#', header: '#', width: '3rem', type: '#', filterable: false },
+const tableColumns = computed(() => [
+  { field: '#', header: '#', width: '3rem', type: '#', filterable: false, bodyClass: 'text-center' },
   {
     field: 'code',
-    header: 'Mã',
+    header: t('role.columns.code'),
     width: 'auto',
     type: 'text',
     filterable: true,
-    filterPlaceholder: 'Tìm mã',
+    filterPlaceholder: t('role.filters.search_code'),
   },
   {
     field: 'name',
-    header: 'Tên vai trò',
+    header: t('role.columns.name'),
     width: 'auto',
     type: 'text',
     filterable: true,
-    filterPlaceholder: 'Tìm tên',
-  }
-];
+    filterPlaceholder: t('role.filters.search_name'),
+  },
+]);
 
 const TEXT_FILTER_FIELDS = ['code', 'name', 'keyword'] as const;
 
@@ -262,7 +265,7 @@ const loadPermissionTemplate = async () => {
   } catch (error) {
     console.error('Lỗi tải danh sách menu phân quyền:', error);
     permissionMenus.value = [];
-    showToast('error', 'Lỗi', 'Không thể tải danh sách menu phân quyền.');
+    showToast('error', t('role.toast.error'), t('role.toast.load_permissions_failed'));
   } finally {
     isPermissionLoading.value = false;
   }
@@ -279,7 +282,7 @@ const loadRolePermissionsForEdit = async (roleId: number) => {
     console.error('Lỗi tải chi tiết vai trò:', error);
     permissionMenus.value = [];
     selectedPermissionKeys.value = new Set();
-    showToast('error', 'Lỗi', 'Không thể tải phân quyền của vai trò.');
+    showToast('error', t('role.toast.error'), t('role.toast.load_role_permissions_failed'));
   } finally {
     isPermissionLoading.value = false;
   }
@@ -343,7 +346,7 @@ const loadData = async (event?: { page?: number; rows?: number }) => {
     console.error('Lỗi tải danh sách vai trò:', error);
     roleList.value = [];
     totalRecords.value = 0;
-    showToast('error', 'Lỗi', 'Không thể tải danh sách vai trò.');
+    showToast('error', t('role.toast.error'), t('role.toast.load_failed'));
   } finally {
     isLoading.value = false;
   }
@@ -474,7 +477,7 @@ const validateForm = () => {
   const errors = { name: '' };
 
   if (!name) {
-    errors.name = 'Vui lòng nhập tên vai trò';
+    errors.name = t('role.errors.name_required');
   }
 
   formErrors.value = errors;
@@ -485,7 +488,7 @@ const submitForm = async () => {
   if (!validateForm()) return;
 
   if (!currentUserId.value) {
-    showToast('error', 'Lỗi', 'Không tìm thấy tài khoản. Vui lòng đăng nhập lại.');
+    showToast('error', t('role.toast.error'), t('role.toast.account_missing'));
     return;
   }
 
@@ -504,13 +507,13 @@ const submitForm = async () => {
       });
 
       if (response.data?.success) {
-        showToast('success', 'Thành công', response.data.message || 'Tạo vai trò thành công.');
+        showToast('success', t('role.toast.success'), response.data.message || t('role.toast.create_success'));
         closeFormDialog();
         await loadData();
         return;
       }
 
-      showToast('error', 'Thất bại', response.data?.message || 'Không thể tạo vai trò.');
+      showToast('error', t('role.toast.failure'), response.data?.message || t('role.toast.create_failed'));
       return;
     }
 
@@ -524,17 +527,17 @@ const submitForm = async () => {
     });
 
     if (response.data?.success) {
-      showToast('success', 'Thành công', response.data.message || 'Cập nhật vai trò thành công.');
+      showToast('success', t('role.toast.success'), response.data.message || t('role.toast.update_success'));
       closeFormDialog();
       await loadData();
       return;
     }
 
-    showToast('error', 'Thất bại', response.data?.message || 'Không thể cập nhật vai trò.');
+    showToast('error', t('role.toast.failure'), response.data?.message || t('role.toast.update_failed'));
   } catch (error: unknown) {
     console.error('Lỗi lưu vai trò:', error);
     const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
-    showToast('error', 'Lỗi', message || 'Không thể lưu vai trò. Vui lòng thử lại.');
+    showToast('error', t('role.toast.error'), message || t('role.toast.save_failed'));
   } finally {
     isSaving.value = false;
   }
@@ -544,7 +547,7 @@ const confirmDelete = async () => {
   if (!deletingRole.value) return;
 
   if (!currentUserId.value) {
-    showToast('error', 'Lỗi', 'Không tìm thấy tài khoản. Vui lòng đăng nhập lại.');
+    showToast('error', t('role.toast.error'), t('role.toast.account_missing'));
     return;
   }
 
@@ -555,18 +558,18 @@ const confirmDelete = async () => {
     });
 
     if (response.data?.success) {
-      showToast('success', 'Thành công', response.data.message || 'Xóa vai trò thành công.');
+      showToast('success', t('role.toast.success'), response.data.message || t('role.toast.delete_success'));
       deleteDialogVisible.value = false;
       deletingRole.value = null;
       await loadData();
       return;
     }
 
-    showToast('error', 'Thất bại', response.data?.message || 'Không thể xóa vai trò.');
+    showToast('error', t('role.toast.failure'), response.data?.message || t('role.toast.delete_failed'));
   } catch (error: unknown) {
     console.error('Lỗi xóa vai trò:', error);
     const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
-    showToast('error', 'Lỗi', message || 'Không thể xóa vai trò. Vui lòng thử lại.');
+    showToast('error', t('role.toast.error'), message || t('role.toast.delete_retry'));
   } finally {
     isDeleting.value = false;
   }

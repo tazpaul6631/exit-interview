@@ -10,14 +10,15 @@
         </div>
 
         <div class="not-found-body">
-          <h2>Không tìm thấy trang</h2>
+          <h2>{{ t('not_found.title') }}</h2>
           <p>
-            Trang bạn đang truy cập không tồn tại hoặc đã bị di chuyển.
-            Vui lòng quay lại trang chủ để tiếp tục.
+            {{ t('not_found.subtitle') }}
+            {{ t('not_found.description') }}
           </p>
 
           <div class="action-row">
-            <Button label="Quay lại Dashboard" icon="pi pi-home" class="back-btn" @click="handleGoBack" />
+            <Button :label="t('not_found.back_to_dashboard')" icon="pi pi-home" class="back-btn"
+              @click="handleGoBack" />
           </div>
         </div>
       </div>
@@ -30,8 +31,10 @@ import { onMounted, nextTick } from 'vue';
 import { IonPage, onIonViewDidEnter } from '@ionic/vue';
 import { DotLottieVue } from '@lottiefiles/dotlottie-vue';
 import { useRouter } from 'vue-router';
-
+import { useI18n } from 'vue-i18n';
 const router = useRouter();
+
+const { t } = useI18n();
 
 const revealNotFoundPage = async () => {
   await nextTick();

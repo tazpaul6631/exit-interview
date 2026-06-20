@@ -64,7 +64,7 @@ const isSelected = (ans: any) => {
 <style lang="scss" scoped>
 /* KHỐI NODE GỐC */
 .node-block {
-  margin-bottom: 24px;
+  margin-bottom: 30px;
   width: 100%;
 }
 

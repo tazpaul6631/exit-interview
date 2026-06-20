@@ -1,4 +1,7 @@
 {
+  "app": {
+    "title": "HR Management"
+  },
   "common": {
     "welcome": "Welcome",
     "save": "Save",
@@ -39,6 +42,9 @@
   },
   "dashboard": {
     "leave_reason_chart": "Main exit reasons by department",
+    "leave_reason_org_filter": "Select departments",
+    "leave_reason_org_label": "Select number of departments",
+    "leave_reason_org_selected": "Selected {count} departments",
     "rating_chart": "Actual ratings (1–5 points)",
     "chart_empty": "No chart data available.",
     "cards": {
@@ -130,7 +136,8 @@
     "columns": {
       "code": "Code",
       "name": "Department name",
-      "status": "Status"
+      "status": "Status",
+      "priority": "Priority"
     },
     "filters": {
       "search_code": "Search code",
@@ -180,6 +187,107 @@
       "delete_retry": "Unable to delete department. Please try again."
     }
   },
+  "role": {
+    "page_report": "Showing {first} to {last} of {totalRecords} roles",
+    "add": "Add role",
+    "clear_filter": "Clear filters",
+    "empty": "No roles found.",
+    "columns": {
+      "code": "Code",
+      "name": "Role name"
+    },
+    "filters": {
+      "search": "Search...",
+      "search_code": "Search code",
+      "search_name": "Search name",
+      "admin": "Admin",
+      "normal": "Standard"
+    },
+    "actions": {
+      "view": "View details",
+      "edit": "Edit role",
+      "delete": "Delete role"
+    },
+    "form": {
+      "create_title": "Add role",
+      "edit_title": "Update role",
+      "name": "Role name",
+      "name_placeholder": "Enter role name",
+      "is_admin": "Admin permission",
+      "permissions": "Permissions",
+      "permissions_empty": "No permission data available.",
+      "create_btn": "Create"
+    },
+    "delete": {
+      "title": "Delete role",
+      "confirm": "Are you sure you want to delete role",
+      "btn": "Delete"
+    },
+    "errors": {
+      "name_required": "Please enter role name"
+    },
+    "detail": {
+      "code": "Role code",
+      "name": "Role name",
+      "account_type": "Account type",
+      "total_permissions": "Granted permissions",
+      "permissions_by_menu": "Permissions by menu",
+      "menu_count": "{count} menus",
+      "permissions_empty": "No permissions assigned.",
+      "allowed": "Allowed",
+      "denied": "Denied"
+    },
+    "toast": {
+      "error": "Error",
+      "success": "Success",
+      "failure": "Failed",
+      "load_permissions_failed": "Unable to load permission menu list.",
+      "load_role_permissions_failed": "Unable to load role permissions.",
+      "load_failed": "Unable to load role list.",
+      "load_detail_failed": "Unable to load role details.",
+      "account_missing": "Account not found. Please sign in again.",
+      "create_success": "Role created successfully.",
+      "create_failed": "Unable to create role.",
+      "update_success": "Role updated successfully.",
+      "update_failed": "Unable to update role.",
+      "save_failed": "Unable to save role. Please try again.",
+      "delete_success": "Role deleted successfully.",
+      "delete_failed": "Unable to delete role.",
+      "delete_retry": "Unable to delete role. Please try again."
+    }
+  },
+  "exit_interview": {
+    "page_report": "Showing {first} to {last} of {totalRecords} records",
+    "export_excel": "Export Excel",
+    "clear_filter": "Clear filters",
+    "empty": "No employee records found.",
+    "columns": {
+      "employee_code": "Emp. code",
+      "employee_name": "Full name",
+      "job_position": "Job title",
+      "organization": "Department",
+      "exited_at": "Exit date",
+      "created_at": "Created date"
+    },
+    "filters": {
+      "search_code": "Search code",
+      "search_name": "Search name",
+      "search_position": "Search job title",
+      "select_organization": "Select department",
+      "select_date": "Select date",
+      "loading_organization": "Loading departments..."
+    },
+    "actions": {
+      "export_word": "Export Word",
+      "export_pdf": "Export PDF",
+      "view_detail": "View details"
+    },
+    "errors": {
+      "export_word_failed": "Unable to export Word file. Please try again.",
+      "export_pdf_failed": "Unable to export PDF file. Please try again.",
+      "export_excel_failed": "Unable to export Excel file. Please try again."
+    }
+  },
   "change_password": {
     "description": "Update your sign-in password.",
     "old_password": "Current password",
@@ -227,5 +335,11 @@
       "user_list": "User list",
       "not_found": "404"
     }
+  },
+  "not_found": {
+    "title": "Page not found",
+    "subtitle": "The page you are accessing does not exist or has been moved.",
+    "description": "Please return to the dashboard to continue.",
+    "back_to_dashboard": "Back to Dashboard"
   }
 }

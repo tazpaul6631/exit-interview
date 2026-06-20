@@ -59,7 +59,6 @@ export interface UserCreatePayload {
 export interface UserUpdatePayload {
   code: string;
   name: string;
-  password: string;
   roleId: number;
   updatedBy: string;
 }

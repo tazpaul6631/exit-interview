@@ -9,6 +9,7 @@ import type {
 import {
   findSectionBySectionId,
   getSectionsByParentId,
+  normalizeInterviewDetail,
 } from '@/utils/interviewDetailExtract';
 
 const DOCUMENT_CSS = `
@@ -69,15 +70,38 @@ const DOCUMENT_CSS = `
     border-collapse: collapse;
     margin-bottom: 18px;
   }
-  table.info-table td {
+  table.info-table td.info-col-left {
     border: none;
-    padding: 4px 8px 4px 0;
-    vertical-align: bottom;
+    width: 45%;
+    padding: 0 12px 0 0;
+    vertical-align: top;
   }
-  .field-label { white-space: nowrap; }
+  table.info-table td.info-col-right {
+    border: none;
+    width: 55%;
+    padding: 0 0 0 12px;
+    vertical-align: top;
+  }
+  table.info-table td.info-col-right:last-child {
+    padding: 0 0 0 12px;
+  }
+  .info-line {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .info-line:last-child {
+    margin-bottom: 0;
+  }
+  .field-label {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
   .field-value {
+    flex: 1;
     border-bottom: 1px dotted #000;
-    min-width: 140px;
+    min-width: 0;
+    margin-left: 4px;
     padding: 0 4px 2px;
   }
   .section-title {
@@ -85,12 +109,11 @@ const DOCUMENT_CSS = `
     margin: 16px 0 8px;
     font-size: 13pt;
   }
-  .section-note { margin: 0 0 10px; }
+  .section-note { margin: 0 0 10px; font-weight: bold; }
   .form-item { margin: 0 0 10px; text-align: justify; }
   .check-box {
     display: inline-block;
     width: 16px;
-    font-weight: bold;
     margin-right: 4px;
   }
   table.rating-table {
@@ -162,7 +185,7 @@ async function fetchInterviewDetail(id: number): Promise<InterviewDetail> {
   const response = await interviewView.getInterviewView(id);
   const data = response?.data?.data as InterviewDetail | undefined;
   if (!data) throw new Error('Không tìm thấy dữ liệu phỏng vấn.');
-  return data;
+  return normalizeInterviewDetail(data);
 }
 
 function blobToDataUrl(blob: Blob): Promise<string> {
@@ -230,12 +253,30 @@ function formatHeaderDate(dateStr: string | null | undefined): string {
   return `Ngày ${date.getDate()} tháng ${date.getMonth() + 1} năm ${date.getFullYear()}`;
 }
 
-function renderInfoCell(label: string, value: string, colspan = 1): string {
+function renderInfoFieldLine(label: string, value: string): string {
   return `
-    <td colspan="${colspan}">
-      <span class="field-label">${escapeHtml(label)}:</span>
+    <div class="info-line">
+      <span class="field-label">${escapeHtml(label)}</span>
       <span class="field-value">${escapeHtml(value || '')}</span>
-    </td>
+    </div>
+  `;
+}
+
+function renderInfoBlock(detail: InterviewDetail): string {
+  return `
+    <table class="info-table">
+      <tr>
+        <td class="info-col-left">
+          ${renderInfoFieldLine('Tôi tên/ 姓名: ', detail.employeeName || '')}
+          ${renderInfoFieldLine('Mã Số/ 工號: ', detail.employeeCode || '')}
+          ${renderInfoFieldLine('Chức vụ/ 任職: ', detail.jobPositionName || '')}
+        </td>
+        <td class="info-col-right">
+          ${renderInfoFieldLine('Bộ phận/ 部門: ', detail.organizationName || '')}
+          ${renderInfoFieldLine('Ngày thôi việc/ 離職日期: ', format.formatDate(detail.exitedAt) || '')}
+        </td>
+      </tr>
+    </table>
   `;
 }
 
@@ -285,9 +326,15 @@ function getFirstChildSection(
   return getSectionsByParentId(sections, parentSectionId)[0] ?? null;
 }
 
+function sortAnswersByPriority(answers: InterviewAnswer[] = []): InterviewAnswer[] {
+  return [...answers].sort((a, b) =>
+    (a.answerPriority ?? a.answerId ?? 0) - (b.answerPriority ?? b.answerId ?? 0),
+  );
+}
+
 function collectPart1Items(sections: InterviewSection[]) {
   const child = getFirstChildSection(sections, 1);
-  return (child?.answers ?? []).map((answer) => ({
+  return sortAnswersByPriority(child?.answers ?? []).map((answer) => ({
     label: answer.answerName,
     checked: !!answer.checkValue,
   }));
@@ -295,7 +342,7 @@ function collectPart1Items(sections: InterviewSection[]) {
 
 function collectPart2Items(sections: InterviewSection[]) {
   const child = getFirstChildSection(sections, 2);
-  return (child?.answers ?? [])
+  return sortAnswersByPriority(child?.answers ?? [])
     .filter((answer) => answer.allowRating)
     .map((answer) => ({
       label: answer.answerName,
@@ -313,7 +360,7 @@ function findReasonText(answers: InterviewAnswer[]): string {
 function collectPart3Items(sections: InterviewSection[]) {
   return getSectionsByParentId(sections, 3).map((child) => {
     const question = child.questions?.[0];
-    const answers = question?.answers ?? [];
+    const answers = sortAnswersByPriority(question?.answers ?? []);
     const textAnswer = answers.find(
       (answer) => answer.allowText && !answer.answerParentId,
     );
@@ -322,7 +369,7 @@ function collectPart3Items(sections: InterviewSection[]) {
     );
 
     return {
-      sectionTitle: child.sectionName,
+      sectionName: child.sectionName,
       question: question?.questionName ?? '',
       textAnswer: textAnswer?.textValue?.trim() ?? '',
       choices: choices.map((answer) => ({
@@ -337,14 +384,15 @@ function collectPart3Items(sections: InterviewSection[]) {
 function renderPart1(sections: InterviewSection[]): string {
   const items = collectPart1Items(sections);
   const part1 = findSectionBySectionId(sections, 1);
+  const part1Child = getFirstChildSection(sections, 1);
 
   const rows = items.length
     ? items
-        .map(
-          (item) =>
-            `<p class="form-item">${renderCheckbox(item.checked)} ${escapeHtml(item.label)}</p>`,
-        )
-        .join('')
+      .map(
+        (item) =>
+          `<p class="form-item">${renderCheckbox(item.checked)} ${escapeHtml(item.label)}</p>`,
+      )
+      .join('')
     : `
       <p class="form-item">${renderCheckbox(false)} (1) Lương thưởng &amp; Phúc lợi/薪資福利: Lương thấp, ít tăng ca, thưởng không minh bạch.</p>
       <p class="form-item">${renderCheckbox(false)} (2) Vấn đề quản lý/管理問題: Tổ trưởng thái độ gắt gỏng, quản lý không công bằng, sắp xếp công việc không hợp lý.</p>
@@ -355,7 +403,7 @@ function renderPart1(sections: InterviewSection[]): string {
 
   return `
     <div class="section-title">${escapeHtml(part1?.sectionName ?? 'PHẦN 1: LÝ DO CHÍNH NGHỈ VIỆC/第一部分：離職主因')}</div>
-    <p class="section-note">Vui lòng chọn 1-2 lý do chính/請勾選最主要的 1-2 項:</p>
+    <p class="section-note">${escapeHtml(part1Child?.sectionName?.trim() || 'Vui lòng chọn 1-2 lý do chính/請勾選最主要的 1-2 項:')}</p>
     ${rows}
   `;
 }
@@ -363,18 +411,19 @@ function renderPart1(sections: InterviewSection[]): string {
 function renderPart2(sections: InterviewSection[]): string {
   const items = collectPart2Items(sections);
   const part2 = findSectionBySectionId(sections, 2);
+  const part2Child = getFirstChildSection(sections, 2);
 
   const rows = items.length
     ? items
-        .map(
-          (item) => `
+      .map(
+        (item) => `
             <tr>
               <td class="rating-label">${escapeHtml(item.label)}</td>
               <td>${renderRatingScore(item.score)}</td>
             </tr>
           `,
-        )
-        .join('')
+      )
+      .join('')
     : `
       <tr><td class="rating-label">(1) Cách quản lý của cấp trên trực tiếp / 現場主管的管理方式:</td><td>${renderRatingScore('')}</td></tr>
       <tr><td class="rating-label">(2) Sự công bằng trong phân công công việc / 工作分配的公平性:</td><td>${renderRatingScore('')}</td></tr>
@@ -384,7 +433,7 @@ function renderPart2(sections: InterviewSection[]): string {
 
   return `
     <div class="section-title">${escapeHtml(part2?.sectionName ?? 'PHẦN 2: ĐÁNH GIÁ THỰC TẾ (1-5 ĐIỂM)/第二部分：現場評價 (1-5分)')}</div>
-    <p class="section-note">5 điểm là rất hài lòng / 5分為最滿意:</p>
+    <p class="section-note">${escapeHtml(part2Child?.sectionName?.trim() || '5 điểm là rất hài lòng / 5分為最滿意:')}</p>
     <table class="rating-table">${rows}</table>
   `;
 }
@@ -418,20 +467,20 @@ function renderPart3ItemsHtml(
 
       const choicesHtml = hasChoices
         ? item.choices
-            .map((choice) => {
-              const reasonSuffix =
-                choice.checked &&
+          .map((choice) => {
+            const reasonSuffix =
+              choice.checked &&
                 item.reasonText &&
                 /không|不/.test(choice.label.toLowerCase())
-                  ? ` (Lý do/原因: <span class="dots">${escapeHtml(item.reasonText)}</span>)`
-                  : choice.checked &&
-                      /không|不/.test(choice.label.toLowerCase()) &&
-                      !item.reasonText
-                    ? ` (Lý do/原因: <span class="dots">................................</span>)`
-                    : '';
-              return `<div class="choice-line">${renderCheckbox(choice.checked)} ${escapeHtml(choice.label)}${reasonSuffix}</div>`;
-            })
-            .join('')
+                ? ` (Lý do/原因: <span class="dots">${escapeHtml(item.reasonText)}</span>)`
+                : choice.checked &&
+                  /không|不/.test(choice.label.toLowerCase()) &&
+                  !item.reasonText
+                  ? ` (Lý do/原因: <span class="dots">................................</span>)`
+                  : '';
+            return `<div class="choice-line">${renderCheckbox(choice.checked)} ${escapeHtml(choice.label)}${reasonSuffix}</div>`;
+          })
+          .join('')
         : '';
 
       const textBlock = hasChoices
@@ -443,7 +492,7 @@ function renderPart3ItemsHtml(
 
       return `
         <div class="question-block">
-          <div class="question-title">${escapeHtml(item.sectionTitle)}</div>
+          <div class="question-title">${escapeHtml(item.sectionName)}</div>
           ${item.question ? `<p class="question-text">${escapeHtml(item.question)}</p>` : ''}
           ${textBlock}
         </div>
@@ -452,25 +501,6 @@ function renderPart3ItemsHtml(
     .join('');
 
   return `${titleHtml}${questionsHtml}`;
-}
-
-
-function renderInfoBlock(detail: InterviewDetail): string {
-  return `
-    <table class="info-table">
-      <tr>
-        ${renderInfoCell('Tôi tên 姓名', detail.employeeName || '')}
-        ${renderInfoCell('Mã Số 工號', detail.employeeCode || '')}
-      </tr>
-      <tr>
-        ${renderInfoCell('Chức vụ 任職', detail.jobPositionName || '')}
-        ${renderInfoCell('Bộ phận/ Mã bộ phận 部門/ 部門代碼', detail.organizationName || '')}
-      </tr>
-      <tr>
-        ${renderInfoCell('Ngày thôi việc 離職日期', format.formatDate(detail.exitedAt) || '', 2)}
-      </tr>
-    </table>
-  `;
 }
 
 /** Trang 1: header + phần 1–2 + câu 1–2 phần 3. Trang 2: câu 3 phần 3. */
@@ -599,7 +629,6 @@ async function saveInterviewAsDocx(
 
   const sections = detail.sections ?? [];
   const headerDate = formatHeaderDate(detail.createdAt ?? detail.exitedAt);
-  const tableCellMarginH = 108; // khớp Normal Table trong mẫu
 
   const defaultSpacing = {
     line: DOC_LINE_HEIGHT,
@@ -623,7 +652,15 @@ async function saveInterviewAsDocx(
     });
 
   const boldRun = (text: string, size = DOC_SIZE_BODY) =>
-    run(text, { bold: true, size });
+    new TextRun({
+      text,
+      font: fontProps,
+      size,
+      bold: true,
+      boldComplexScript: true,
+    });
+
+  const sectionNameParagraph = (sectionName: string) => paragraph([boldRun(sectionName)]);
 
   const smallRun = (text: string) => run(text, { size: DOC_SIZE_SMALL });
 
@@ -672,14 +709,39 @@ async function saveInterviewAsDocx(
       underline: { type: UnderlineType.DOTTED },
     });
 
-  const infoCell = (label: string, value: string) =>
-    new TableCell({
-      margins: {
-        left: tableCellMarginH,
-        right: tableCellMarginH,
-      },
-      children: [tableParagraph([run(`${label}: `), dottedValue(value)])],
-    });
+  const infoFieldLine = (label: string, value: string) =>
+    tableParagraph([run(`${label}`), dottedValue(value)]);
+
+  const infoTable = new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: TableBorders.NONE,
+    rows: [
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 50, type: WidthType.PERCENTAGE },
+            borders: TableBorders.NONE,
+            margins: { top: 0, bottom: 0, left: 0, right: 160 },
+            children: [
+              infoFieldLine('Tôi tên/ 姓名: ', detail.employeeName || ''),
+              infoFieldLine('Mã Số/ 工號: ', detail.employeeCode || ''),
+              infoFieldLine('Chức vụ/ 任職: ', detail.jobPositionName || ''),
+              infoFieldLine('', ''),
+            ],
+          }),
+          new TableCell({
+            width: { size: 50, type: WidthType.PERCENTAGE },
+            borders: TableBorders.NONE,
+            margins: { top: 0, bottom: 0, left: 160, right: 0 },
+            children: [
+              infoFieldLine('Bộ phận/ 部門: ', detail.organizationName || ''),
+              infoFieldLine('Ngày thôi việc/ 離職日期: ', format.formatDate(detail.exitedAt) || ''),
+            ],
+          }),
+        ],
+      }),
+    ],
+  });
 
   const headerTable = new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
@@ -733,42 +795,6 @@ async function saveInterviewAsDocx(
     blankLine(),
   ];
 
-  const infoTable = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    borders: TableBorders.NONE,
-    rows: [
-      new TableRow({
-        children: [
-          infoCell('Tôi tên 姓名', detail.employeeName || ''),
-          infoCell('Mã Số 工號', detail.employeeCode || ''),
-        ],
-      }),
-      new TableRow({
-        children: [
-          infoCell('Chức vụ 任職', detail.jobPositionName || ''),
-          infoCell('Bộ phận/ Mã bộ phận 部門/ 部門代碼', detail.organizationName || ''),
-        ],
-      }),
-      new TableRow({
-        children: [
-          new TableCell({
-            columnSpan: 2,
-            margins: {
-              left: tableCellMarginH,
-              right: tableCellMarginH,
-            },
-            children: [
-              tableParagraph([
-                run('Ngày thôi việc 離職日期: '),
-                dottedValue(format.formatDate(detail.exitedAt) || ''),
-              ]),
-            ],
-          }),
-        ],
-      }),
-    ],
-  });
-
   const part1Items = collectPart1Items(sections);
   const part1 = findSectionBySectionId(sections, 1);
   const part1Defaults = [
@@ -779,20 +805,23 @@ async function saveInterviewAsDocx(
     '(5) Lý do cá nhân/個人因素: Việc gia đình, sức khỏe, nhà xa, về quê, đi học nâng cao trình độ, tự do kinh doanh.',
   ];
 
+  const part1Child = getFirstChildSection(sections, 1);
   const part1Blocks = [
-    paragraph([boldRun(part1?.sectionName ?? 'PHẦN 1: LÝ DO CHÍNH NGHỈ VIỆC/第一部分：離職主因')]),
-    paragraph([run('Vui lòng chọn 1-2 lý do chính/請勾選最主要的 1-2 項:')]),
+    sectionNameParagraph(part1?.sectionName ?? 'PHẦN 1: LÝ DO CHÍNH NGHỈ VIỆC/第一部分：離職主因'),
+    sectionNameParagraph(
+      part1Child?.sectionName?.trim() || 'Vui lòng chọn 1-2 lý do chính/請勾選最主要的 1-2 項:',
+    ),
     ...(part1Items.length
       ? part1Items.map((item) =>
-          paragraph([checkboxRun(item.checked), run(item.label)], {
-            alignment: AlignmentType.JUSTIFIED,
-          }),
-        )
+        paragraph([checkboxRun(item.checked), run(item.label)], {
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      )
       : part1Defaults.map((label) =>
-          paragraph([checkboxRun(false), run(label)], {
-            alignment: AlignmentType.JUSTIFIED,
-          }),
-        )),
+        paragraph([checkboxRun(false), run(label)], {
+          alignment: AlignmentType.JUSTIFIED,
+        }),
+      )),
   ];
 
   const part2Items = collectPart2Items(sections);
@@ -811,18 +840,22 @@ async function saveInterviewAsDocx(
     ]),
   );
 
+  const part2Child = getFirstChildSection(sections, 2);
   const part2Blocks = [
     blankLine(),
-    paragraph([boldRun(part2?.sectionName ?? 'PHẦN 2: ĐÁNH GIÁ THỰC TẾ (1-5 ĐIỂM)/第二部分：現場評價 (1-5分)')]),
-    paragraph([run('5 điểm là rất hài lòng / 5分為最滿意:')]),
+    sectionNameParagraph(part2?.sectionName ?? 'PHẦN 2: ĐÁNH GIÁ THỰC TẾ (1-5 ĐIỂM)/第二部分：現場評價 (1-5分)'),
+    sectionNameParagraph(
+      part2Child?.sectionName?.trim() || '5 điểm là rất hài lòng / 5分為最滿意:',
+    ),
     ...ratingLines,
   ];
 
   const buildPart3Blocks = (items: ReturnType<typeof collectPart3Items>) => {
     if (!items.length) {
+      const part3 = findSectionBySectionId(sections, 3);
       return [
-        paragraph([boldRun('PHẦN 3: CÁC CÂU HỎI TRỌNG TÂM/第三部分：核心問答')]),
-        paragraph([run('So sánh với công việc mới/競爭力對比:')]),
+        sectionNameParagraph(part3?.sectionName ?? 'PHẦN 3: CÁC CÂU HỎI TRỌNG TÂM/第三部分：核心問答'),
+        sectionNameParagraph('So sánh với công việc mới/競爭力對比:'),
         paragraph([run('Điểm nào của công việc mới tốt hơn công ty mình?/新工作的哪一點比我們公司好？')]),
         paragraph([run('Trả lời/答:')]),
         paragraph([dottedValue(' ')]),
@@ -830,16 +863,14 @@ async function saveInterviewAsDocx(
     }
 
     const blocks: InstanceType<typeof Paragraph>[] = [
-      paragraph([
-        boldRun(
-          findSectionBySectionId(sections, 3)?.sectionName ??
-            'PHẦN 3: CÁC CÂU HỎI TRỌNG TÂM/第三部分：核心問答',
-        ),
-      ]),
+      sectionNameParagraph(
+        findSectionBySectionId(sections, 3)?.sectionName ??
+        'PHẦN 3: CÁC CÂU HỎI TRỌNG TÂM/第三部分：核心問答',
+      ),
     ];
 
     for (const item of items) {
-      blocks.push(paragraph([run(item.sectionTitle.replace(/^\(\d+\)\s*/, ''))]));
+      blocks.push(sectionNameParagraph(item.sectionName));
 
       if (item.question) {
         const parts = item.question.split(/\s*\/\s*/);

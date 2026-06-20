@@ -1,4 +1,7 @@
 {
+  "app": {
+    "title": "人资管理"
+  },
   "common": {
     "welcome": "欢迎",
     "save": "保存",
@@ -39,6 +42,9 @@
   },
   "dashboard": {
     "leave_reason_chart": "主要离职原因（按部门）",
+    "leave_reason_org_filter": "选择部门",
+    "leave_reason_org_label": "选择部门数量",
+    "leave_reason_org_selected": "已选择 {count} 个部门",
     "rating_chart": "实际评分（1–5 分）",
     "chart_empty": "没有图表数据。",
     "cards": {
@@ -130,7 +136,8 @@
     "columns": {
       "code": "编码",
       "name": "部门名称",
-      "status": "状态"
+      "status": "状态",
+      "priority": "优先顺序"
     },
     "filters": {
       "search_code": "搜索编码",
@@ -180,6 +187,107 @@
       "delete_retry": "无法删除部门，请重试。"
     }
   },
+  "role": {
+    "page_report": "显示第 {first} 至 {last} 条，共 {totalRecords} 个角色",
+    "add": "新增角色",
+    "clear_filter": "清除筛选",
+    "empty": "未找到角色。",
+    "columns": {
+      "code": "代码",
+      "name": "角色名称"
+    },
+    "filters": {
+      "search": "搜索...",
+      "search_code": "搜索代码",
+      "search_name": "搜索名称",
+      "admin": "管理员",
+      "normal": "普通"
+    },
+    "actions": {
+      "view": "详情",
+      "edit": "编辑角色",
+      "delete": "删除角色"
+    },
+    "form": {
+      "create_title": "新增角色",
+      "edit_title": "更新角色",
+      "name": "角色名称",
+      "name_placeholder": "请输入角色名称",
+      "is_admin": "管理员权限",
+      "permissions": "权限分配",
+      "permissions_empty": "没有权限数据。",
+      "create_btn": "创建"
+    },
+    "delete": {
+      "title": "删除角色",
+      "confirm": "确定要删除角色",
+      "btn": "删除"
+    },
+    "errors": {
+      "name_required": "请输入角色名称"
+    },
+    "detail": {
+      "code": "角色代码",
+      "name": "角色名称",
+      "account_type": "账号类型",
+      "total_permissions": "已授予权限总数",
+      "permissions_by_menu": "按菜单分组权限",
+      "menu_count": "{count} 个菜单",
+      "permissions_empty": "尚未设置权限。",
+      "allowed": "允许",
+      "denied": "不允许"
+    },
+    "toast": {
+      "error": "错误",
+      "success": "成功",
+      "failure": "失败",
+      "load_permissions_failed": "无法加载权限菜单列表。",
+      "load_role_permissions_failed": "无法加载角色权限。",
+      "load_failed": "无法加载角色列表。",
+      "load_detail_failed": "无法加载角色详情。",
+      "account_missing": "未找到账号，请重新登录。",
+      "create_success": "角色创建成功。",
+      "create_failed": "无法创建角色。",
+      "update_success": "角色更新成功。",
+      "update_failed": "无法更新角色。",
+      "save_failed": "无法保存角色，请重试。",
+      "delete_success": "角色删除成功。",
+      "delete_failed": "无法删除角色。",
+      "delete_retry": "无法删除角色，请重试。"
+    }
+  },
+  "exit_interview": {
+    "page_report": "显示第 {first} 至 {last} 条，共 {totalRecords} 条数据",
+    "export_excel": "导出 Excel",
+    "clear_filter": "清除筛选",
+    "empty": "未找到员工数据。",
+    "columns": {
+      "employee_code": "员工编号",
+      "employee_name": "姓名",
+      "job_position": "职务",
+      "organization": "部门",
+      "exited_at": "离职日期",
+      "created_at": "创建日期"
+    },
+    "filters": {
+      "search_code": "搜索编号",
+      "search_name": "搜索姓名",
+      "search_position": "搜索职务",
+      "select_organization": "选择部门",
+      "select_date": "选择日期",
+      "loading_organization": "正在加载部门..."
+    },
+    "actions": {
+      "export_word": "导出 Word",
+      "export_pdf": "导出 PDF",
+      "view_detail": "查看详情"
+    },
+    "errors": {
+      "export_word_failed": "无法导出 Word 文件，请重试。",
+      "export_pdf_failed": "无法导出 PDF 文件，请重试。",
+      "export_excel_failed": "无法导出 Excel 文件，请重试。"
+    }
+  },
   "change_password": {
     "description": "更新您的登录密码。",
     "old_password": "当前密码",
@@ -227,5 +335,11 @@
       "user_list": "用户列表",
       "not_found": "404"
     }
+  },
+  "not_found": {
+    "title": "页面未找到",
+    "subtitle": "您访问的页面不存在或已移动。",
+    "description": "请返回仪表板继续。",
+    "back_to_dashboard": "返回仪表板"
   }
 }

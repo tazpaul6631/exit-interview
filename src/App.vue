@@ -6,17 +6,22 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { IonApp, IonRouterOutlet, useBackButton, useIonRouter } from '@ionic/vue';
 import { App } from '@capacitor/app';
-import { onMounted } from 'vue';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Device } from '@capacitor/device';
 import { Network } from '@capacitor/network';
 import { useAuthStore } from './store/auth';
+import { syncAppDocumentTitle } from '@/utils/syncAppDocumentTitle';
 
 const authStore = useAuthStore();
 const ionRouter = useIonRouter();
+const i18n = useI18n();
+
+watch(() => i18n.locale.value, () => syncAppDocumentTitle(i18n), { immediate: true });
 
 // Xử lý nút Back vật lý trên Android
 useBackButton(-1, () => {
