@@ -54,7 +54,7 @@
     "rating_chart": "Actual ratings (1–5 points)",
     "chart_empty": "No chart data available.",
     "cards": {
-      "Interviews": "Exit interviews",
+      "Interviews": "Exit applications",
       "Organizations": "Departments",
       "Users": "Users"
     },

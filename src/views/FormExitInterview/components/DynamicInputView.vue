@@ -5,32 +5,19 @@
         <p class="vn">{{ answer.answerName }}</p>
       </div>
       <div class="rating-stars">
-        <span
-          v-for="n in maxRating"
-          :key="n"
-          class="num"
-          :class="{ 'is-active': Number(answer.ratingValue) === n }"
-        >
+        <span v-for="n in maxRating" :key="n" class="num" :class="{ 'is-active': Number(answer.ratingValue) === n }">
           {{ n }}
         </span>
       </div>
     </div>
 
     <template v-else-if="isSelectable">
-      <div
-        v-if="isRadio"
-        class="pill-radio view-mode"
-        :class="{ active: isAnswerSelected }"
-      >
+      <div v-if="isRadio" class="pill-radio view-mode" :class="{ active: isAnswerSelected }">
         <span class="radio-dot" :class="{ checked: isAnswerSelected }"></span>
         <span>{{ answer.answerName }}</span>
       </div>
 
-      <div
-        v-else
-        class="checkbox-card view-mode"
-        :class="{ 'is-checked': isAnswerSelected }"
-      >
+      <div v-else class="checkbox-card view-mode" :class="{ 'is-checked': isAnswerSelected }">
         <span class="checkbox-dot" :class="{ checked: isAnswerSelected }"></span>
         <div class="card-body">
           <span class="title-vn-cn">{{ answer.answerName }}</span>
@@ -39,13 +26,10 @@
     </template>
 
     <div v-else-if="answer.allowText" class="text-input-box view-mode">
-      <p
-        v-if="answer.answerName && answer.answerName !== 'Trả lời/答:'"
-        class="text-label"
-      >
+      <p v-if="answer.answerName && answer.answerName !== 'Trả lời/答:'" class="text-label">
         {{ answer.answerName }}
       </p>
-      <div class="text-readonly">{{ answer.textValue || '—' }}</div>
+      <div class="text-readonly">{{ answer.textValue || ' ' }}</div>
     </div>
   </div>
 </template>

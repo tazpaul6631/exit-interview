@@ -2,8 +2,8 @@
   <div class="desktop-layout">
     <div class="banner-side">
       <div class="banner-lottie" aria-hidden="true">
-        <DotLottieVue class="banner-lottie__player" src="/assets/animations/logo-left-login.lottie" autoplay loop
-          :speed="0.85" :layout="{ fit: 'contain', align: [0.5, 0.5] }" />
+        <DotLottieVue class="banner-lottie__player" :src="loginLottieUrl" autoplay loop :speed="0.85"
+          :layout="{ fit: 'contain', align: [0.5, 0.5] }" />
       </div>
       <div class="banner-overlay"></div>
       <div class="banner-content animate__animated animate__fadeInUp">
@@ -68,6 +68,7 @@ import { z } from 'zod';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'primevue/usetoast';
 import { DotLottieVue } from '@lottiefiles/dotlottie-vue';
+import loginLottieUrl from '@/assets/animations/logo-left-login.lottie?url';
 import { APP_LOGO_ALT, APP_LOGO_URL } from '@/constants/branding';
 import LocaleSelect from '@/components/LocaleSelect.vue';
 

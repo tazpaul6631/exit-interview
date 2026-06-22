@@ -4,34 +4,12 @@ import legacy from '@vitejs/plugin-legacy'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import { defineConfig } from 'vite'
-import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  assetsInclude: ['**/*.lottie'],
   plugins: [
     vue(),
     legacy(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      injectRegister: 'auto',
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,jpg,jpeg,webp,svg,json,vue,txt,woff2,wasm}'],
-        cleanupOutdatedCaches: true,
-        maximumFileSizeToCacheInBytes: 5000000,
-      },
-      manifest: {
-        name: 'HR Exit Interview',
-        short_name: 'HR Exit',
-        description: 'Hệ thống phỏng vấn thôi việc — HR Management',
-        theme_color: '#3182ce',
-        background_color: '#ffffff',
-        display: 'standalone',
-        icons: [
-          { src: '/assets/icons/icon-192.webp', sizes: '192x192', type: 'image/webp', purpose: 'any' },
-          { src: '/assets/icons/icon-512.webp', sizes: '512x512', type: 'image/webp', purpose: 'any' },
-          { src: '/assets/icons/icon-512.webp', sizes: '512x512', type: 'image/webp', purpose: 'maskable' },
-        ]
-      }
-    })
   ],
 
   // SASS DEPRECATION
@@ -105,18 +83,4 @@ export default defineConfig({
       }
     }
   },
-
-  server: {
-    host: '0.0.0.0',
-    port: 8100,
-    // VITE RELOAD KHI ANDROID BUILD
-    watch: {
-      ignored: ['**/android/**'], // Không theo dõi các file trong thư mục android
-    },
-    // hmr: {
-    //   host: '10.0.149.28',
-    //   // port: 8101
-    // },
-    strictPort: false,
-  }
 })

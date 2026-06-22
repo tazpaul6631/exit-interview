@@ -147,6 +147,10 @@ router.beforeEach(async (to, from, next) => {
   // ==========================================
   // 2. LUỒNG DÀNH CHO WEB BROWSER
   // ==========================================
+  if (from.path === '/login' && !isAuthenticated && to.path !== '/login') {
+    return next('/login');
+  }
+
   if (isPublicWebRoute(to.path, to.name)) {
     if (to.path === '/login' && isAuthenticated) {
       return next('/dashboard');

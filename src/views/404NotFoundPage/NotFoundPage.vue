@@ -4,7 +4,7 @@
       <div class="not-found-shell">
         <div class="not-found-visual">
           <div class="lottie-frame">
-            <DotLottieVue class="lottie-player" src="/assets/animations/not-found.lottie" autoplay loop :speed="0.9"
+            <DotLottieVue class="lottie-player" :src="notFoundLottieUrl" autoplay loop :speed="0.9"
               :layout="{ fit: 'contain', align: [0.5, 0.5] }" />
           </div>
         </div>
@@ -30,6 +30,7 @@
 import { onMounted, nextTick } from 'vue';
 import { IonPage, onIonViewDidEnter } from '@ionic/vue';
 import { DotLottieVue } from '@lottiefiles/dotlottie-vue';
+import notFoundLottieUrl from '@/assets/animations/not-found.lottie?url';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 const router = useRouter();

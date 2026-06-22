@@ -6,7 +6,7 @@
           <div class="sidebar-container">
             <div class="sidebar-top">
               <div class="logo-box">
-                <img src="/assets/icons/icon-48.webp" alt="logo-company" type="button"
+                <img src="/assets/icons/icon-48.png" alt="logo-company" type="button"
                   @click="navigateToPath('/dashboard')" class="logo-box__img">
               </div>
 

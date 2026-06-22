@@ -54,7 +54,7 @@
     "rating_chart": "实际评分（1–5 分）",
     "chart_empty": "没有图表数据。",
     "cards": {
-      "Interviews": "离职面谈",
+      "Interviews": "离职申请",
       "Organizations": "部门",
       "Users": "用户"
     },
