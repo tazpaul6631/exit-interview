@@ -67,6 +67,10 @@ export interface RoleDeletePayload {
   updatedBy: string;
 }
 
+export interface RoleBaseListPayload {
+  isAdmin?: boolean;
+}
+
 export interface RoleApiResponse {
   success: boolean;
   message: string;

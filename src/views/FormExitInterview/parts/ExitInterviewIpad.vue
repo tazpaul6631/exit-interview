@@ -98,7 +98,11 @@
 
       <div class="divider"></div>
 
-      <div v-if="loading" class="loading-container">
+      <div v-if="loadError" class="loading-container loading-container--error">
+        <p>{{ loadError }}</p>
+      </div>
+
+      <div v-else-if="loading" class="loading-container">
         <ion-spinner name="crescent"></ion-spinner>
         <p>Đang tải cấu trúc biểu mẫu...</p>
       </div>
@@ -129,7 +133,8 @@
           <span>Tôi xác nhận các nội dung trên là đúng sự thật/ 我確認以上信息準確無誤</span>
         </label>
 
-        <ion-button expand="block" class="submit-btn" :disabled="!isConfirmed" @click="submitForm">
+        <ion-button expand="block" class="submit-btn"
+          :disabled="!isConfirmed || loading || !isFormReady || isSubmitting" @click="submitForm">
           <ion-spinner v-if="isSubmitting" name="crescent"></ion-spinner>
           <span v-if="!isSubmitting">GỬI BIÊN BẢN / 提交表單</span>
         </ion-button>
@@ -144,7 +149,7 @@ import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as zod from 'zod';
 import {
-  IonGrid, IonRow, IonCol, IonButton, IonSpinner, IonIcon, IonInput, onIonViewWillEnter
+  IonGrid, IonRow, IonCol, IonButton, IonSpinner, IonIcon, IonInput
 } from '@ionic/vue';
 import { informationCircleOutline, closeCircleOutline } from 'ionicons/icons';
 import { useI18n } from 'vue-i18n';
@@ -157,6 +162,8 @@ import { APP_LOGO_ALT, APP_LOGO_URL } from '@/constants/branding';
 import { useModalFieldValidation } from '@/composables/useModalFieldValidation';
 
 const loading = ref(true);
+const isFormReady = ref(false);
+const loadError = ref('');
 const isConfirmed = ref(false);
 const apiData = shallowRef<any>(null);
 const { t } = useI18n();
@@ -220,8 +227,26 @@ let requiredRatings: string[] = [];
 let conditionalTexts: { qId: string | null, parentAnsId: string, textId: string }[] = [];
 let checkboxIds: string[] = [];
 let mandatoryQuestions: string[] = [];
+const questionAnswerIds = new Map<string, string[]>();
 
-const validationSchema = ref(toTypedSchema(zod.any()));
+const pendingFormSchema = zod.object({
+  userInfo: zod.object({
+    employeeName: zod.string().optional(),
+    employeeCode: zod.string().optional(),
+    jobPositionName: zod.string().optional(),
+    exitedAt: zod.string().optional(),
+    organizationId: zod.number().optional(),
+  }).optional(),
+  answersData: zod.any().optional(),
+}).superRefine((_data, ctx) => {
+  ctx.addIssue({
+    code: zod.ZodIssueCode.custom,
+    message: t('messages.form_incomplete'),
+    path: ['userInfo', 'employeeName'],
+  });
+});
+
+const validationSchema = ref(toTypedSchema(pendingFormSchema));
 
 const { handleSubmit, errors, defineField, values, submitCount, setFieldValue, setValues, resetForm } = useForm({
   validationSchema,
@@ -269,6 +294,8 @@ const resetFieldFormatErrors = () => {
 const initializeForm = async () => {
   try {
     loading.value = true;
+    isFormReady.value = false;
+    loadError.value = '';
 
     requiredRadios = [];
     requiredTexts = [];
@@ -276,6 +303,7 @@ const initializeForm = async () => {
     conditionalTexts = [];
     checkboxIds = [];
     mandatoryQuestions = [];
+    questionAnswerIds.clear();
     isConfirmed.value = false;
     orgSearchKeyword.value = '';
 
@@ -340,6 +368,15 @@ const initializeForm = async () => {
         registerAnswerField(`q_${node.questionId}`, topSectionId);
       }
       if (node.answers) {
+        if (node.questionId) {
+          const answerIds = node.answers
+            .filter((a: any) => a.allowCheck || a.allowSelect)
+            .map((a: any) => String(a.answerId));
+          if (answerIds.length > 0) {
+            questionAnswerIds.set(String(node.questionId), answerIds);
+          }
+        }
+
         if (node.questionId && node.answers.some((a: any) => a.allowCheck || a.allowSelect)) {
           requiredRadios.push(String(node.questionId));
           registerAnswerField(`q_${node.questionId}`, topSectionId);
@@ -375,8 +412,9 @@ const initializeForm = async () => {
         if (!data) return;
         const safeData: Record<string, any> = (data.answersData || {}) as Record<string, any>;
         mandatoryQuestions.forEach(qId => {
-          const hasValue = safeData[`q_${qId}`] ||
-            checkboxIds.some(ansId => ansId.startsWith(qId) && safeData[ansId] === true);
+          const relatedAnswerIds = questionAnswerIds.get(qId) ?? [];
+          const hasValue = !!safeData[`q_${qId}`]
+            || relatedAnswerIds.some((ansId) => safeData[ansId] === true);
 
           if (!hasValue) {
             ctx.addIssue({
@@ -470,9 +508,14 @@ const initializeForm = async () => {
     resetFieldFormatErrors();
 
     orgSearchKeyword.value = apiData.value.organizationName || '';
+    isFormReady.value = true;
 
   } catch (error) {
     console.error('Lỗi load form:', error);
+    isFormReady.value = false;
+    loadError.value = t('messages.submit_failed');
+    validationSchema.value = toTypedSchema(pendingFormSchema);
+    showToast('error', t('messages.notifi'), loadError.value);
   } finally {
     setTimeout(() => { loading.value = false; }, 800);
   }
@@ -646,7 +689,7 @@ const scrollToFirstValidationError = async () => {
 
 const submitForm = handleSubmit(
   async (formValues) => {
-    if (isSubmitting.value) return;
+    if (isSubmitting.value || loading.value || !isFormReady.value || !formValues.userInfo) return;
 
     try {
       isSubmitting.value = true;

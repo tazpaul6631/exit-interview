@@ -53,14 +53,13 @@
 
             <template #filter="{ filterModel, filterCallback }" v-if="col.filterable">
               <template v-if="col.type === 'role'">
-                <Select v-model="filterModel.value" :options="roleOptions" optionLabel="name" optionValue="id"
+                <Select v-model="filterModel.value" :options="roleFilterOptions" optionLabel="name" optionValue="id"
                   :placeholder="t('user.filters.role')" class="user-filter-select" showClear :loading="isRoleLoading"
                   @show="loadRoles" @change="onSelectFilterChange(filterCallback)" />
               </template>
               <template v-else>
                 <InputText :model-value="filterModel.value as string | null" :placeholder="col.filterPlaceholder"
-                  class="w-full"
-                  @update:model-value="(v) => onTextFilterInput(v, filterModel, filterCallback)" />
+                  class="w-full" @update:model-value="(v) => onTextFilterInput(v, filterModel, filterCallback)" />
               </template>
             </template>
           </Column>
@@ -144,7 +143,7 @@
             {{ t('user.form.role') }} <span class="user-form__required">*</span>
           </label>
           <Select :id="formMode === 'create' ? 'hr-new-employee-role' : 'hr-edit-employee-role'"
-            v-model="formState.roleId" :options="roleOptions" optionLabel="name" optionValue="id"
+            v-model="formState.roleId" :options="roleFormOptions" optionLabel="name" optionValue="id"
             :placeholder="t('user.form.role_placeholder')" class="user-form__input" :loading="isRoleLoading"
             :invalid="!!formErrors.roleId" @show="loadRoles" />
           <small v-if="formErrors.roleId" class="user-form__error">{{ formErrors.roleId }}</small>
@@ -235,7 +234,21 @@ const currentUserId = computed(() => {
   return id != null ? String(id) : '';
 });
 
-const roleOptions = computed(() => roles.value);
+const roleFilterOptions = computed(() => roles.value);
+
+const roleFormOptions = computed(() => {
+  const matchedRoles = authStore.isAdmin
+    ? roles.value
+    : roles.value.filter((role) => !role.isAdmin);
+
+  const selectedRoleId = formState.value.roleId;
+  if (selectedRoleId == null) return matchedRoles;
+
+  if (matchedRoles.some((role) => role.id === selectedRoleId)) return matchedRoles;
+
+  const selectedRole = roles.value.find((role) => role.id === selectedRoleId);
+  return selectedRole ? [...matchedRoles, selectedRole] : matchedRoles;
+});
 const roleNameMap = computed(() =>
   new Map(roles.value.map((role) => [role.id, role.name])),
 );

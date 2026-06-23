@@ -34,7 +34,7 @@
     "notifi": "Thông báo!",
     "submitted": "Đã gửi thành công, cám ơn!",
     "form_incomplete": "Vui lòng kiểm tra và điền đầy đủ thông tin / 請填寫完整資料",
-    "submit_failed": "Lỗi gửi dữ liệu / 發送數據錯誤"
+    "submit_failed": "Lỗi máy chủ không, vui lòng thử lại sau / 伺服器錯誤，請稍後再試"
   },
   "login": {
     "banner_title": "Ghi nhận phỏng vấn nghỉ việc",

@@ -32,9 +32,13 @@
               {{ t('login.code_label') }} <span class="field-required">*</span>
             </label>
             <IconField iconPosition="left" class="login-icon-field">
-              <InputText id="login-code" v-model="code" :placeholder="t('login.code_placeholder')" class="login-input"
-                :invalid="submitCount > 0 && !!errors.code" autocomplete="username" fluid />
+              <InputText id="login-code" :model-value="code" :placeholder="t('login.code_placeholder')"
+                class="login-input"
+                :class="{ 'invalid': !!fieldFormatErrors.code || (submitCount > 0 && !!errors.code) }"
+                autocomplete="username" fluid @update:model-value="onCodeInput" />
             </IconField>
+            <small v-if="fieldFormatErrors.code" class="field-error">{{ fieldFormatErrors.code }}</small>
+            <small v-else-if="submitCount > 0 && errors.code" class="field-error">{{ errors.code }}</small>
           </div>
 
           <div class="field">
@@ -42,10 +46,14 @@
               {{ t('login.password_label') }} <span class="field-required">*</span>
             </label>
             <IconField iconPosition="left" class="login-icon-field">
-              <Password id="login-password" v-model="password" :placeholder="t('login.password_placeholder')"
-                class="login-input login-password" :invalid="submitCount > 0 && !!errors.password" toggle-mask
-                :feedback="false" autocomplete="current-password" fluid />
+              <Password id="login-password" :model-value="password" :placeholder="t('login.password_placeholder')"
+                class="login-input login-password"
+                :class="{ 'invalid': !!fieldFormatErrors.password || (submitCount > 0 && !!errors.password) }"
+                toggle-mask :feedback="false" autocomplete="current-password" fluid
+                @update:model-value="onPasswordInput" />
             </IconField>
+            <small v-if="fieldFormatErrors.password" class="field-error">{{ fieldFormatErrors.password }}</small>
+            <small v-else-if="submitCount > 0 && errors.password" class="field-error">{{ errors.password }}</small>
           </div>
 
           <Button type="submit" :label="t('login.submit')" icon="pi pi-arrow-right" icon-pos="right"
@@ -61,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue';
+import { computed, ref } from 'vue';
 import { useForm, useField } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import { z } from 'zod';
@@ -71,7 +79,7 @@ import { DotLottieVue } from '@lottiefiles/dotlottie-vue';
 import loginLottieUrl from '@/assets/animations/logo-left-login.lottie?url';
 import { APP_LOGO_ALT, APP_LOGO_URL } from '@/constants/branding';
 import LocaleSelect from '@/components/LocaleSelect.vue';
-import { sanitizeAlphanumeric } from '@/utils/inputSanitize';
+import { useModalFieldValidation } from '@/composables/useModalFieldValidation';
 
 defineProps<{
   loading?: boolean;
@@ -83,6 +91,12 @@ const emit = defineEmits<{
 
 const toast = useToast();
 const { t } = useI18n();
+const { getCodeFormatError } = useModalFieldValidation();
+
+const fieldFormatErrors = ref({
+  code: '',
+  password: '',
+});
 
 const showToast = (
   severity: 'success' | 'info' | 'warn' | 'error',
@@ -97,6 +111,12 @@ const showToast = (
   });
 };
 
+const getLoginPasswordFormatError = (password: string) => {
+  if (!password) return '';
+  if (password.length > 100) return t('login.errors.password_max');
+  return '';
+};
+
 const loginSchema = computed(() =>
   toTypedSchema(
     z.object({
@@ -109,6 +129,15 @@ const loginSchema = computed(() =>
         .string({ required_error: t('login.errors.password_required') })
         .min(1, t('login.errors.password_required'))
         .max(100, t('login.errors.password_max')),
+    }).superRefine((data, ctx) => {
+      const codeFormatError = getCodeFormatError(data.code);
+      if (codeFormatError) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: codeFormatError,
+          path: ['code'],
+        });
+      }
     }),
   ),
 );
@@ -124,10 +153,17 @@ const { handleSubmit, submitCount, errors } = useForm({
 const { value: code } = useField<string>('code');
 const { value: password } = useField<string>('password');
 
-watch(code, (val) => {
-  const cleaned = sanitizeAlphanumeric(val ?? '');
-  if (cleaned !== val) code.value = cleaned;
-});
+const onCodeInput = (value: string | null | undefined) => {
+  const next = value ?? '';
+  code.value = next;
+  fieldFormatErrors.value.code = getCodeFormatError(next);
+};
+
+const onPasswordInput = (value: string | null | undefined) => {
+  const next = value ?? '';
+  password.value = next;
+  fieldFormatErrors.value.password = getLoginPasswordFormatError(next);
+};
 
 const onLoginSubmit = handleSubmit(
   (values) => {
@@ -135,12 +171,17 @@ const onLoginSubmit = handleSubmit(
       document.activeElement.blur();
     }
 
+    fieldFormatErrors.value = { code: '', password: '' };
+
     emit('login', {
       code: values.code.trim(),
       password: values.password,
     });
   },
   ({ errors: formErrors }) => {
+    fieldFormatErrors.value.code = getCodeFormatError(code.value);
+    fieldFormatErrors.value.password = getLoginPasswordFormatError(password.value);
+
     const messages = [formErrors.code, formErrors.password].filter(Boolean);
     if (messages.length === 0) return;
 
@@ -339,6 +380,12 @@ const onLoginSubmit = handleSubmit(
   color: #ef4444;
 }
 
+.field-error {
+  color: #ef4444;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
 .login-icon-field {
   width: 100%;
 }
@@ -363,6 +410,17 @@ const onLoginSubmit = handleSubmit(
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
+:deep(.login-input.p-inputtext.invalid),
+:deep(.login-password.invalid .p-password-input) {
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+  border-color: #ef4444;
+  background: #fff5f5;
+  font-size: 0.9375rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
 :deep(.login-input.p-inputtext:enabled:hover),
 :deep(.login-password .p-password-input:enabled:hover) {
   border-color: #cbd5e1;
@@ -376,11 +434,24 @@ const onLoginSubmit = handleSubmit(
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
+:deep(.login-input.p-inputtext.invalid:enabled:hover),
+:deep(.login-password.invalid .p-password-input:enabled:hover) {
+  border-color: #ef4444;
+  background: #fff5f5;
+}
+
+:deep(.login-input.p-inputtext.invalid:enabled:focus),
+:deep(.login-password.invalid .p-password-input:enabled:focus) {
+  border-color: #ef4444;
+  background: #fff5f5;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
 :deep(.login-password.p-password) {
   width: 100%;
 }
 
-:deep(.login-password .p-password-toggle-mask-icon) {
+:deep(.login-password.invalid .p-password-toggle-mask-icon) {
   color: #94a3b8;
 }
 

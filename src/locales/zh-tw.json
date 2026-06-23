@@ -34,7 +34,7 @@
     "notifi": "通知！",
     "submitted": "提交成功，謝謝！",
     "form_incomplete": "請檢查並填寫完整必填資料",
-    "submit_failed": "發送數據錯誤，請稍後再試"
+    "submit_failed": "伺服器錯誤，請稍後再試"
   },
   "login": {
     "banner_title": "離職面談記錄",
