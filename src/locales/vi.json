@@ -11,7 +11,15 @@
   "common": {
     "welcome": "Chào mừng",
     "save": "Lưu",
-    "cancel": "Hủy"
+    "cancel": "Hủy",
+    "errors": {
+      "no_special_characters": "Không được nhập ký tự đặc biệt",
+      "name_no_numbers": "Tên không được chứa số",
+      "organization_name_format": "Chỉ được nhập chữ, số, khoảng trắng và ký tự + - _",
+      "forbidden_symbols": "Không được nhập ký tự × hoặc ÷",
+      "code_alphanumeric": "Chỉ được nhập chữ cái (a-z, A-Z) và số (0-9)",
+      "digits_only": "Chỉ được nhập số"
+    }
   },
   "home": {
     "title": "Trang chủ"
@@ -24,7 +32,9 @@
   },
   "messages": {
     "notifi": "Thông báo!",
-    "submitted": "Đã gửi thành công, cám ơn!"
+    "submitted": "Đã gửi thành công, cám ơn!",
+    "form_incomplete": "Vui lòng kiểm tra và điền đầy đủ thông tin / 請填寫完整資料",
+    "submit_failed": "Lỗi gửi dữ liệu / 發送數據錯誤"
   },
   "login": {
     "banner_title": "Ghi nhận phỏng vấn nghỉ việc",
@@ -115,6 +125,7 @@
       "password_min": "Mật khẩu phải có ít nhất 1 ký tự",
       "password_max": "Mật khẩu không quá 100 ký tự",
       "code_required": "Vui lòng nhập mã nhân viên",
+      "code_alphanumeric": "Mã nhân viên chỉ được nhập chữ cái (a-z, A-Z) và số (0-9)",
       "name_required": "Vui lòng nhập họ tên",
       "role_required": "Vui lòng chọn vai trò"
     },

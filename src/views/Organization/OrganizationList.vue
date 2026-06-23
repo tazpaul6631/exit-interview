@@ -64,8 +64,9 @@
                   showClear @change="onSelectFilterChange(filterCallback)" />
               </template>
               <template v-else>
-                <InputText v-model="filterModel.value" type="text" :placeholder="col.filterPlaceholder" class="w-full"
-                  @update:modelValue="onTextFilterInput(filterCallback)" />
+                <InputText :model-value="filterModel.value as string | null" :placeholder="col.filterPlaceholder"
+                  class="w-full"
+                  @update:model-value="(v) => onTextFilterInput(v, filterModel, filterCallback)" />
               </template>
             </template>
           </Column>
@@ -94,17 +95,18 @@
             {{ t('organization.form.name') }} <span class="organization-form__required">*</span>
           </label>
           <InputText id="organization-name" v-model="formState.name" class="organization-form__input"
-            :placeholder="t('organization.form.name_placeholder')" :invalid="!!formErrors.name" />
+            :placeholder="t('organization.form.name_placeholder')" :invalid="!!formErrors.name"
+            @update:model-value="onNameInput" />
           <small v-if="formErrors.name" class="organization-form__error">{{ formErrors.name }}</small>
         </div>
 
-        <div class="organization-form__field">
+        <div class="organization-form__field" v-if="formMode !== 'create'">
           <label for="organization-priority" class="organization-form__label">
             {{ t('organization.form.priority') }} <span class="organization-form__required">*</span>
           </label>
           <InputText id="organization-priority" v-model="formState.priority" type="number" min="0"
             class="organization-form__input" :placeholder="t('organization.form.priority_placeholder')"
-            :invalid="!!formErrors.priority" />
+            :invalid="!!formErrors.priority" @update:model-value="onPriorityInput" />
           <small v-if="formErrors.priority" class="organization-form__error">{{ formErrors.priority }}</small>
         </div>
 
@@ -149,10 +151,12 @@ import { useAuthStore } from '@/store/auth';
 import { getLocalDateTimeNow } from '@/utils/localDateTime';
 import type { Organization, OrganizationPagedData, OrganizationQueryPayload } from '@/types/organization';
 import { useMenuPermissions } from '@/composables/useMenuPermissions';
+import { useModalFieldValidation } from '@/composables/useModalFieldValidation';
 
 const toast = useToast();
 const authStore = useAuthStore();
 const { t } = useI18n();
+const { getOrganizationNameFormatError, getPriorityFormatError } = useModalFieldValidation();
 
 const organizationList = ref<Organization[]>([]);
 const isLoading = ref(false);
@@ -190,11 +194,11 @@ const activeFilterOptions = computed(() => [
 const serverFilterPassthrough = () => true;
 
 const tableColumns = computed(() => [
-  { field: '#', header: '#', width: '3rem', type: '#', filterable: false, bodyClass: 'text-center' },
+  { field: '#', header: '#', width: '5rem', type: '#', filterable: false, bodyClass: 'text-center' },
   {
     field: 'code',
     header: t('organization.columns.code'),
-    width: 'auto',
+    width: '200px',
     type: 'text',
     filterable: true,
     filterPlaceholder: t('organization.filters.search_code'),
@@ -349,7 +353,12 @@ const onPageChange = (event: { page: number; rows: number }) => {
   loadData(event);
 };
 
-const onTextFilterInput = (filterCallback?: () => void) => {
+const onTextFilterInput = (
+  value: string | null | undefined,
+  filterModel: { value: string | null },
+  filterCallback?: () => void,
+) => {
+  filterModel.value = value ? String(value) : null;
   filterCallback?.();
   scheduleFilterLoad(true);
 };
@@ -410,6 +419,22 @@ const openDeleteDialog = (organization: Organization) => {
   deleteDialogVisible.value = true;
 };
 
+const onNameInput = () => {
+  formErrors.value.name = getOrganizationNameFormatError(formState.value.name);
+};
+
+const onPriorityInput = () => {
+  const priority = Number(formState.value.priority);
+  const formatError = getPriorityFormatError(formState.value.priority);
+  if (formatError) {
+    formErrors.value.priority = formatError;
+    return;
+  }
+  if (formState.value.priority !== '' && !Number.isNaN(priority) && priority >= 0) {
+    formErrors.value.priority = '';
+  }
+};
+
 const validateForm = () => {
   const name = formState.value.name.trim();
   const priority = Number(formState.value.priority);
@@ -417,9 +442,14 @@ const validateForm = () => {
 
   if (!name) {
     errors.name = t('organization.errors.name_required');
+  } else {
+    errors.name = getOrganizationNameFormatError(name);
   }
 
-  if (Number.isNaN(priority) || priority < 0) {
+  const priorityFormatError = getPriorityFormatError(formState.value.priority);
+  if (priorityFormatError) {
+    errors.priority = priorityFormatError;
+  } else if (Number.isNaN(priority) || priority < 0) {
     errors.priority = t('organization.errors.priority_non_negative');
   }
 
@@ -437,7 +467,6 @@ const submitForm = async () => {
 
   const payloadBase = {
     name: formState.value.name.trim(),
-    priority: Number(formState.value.priority),
     isActive: formState.value.isActive,
     updatedBy: currentUserId.value,
   };
@@ -471,6 +500,7 @@ const submitForm = async () => {
       editingOrganizationId.value,
       {
         ...payloadBase,
+        priority: Number(formState.value.priority),
         updatedAt: getLocalDateTimeNow(),
       },
     );

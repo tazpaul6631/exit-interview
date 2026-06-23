@@ -16,18 +16,18 @@ export const APP_MENU_ITEMS: AppMenuItem[] = [
     routePrefixes: ['/dashboard'],
   },
   {
-    titleKey: 'layout.menu.list_user',
-    url: '/list-user',
-    icon: 'pi pi-user',
-    permissionHints: ['user'],
-    routePrefixes: ['/list-user'],
-  },
-  {
     titleKey: 'layout.menu.list_role',
     url: '/list-role',
     icon: 'pi pi-key',
     permissionHints: ['role'],
     routePrefixes: ['/list-role', '/detail-role'],
+  },
+  {
+    titleKey: 'layout.menu.list_user',
+    url: '/list-user',
+    icon: 'pi pi-user',
+    permissionHints: ['user'],
+    routePrefixes: ['/list-user'],
   },
   {
     titleKey: 'layout.menu.list_organization',

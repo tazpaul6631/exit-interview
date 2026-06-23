@@ -11,7 +11,15 @@
   "common": {
     "welcome": "歡迎",
     "save": "儲存",
-    "cancel": "取消"
+    "cancel": "取消",
+    "errors": {
+      "no_special_characters": "不能輸入特殊字元",
+      "name_no_numbers": "姓名不能包含數字",
+      "organization_name_format": "只能輸入文字、數字、空格和 + - _",
+      "forbidden_symbols": "不能輸入 × 或 ÷",
+      "code_alphanumeric": "只能輸入字母（a-z、A-Z）和數字（0-9）",
+      "digits_only": "只能輸入數字"
+    }
   },
   "home": {
     "title": "首頁"
@@ -24,7 +32,9 @@
   },
   "messages": {
     "notifi": "通知！",
-    "submitted": "提交成功，謝謝！"
+    "submitted": "提交成功，謝謝！",
+    "form_incomplete": "請檢查並填寫完整必填資料",
+    "submit_failed": "發送數據錯誤，請稍後再試"
   },
   "login": {
     "banner_title": "離職面談記錄",
@@ -115,6 +125,7 @@
       "password_min": "密碼至少需要 1 個字元",
       "password_max": "密碼不可超過 100 個字元",
       "code_required": "請輸入工號",
+      "code_alphanumeric": "工號只能輸入字母（a-z、A-Z）和數字（0-9）",
       "name_required": "請輸入姓名",
       "role_required": "請選擇角色"
     },

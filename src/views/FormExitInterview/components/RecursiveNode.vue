@@ -1,5 +1,5 @@
 <template>
-  <div class="node-block">
+  <div class="node-block" :id="level === 1 && node.sectionId ? `form-section-${node.sectionId}` : undefined">
     <template v-if="node.sectionName">
       <div v-if="level === 1" class="section-title-parent">
         <h3>{{ node.sectionName }}</h3>

@@ -699,7 +699,7 @@ export function embedSheetClusteredChart(
   if (layout.hasChart === false) return;
 
   const startCol = getChartStartColumn(layout);
-  writeChartSourceData(ws, layout, data);
+  // writeChartSourceData(ws, layout, data);
 
   const chartOptions = getChartRenderOptions(layout);
   const png = createClusteredColumnChartPngBase64(data, chartOptions);

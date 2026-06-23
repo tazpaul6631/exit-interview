@@ -11,7 +11,15 @@
   "common": {
     "welcome": "Welcome",
     "save": "Save",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "errors": {
+      "no_special_characters": "Special characters are not allowed",
+      "name_no_numbers": "Name must not contain numbers",
+      "organization_name_format": "Only letters, numbers, spaces, and + - _ are allowed",
+      "forbidden_symbols": "The characters × and ÷ are not allowed",
+      "code_alphanumeric": "Only letters (a-z, A-Z) and numbers (0-9) are allowed",
+      "digits_only": "Only numbers are allowed"
+    }
   },
   "home": {
     "title": "Home"
@@ -24,7 +32,9 @@
   },
   "messages": {
     "notifi": "Notification!",
-    "submitted": "Submitted successfully, thank you!"
+    "submitted": "Submitted successfully, thank you!",
+    "form_incomplete": "Please check and fill in all required fields",
+    "submit_failed": "Failed to submit the form. Please try again."
   },
   "login": {
     "banner_title": "Exit Interview Record",
@@ -115,6 +125,7 @@
       "password_min": "Password must be at least 1 characters",
       "password_max": "Password must not exceed 100 characters",
       "code_required": "Please enter an employee ID",
+      "code_alphanumeric": "Employee ID may only contain letters (a-z, A-Z) and numbers (0-9)",
       "name_required": "Please enter a full name",
       "role_required": "Please select a role"
     },

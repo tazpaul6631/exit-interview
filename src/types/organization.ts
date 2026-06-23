@@ -29,7 +29,6 @@ export interface OrganizationQueryPayload {
 
 export interface OrganizationCreatePayload {
   name: string;
-  priority: number;
   isActive: boolean;
   createdBy: string;
   updatedBy: string;

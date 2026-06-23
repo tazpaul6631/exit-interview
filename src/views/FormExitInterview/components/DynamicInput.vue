@@ -30,21 +30,24 @@
       </label>
     </template>
 
-    <div v-else-if="answer.allowText" class="text-input-box">
+    <div v-else-if="answer.allowText" class="text-input-box" :data-answer-id="answer.answerId">
       <p class="text-label" v-if="answer.answerName && answer.answerName !== 'Trả lời/答:'"><span
           class="request">*</span>{{
             answer.answerName }}
       </p>
-      <textarea v-model="fieldValue" :class="{ 'is-invalid': submitCount > 0 && errorMessage }"
-        :placeholder="answer.answerName || 'Vui lòng nhập lý do...'"></textarea>
-      <p class="error-msg" v-if="submitCount > 0 && errorMessage">{{ errorMessage }}</p>
+      <textarea :value="textAnswer" :class="{ 'is-invalid': showTextInvalid }"
+        :placeholder="answer.answerName || 'Vui lòng nhập lý do...'" @input="onTextInput"
+        @compositionstart="isComposing = true" @compositionend="onTextCompositionEnd"></textarea>
+      <p class="error-msg" v-if="textFormatError">{{ textFormatError }}</p>
+      <p class="error-msg" v-else-if="submitCount > 0 && errorMessage">{{ errorMessage }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useField, useFormValues, useSubmitCount } from 'vee-validate';
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+import { useModalFieldValidation } from '@/composables/useModalFieldValidation';
 
 const props = defineProps({
   answer: { type: Object, required: true },
@@ -71,7 +74,38 @@ if (isRadio.value && isSelectable.value) {
   fieldOptions.valueProp = props.answer.answerId;
 }
 
-const { value: fieldValue, errorMessage } = useField<any>(fieldName, undefined, fieldOptions);
+const { value: fieldValue, errorMessage, setValue, setErrors, validate } = useField<any>(() => fieldName.value, undefined, fieldOptions);
+
+const { getNameFormatError } = useModalFieldValidation();
+const isComposing = ref(false);
+const textFormatError = ref('');
+
+const textAnswer = computed(() => (typeof fieldValue.value === 'string' ? fieldValue.value : ''));
+
+const showTextInvalid = computed(
+  () => !!textFormatError.value || (submitCount.value > 0 && !!errorMessage.value),
+);
+
+const updateTextFormatError = async (value: string) => {
+  const err = getNameFormatError(value);
+  textFormatError.value = err;
+  setErrors(err);
+  await validate();
+};
+
+const onTextInput = (event: Event) => {
+  if (isComposing.value) return;
+  const value = (event.target as HTMLTextAreaElement).value;
+  setValue(value);
+  updateTextFormatError(value);
+};
+
+const onTextCompositionEnd = (event: CompositionEvent) => {
+  isComposing.value = false;
+  const value = (event.target as HTMLTextAreaElement).value;
+  setValue(value);
+  updateTextFormatError(value);
+};
 
 const currentSelectedCount = computed(() => {
   const data = (formValues.value.answersData || {}) as Record<string, any>;
@@ -92,7 +126,7 @@ onMounted(() => {
     if (props.answer.allowRating) fieldValue.value = props.answer.ratingValue || 5;
     else if (isSelectable.value && isRadio.value && props.answer.checkValue) fieldValue.value = props.answer.answerId;
     else if (isSelectable.value && !isRadio.value) fieldValue.value = props.answer.checkValue || false;
-    else if (props.answer.allowText) fieldValue.value = props.answer.textValue || '';
+    else if (props.answer.allowText) setValue(String(props.answer.textValue || ''));
   }
 });
 </script>

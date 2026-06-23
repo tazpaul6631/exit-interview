@@ -52,18 +52,15 @@
             </template>
 
             <template #filter="{ filterModel, filterCallback }" v-if="col.filterable">
-              <template v-if="col.type === 'code' || col.type === 'keyword'">
-                <InputText v-model="filterModel.value" type="text" :placeholder="col.filterPlaceholder" class="w-full"
-                  @update:modelValue="onTextFilterInput(filterCallback)" />
-              </template>
-              <template v-else-if="col.type === 'role'">
+              <template v-if="col.type === 'role'">
                 <Select v-model="filterModel.value" :options="roleOptions" optionLabel="name" optionValue="id"
                   :placeholder="t('user.filters.role')" class="user-filter-select" showClear :loading="isRoleLoading"
                   @show="loadRoles" @change="onSelectFilterChange(filterCallback)" />
               </template>
               <template v-else>
-                <InputText v-model="filterModel.value" type="text" :placeholder="col.filterPlaceholder" class="w-full"
-                  @update:modelValue="onTextFilterInput(filterCallback)" />
+                <InputText :model-value="filterModel.value as string | null" :placeholder="col.filterPlaceholder"
+                  class="w-full"
+                  @update:model-value="(v) => onTextFilterInput(v, filterModel, filterCallback)" />
               </template>
             </template>
           </Column>
@@ -94,7 +91,7 @@
           <InputText v-if="formMode === 'create'" :key="`create-code-${createFormKey}`" id="hr-new-employee-code"
             v-model="formState.code" class="user-form__input" :placeholder="t('user.form.code_placeholder')"
             :invalid="!!formErrors.code" name="hr-new-employee-code" autocomplete="off" :readonly="isCreateCodeReadonly"
-            @focus="isCreateCodeReadonly = false" />
+            @focus="isCreateCodeReadonly = false" @update:model-value="onCodeInput" />
           <InputText v-else id="hr-edit-employee-code" v-model="formState.code" class="user-form__input" disabled />
           <small v-if="formErrors.code" class="user-form__error">{{ formErrors.code }}</small>
         </div>
@@ -112,7 +109,7 @@
             <InputText :key="`create-name-${createFormKey}`" id="hr-new-employee-name" v-model="formState.name"
               class="user-form__input" :placeholder="t('user.form.name_placeholder')" :invalid="!!formErrors.name"
               name="hr-new-employee-name" autocomplete="off" :readonly="isCreateNameReadonly"
-              @focus="isCreateNameReadonly = false" />
+              @focus="isCreateNameReadonly = false" @update:model-value="onNameInput" />
             <small v-if="formErrors.name" class="user-form__error">{{ formErrors.name }}</small>
           </div>
 
@@ -135,7 +132,8 @@
               {{ t('user.form.name') }} <span class="user-form__required">*</span>
             </label>
             <InputText id="hr-edit-employee-name" v-model="formState.name" class="user-form__input"
-              :placeholder="t('user.form.name_placeholder')" :invalid="!!formErrors.name" autocomplete="off" />
+              :placeholder="t('user.form.name_placeholder')" :invalid="!!formErrors.name" autocomplete="off"
+              @update:model-value="onNameInput" />
             <small v-if="formErrors.name" class="user-form__error">{{ formErrors.name }}</small>
           </div>
         </template>
@@ -189,10 +187,12 @@ import type { PagedUserResponse, User, UserQueryPayload } from '@/types/user';
 import { usePageDataRefresh } from '@/composables/usePageDataRefresh';
 import { useMenuPermissions } from '@/composables/useMenuPermissions';
 import { useAuthStore } from '@/store/auth';
+import { useModalFieldValidation } from '@/composables/useModalFieldValidation';
 
 const toast = useToast();
 const { t } = useI18n();
 const authStore = useAuthStore();
+const { getCodeFormatError, getModalNameFormatError } = useModalFieldValidation();
 const { canCreate, canUpdate, canDelete } = useMenuPermissions(['user']);
 
 const userList = ref<User[]>([]);
@@ -243,11 +243,11 @@ const roleNameMap = computed(() =>
 const serverFilterPassthrough = () => true;
 
 const tableColumns = computed(() => [
-  { field: '#', header: '#', width: '3rem', type: '#', filterable: false, bodyClass: 'text-center' },
+  { field: '#', header: '#', width: '5rem', type: '#', filterable: false, bodyClass: 'text-center' },
   {
     field: 'code',
     header: t('user.columns.code'),
-    width: 'auto',
+    width: '200px',
     type: 'text',
     filterable: true,
     filterPlaceholder: t('user.filters.search_code'),
@@ -263,11 +263,11 @@ const tableColumns = computed(() => [
   {
     field: 'roleId',
     header: t('user.columns.role'),
-    width: '200px',
+    width: 'auto',
     type: 'role',
     filterable: true,
     filterPlaceholder: t('user.filters.role'),
-  },
+  }
 ]);
 
 const TEXT_FILTER_FIELDS = ['code', 'name', 'keyword'] as const;
@@ -413,7 +413,12 @@ const onPageChange = (event: { page: number; rows: number }) => {
   loadData(event);
 };
 
-const onTextFilterInput = (filterCallback?: () => void) => {
+const onTextFilterInput = (
+  value: string | null | undefined,
+  filterModel: { value: string | null },
+  filterCallback?: () => void,
+) => {
+  filterModel.value = value ? String(value) : null;
   filterCallback?.();
   scheduleFilterLoad(true);
 };
@@ -507,6 +512,14 @@ const validatePasswordField = () => {
   formErrors.value.password = getPasswordError(formState.value.password);
 };
 
+const onCodeInput = () => {
+  formErrors.value.code = getCodeFormatError(formState.value.code);
+};
+
+const onNameInput = () => {
+  formErrors.value.name = getModalNameFormatError(formState.value.name);
+};
+
 const validateForm = () => {
   const code = formState.value.code.trim();
   const name = formState.value.name.trim();
@@ -518,12 +531,18 @@ const validateForm = () => {
     roleId: '',
   };
 
-  if (formMode.value === 'create' && !code) {
-    errors.code = t('user.errors.code_required');
+  if (formMode.value === 'create') {
+    if (!code) {
+      errors.code = t('user.errors.code_required');
+    } else {
+      errors.code = getCodeFormatError(code);
+    }
   }
 
   if (!name) {
     errors.name = t('user.errors.name_required');
+  } else {
+    errors.name = getModalNameFormatError(name);
   }
 
   if (roleId == null || Number.isNaN(Number(roleId))) {

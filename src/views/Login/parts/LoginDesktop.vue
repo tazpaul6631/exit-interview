@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { useForm, useField } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import { z } from 'zod';
@@ -71,6 +71,7 @@ import { DotLottieVue } from '@lottiefiles/dotlottie-vue';
 import loginLottieUrl from '@/assets/animations/logo-left-login.lottie?url';
 import { APP_LOGO_ALT, APP_LOGO_URL } from '@/constants/branding';
 import LocaleSelect from '@/components/LocaleSelect.vue';
+import { sanitizeAlphanumeric } from '@/utils/inputSanitize';
 
 defineProps<{
   loading?: boolean;
@@ -122,6 +123,11 @@ const { handleSubmit, submitCount, errors } = useForm({
 
 const { value: code } = useField<string>('code');
 const { value: password } = useField<string>('password');
+
+watch(code, (val) => {
+  const cleaned = sanitizeAlphanumeric(val ?? '');
+  if (cleaned !== val) code.value = cleaned;
+});
 
 const onLoginSubmit = handleSubmit(
   (values) => {

@@ -80,8 +80,9 @@
               </template>
 
               <template v-else>
-                <InputText v-model="filterModel.value" type="text" :placeholder="col.filterPlaceholder" class="w-full"
-                  @update:modelValue="onTextFilterInput(filterCallback)" />
+                <InputText :model-value="filterModel.value as string | null" :placeholder="col.filterPlaceholder"
+                  class="w-full"
+                  @update:model-value="(v) => onTextFilterInput(v, filterModel, filterCallback)" />
               </template>
 
             </template>
@@ -120,7 +121,6 @@ import { FilterMatchMode } from '@primevue/core/api';
 import format from '@/mixins/format';
 import { usePageDataRefresh } from '@/composables/usePageDataRefresh';
 import { useMenuPermissions } from '@/composables/useMenuPermissions';
-
 interface EmployeeRecord {
   id: number;
   employeeCode: string;
@@ -165,11 +165,11 @@ const { canView, canExport } = useMenuPermissions(['exitinterview']);
 const serverFilterPassthrough = () => true;
 
 const tableColumns = computed(() => [
-  { field: '#', header: '#', width: '3rem', type: '#', bodyClass: 'text-center' },
+  { field: '#', header: '#', width: '5rem', type: '#', bodyClass: 'text-center' },
   {
     field: 'employeeCode',
     header: t('exit_interview.columns.employee_code'),
-    width: 'auto',
+    width: '200px',
     type: 'code',
     filterable: true,
     filterPlaceholder: t('exit_interview.filters.search_code'),
@@ -391,7 +391,12 @@ const onPageChange = (event: { page: number; rows: number }) => {
   loadData(event);
 };
 
-const onTextFilterInput = (filterCallback?: () => void) => {
+const onTextFilterInput = (
+  value: string | null | undefined,
+  filterModel: { value: string | null },
+  filterCallback?: () => void,
+) => {
+  filterModel.value = value ? String(value) : null;
   filterCallback?.();
   scheduleFilterLoad(true);
 };
@@ -563,7 +568,7 @@ usePageDataRefresh('ListExitInterview', () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.375rem;
+  gap: 1rem;
 }
 
 :deep(.compact-table .row-actions .p-button) {

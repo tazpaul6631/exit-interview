@@ -7,15 +7,18 @@
         <p class="subtitle-cn">員工離職面談記錄表</p>
       </header>
 
-      <section class="info-section">
+      <section class="info-section" id="form-section-info">
         <ion-grid>
           <ion-row>
             <ion-col size="12" size-md="6">
               <div class="custom-input">
                 <label><span class="request">*</span>Tôi tên/ <span>姓名</span></label>
-                <input v-model="employeeName" type="text" placeholder="Nhập họ tên..."
-                  :class="{ 'is-invalid': submitCount > 0 && errors['userInfo.employeeName'] }" />
-                <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.employeeName']">
+                <input :value="employeeName" type="text" placeholder="Nhập họ tên..."
+                  :class="{ 'is-invalid': !!fieldFormatErrors.employeeName || (submitCount > 0 && errors['userInfo.employeeName']) }"
+                  @input="onEmployeeNameInput" />
+                <span class="error-msg" v-if="fieldFormatErrors.employeeName">{{ fieldFormatErrors.employeeName
+                  }}</span>
+                <span class="error-msg" v-else-if="submitCount > 0 && errors['userInfo.employeeName']">
                   Bắt buộc nhập/ 必填
                 </span>
               </div>
@@ -24,9 +27,12 @@
             <ion-col size="12" size-md="6">
               <div class="custom-input">
                 <label><span class="request">*</span>Mã Số/ <span>工號</span></label>
-                <input v-model="employeeCode" type="text" placeholder="Nhập mã nhân viên..."
-                  :class="{ 'is-invalid': submitCount > 0 && errors['userInfo.employeeCode'] }" />
-                <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.employeeCode']">
+                <input :value="employeeCode" type="text" placeholder="Nhập mã nhân viên..."
+                  :class="{ 'is-invalid': !!fieldFormatErrors.employeeCode || (submitCount > 0 && errors['userInfo.employeeCode']) }"
+                  @input="onEmployeeCodeInput" />
+                <span class="error-msg" v-if="fieldFormatErrors.employeeCode">{{ fieldFormatErrors.employeeCode
+                  }}</span>
+                <span class="error-msg" v-else-if="submitCount > 0 && errors['userInfo.employeeCode']">
                   Bắt buộc nhập/ 必填
                 </span>
               </div>
@@ -35,9 +41,12 @@
             <ion-col size="12" size-md="6">
               <div class="custom-input">
                 <label><span class="request">*</span>Chức vụ/ <span>任職</span></label>
-                <input v-model="jobPositionName" type="text" placeholder="Bộ phận/Chức vụ..."
-                  :class="{ 'is-invalid': submitCount > 0 && errors['userInfo.jobPositionName'] }" />
-                <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.jobPositionName']">
+                <input :value="jobPositionName" type="text" placeholder="Bộ phận/Chức vụ..."
+                  :class="{ 'is-invalid': !!fieldFormatErrors.jobPositionName || (submitCount > 0 && errors['userInfo.jobPositionName']) }"
+                  @input="onJobPositionNameInput" />
+                <span class="error-msg" v-if="fieldFormatErrors.jobPositionName">{{ fieldFormatErrors.jobPositionName
+                  }}</span>
+                <span class="error-msg" v-else-if="submitCount > 0 && errors['userInfo.jobPositionName']">
                   Bắt buộc nhập/ 必填
                 </span>
               </div>
@@ -46,11 +55,20 @@
             <ion-col size="12" size-md="6">
               <div class="custom-input search-wrapper">
                 <label><span class="request">*</span>Bộ phận/ Mã bộ phận <span>部門/ 部門代碼</span></label>
-                <input :value="orgSearchKeyword" type="text" placeholder="Gõ để tìm kiếm phòng ban..."
-                  @input="handleSearchOrg" @focus="organizationList.length > 0 && (showOrgList = true)"
-                  @blur="showOrgList = false"
-                  :class="{ 'is-invalid': submitCount > 0 && errors['userInfo.organizationId'] }" />
-                <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.organizationId']">
+                <div class="search-input-box">
+                  <input :value="orgSearchKeyword" type="text" placeholder="Gõ để tìm kiếm phòng ban..."
+                    @input="handleSearchOrg" @focus="organizationList.length > 0 && (showOrgList = true)"
+                    @blur="showOrgList = false"
+                    :class="{ 'is-invalid': !!fieldFormatErrors.organizationKeyword || (submitCount > 0 && errors['userInfo.organizationId']) }" />
+                  <button v-if="orgSearchKeyword" type="button" class="search-clear-btn" aria-label="Xóa"
+                    @mousedown.prevent @click="clearOrgSearch">
+                    <ion-icon :icon="closeCircleOutline"></ion-icon>
+                  </button>
+                </div>
+                <span class="error-msg" v-if="fieldFormatErrors.organizationKeyword">
+                  {{ fieldFormatErrors.organizationKeyword }}
+                </span>
+                <span class="error-msg" v-else-if="submitCount > 0 && errors['userInfo.organizationId']">
                   Vui lòng chọn phòng ban từ danh sách
                 </span>
                 <ul v-if="showOrgList" class="org-dropdown">
@@ -121,28 +139,77 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, shallowRef } from 'vue';
+import { ref, onMounted, shallowRef, nextTick, inject, type Ref } from 'vue';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as zod from 'zod';
 import {
   IonGrid, IonRow, IonCol, IonButton, IonSpinner, IonIcon, IonInput, onIonViewWillEnter
 } from '@ionic/vue';
-import { informationCircleOutline } from 'ionicons/icons';
+import { informationCircleOutline, closeCircleOutline } from 'ionicons/icons';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
-import present from '@/mixins/present';
+import { useToast } from 'primevue/usetoast';
 import interviewApi from '@/api/interview';
 import organization from '@/api/organization';
 import RecursiveNode from '@/views/FormExitInterview/components/RecursiveNode.vue';
 import { APP_LOGO_ALT, APP_LOGO_URL } from '@/constants/branding';
+import { useModalFieldValidation } from '@/composables/useModalFieldValidation';
 
 const loading = ref(true);
 const isConfirmed = ref(false);
 const apiData = shallowRef<any>(null);
 const { t } = useI18n();
+const toast = useToast();
 const router = useRouter();
 const isSubmitting = ref(false);
+const { getCodeFormatError, getNameFormatError, getModalNameFormatError, getOrganizationNameFormatError } = useModalFieldValidation();
+
+const fieldFormatErrors = ref({
+  employeeName: '',
+  employeeCode: '',
+  jobPositionName: '',
+  organizationKeyword: '',
+});
+
+const topLevelSectionIds = ref<string[]>([]);
+const fieldToTopSectionMap = ref<Record<string, string>>({});
+const formExitIonContentRef = inject<Ref<{ $el?: HTMLIonContentElement } | HTMLIonContentElement | null>>(
+  'formExitIonContent',
+  ref(null),
+);
+
+const resolveIonContentElement = (targetEl?: Element | null): HTMLIonContentElement | null => {
+  const injected = formExitIonContentRef.value;
+  const injectedHost = injected && '$el' in injected ? injected.$el : injected;
+  if (injectedHost instanceof HTMLElement && injectedHost.tagName === 'ION-CONTENT') {
+    return injectedHost as HTMLIonContentElement;
+  }
+
+  const pageContent = targetEl?.closest('ion-page')?.querySelector('ion-content');
+  if (pageContent) return pageContent as HTMLIonContentElement;
+
+  const outletPages = Array.from(document.querySelectorAll('ion-router-outlet > .ion-page'));
+  const activePage = [...outletPages].reverse().find((page) => !page.classList.contains('ion-page-hidden'))
+    ?? outletPages[outletPages.length - 1];
+  const activeContent = activePage?.querySelector('ion-content');
+  if (activeContent) return activeContent as HTMLIonContentElement;
+
+  return null;
+};
+
+const showToast = (
+  severity: 'success' | 'info' | 'warn' | 'error',
+  summary: string,
+  detail?: string,
+) => {
+  toast.add({
+    severity,
+    summary,
+    detail: detail ?? summary,
+    life: 3000,
+  });
+};
 
 // ==========================================
 // DYNAMIC RULES (Biến chứa luật Zod)
@@ -169,6 +236,33 @@ const [employeeCode] = defineField('userInfo.employeeCode');
 const [jobPositionName] = defineField('userInfo.jobPositionName');
 const [exitedAt] = defineField('userInfo.exitedAt');
 
+const onEmployeeNameInput = (event: Event) => {
+  const value = (event.target as HTMLInputElement).value;
+  setFieldValue('userInfo.employeeName', value);
+  fieldFormatErrors.value.employeeName = getModalNameFormatError(value);
+};
+
+const onEmployeeCodeInput = (event: Event) => {
+  const value = (event.target as HTMLInputElement).value;
+  setFieldValue('userInfo.employeeCode', value);
+  fieldFormatErrors.value.employeeCode = getCodeFormatError(value);
+};
+
+const onJobPositionNameInput = (event: Event) => {
+  const value = (event.target as HTMLInputElement).value;
+  setFieldValue('userInfo.jobPositionName', value);
+  fieldFormatErrors.value.jobPositionName = getModalNameFormatError(value);
+};
+
+const resetFieldFormatErrors = () => {
+  fieldFormatErrors.value = {
+    employeeName: '',
+    employeeCode: '',
+    jobPositionName: '',
+    organizationKeyword: '',
+  };
+};
+
 // ==========================================
 // HÀM KHỞI TẠO CHÍNH (GOM LOGIC)
 // ==========================================
@@ -188,15 +282,23 @@ const initializeForm = async () => {
     const response = await interviewApi.getInterview();
     apiData.value = response.data.data;
     const initData: Record<string, any> = {};
+    const sectionIdsList: string[] = [];
+    const fieldMap: Record<string, string> = {};
 
-    const processAnswer = (ans: any, qId: string | null, parentAnsId: string | null) => {
+    const registerAnswerField = (fieldKey: string, topSectionId: string | null) => {
+      if (topSectionId) fieldMap[fieldKey] = topSectionId;
+    };
+
+    const processAnswer = (ans: any, qId: string | null, parentAnsId: string | null, topSectionId: string | null) => {
       if (ans.allowRating) {
         initData[ans.answerId] = ans.ratingValue || 5;
         requiredRatings.push(String(ans.answerId));
+        registerAnswerField(String(ans.answerId), topSectionId);
       }
       if (ans.allowCheck && !qId) {
         initData[ans.answerId] = ans.checkValue || false;
         checkboxIds.push(String(ans.answerId));
+        registerAnswerField(String(ans.answerId), topSectionId);
       }
       if (ans.allowCheck && qId && ans.checkValue) {
         initData[`q_${qId}`] = ans.answerId;
@@ -206,6 +308,7 @@ const initializeForm = async () => {
       }
       if (ans.allowText) {
         initData[ans.answerId] = ans.textValue || '';
+        registerAnswerField(String(ans.answerId), topSectionId);
         if (parentAnsId) {
           conditionalTexts.push({ qId, parentAnsId: String(parentAnsId), textId: String(ans.answerId) });
         } else {
@@ -213,36 +316,46 @@ const initializeForm = async () => {
         }
       }
       if (ans.childs && ans.childs.length > 0) {
-        ans.childs.forEach((cAns: any) => processAnswer(cAns, qId, String(ans.answerId)));
+        ans.childs.forEach((cAns: any) => processAnswer(cAns, qId, String(ans.answerId), topSectionId));
       }
     };
 
-    const scanTree = (node: any, currentQId: string | null = null) => {
+    const scanTree = (node: any, currentQId: string | null = null, topSectionId: string | null = null) => {
       if (!node) return;
-      if (node.sections) node.sections.forEach((s: any) => scanTree(s, currentQId));
-      if (node.questions) node.questions.forEach((q: any) => scanTree(q, String(q.questionId)));
-      if (node.childs && node.childs.length > 0 && node.childs[0].sectionId) {
-        node.childs.forEach((c: any) => scanTree(c, currentQId));
+      if (node.sections) {
+        node.sections.forEach((s: any) => {
+          const sectionId = String(s.sectionId);
+          if (!sectionIdsList.includes(sectionId)) {
+            sectionIdsList.push(sectionId);
+          }
+          scanTree(s, currentQId, sectionId);
+        });
+      }
+      if (node.questions) node.questions.forEach((q: any) => scanTree(q, String(q.questionId), topSectionId));
+      if (node.childs?.length) {
+        node.childs.forEach((c: any) => scanTree(c, currentQId, topSectionId));
       }
       if (node.questionId && node.allowSelect) {
         mandatoryQuestions.push(String(node.questionId));
+        registerAnswerField(`q_${node.questionId}`, topSectionId);
       }
       if (node.answers) {
-        // SỬA TẠI ĐÂY: Chấp nhận cả allowCheck hoặc allowSelect là Radio group
         if (node.questionId && node.answers.some((a: any) => a.allowCheck || a.allowSelect)) {
           requiredRadios.push(String(node.questionId));
+          registerAnswerField(`q_${node.questionId}`, topSectionId);
         }
 
         node.answers.forEach((ans: any) => {
-          // Logic khởi tạo data: Nếu allowSelect hoặc allowCheck thì mới xử lý
           if (ans.allowCheck || ans.allowSelect || ans.allowRating || ans.allowText) {
-            processAnswer(ans, currentQId, null);
+            processAnswer(ans, currentQId, null, topSectionId);
           }
         });
       }
     };
 
     scanTree(apiData.value);
+    topLevelSectionIds.value = sectionIdsList;
+    fieldToTopSectionMap.value = fieldMap;
 
     const dynamicZod = zod.object({
       userInfo: zod.object({
@@ -269,30 +382,42 @@ const initializeForm = async () => {
             ctx.addIssue({
               code: zod.ZodIssueCode.custom,
               message: 'Bắt buộc chọn mục này',
-              path: [`answersData.q_${qId}`]
+              path: ['answersData', `q_${qId}`],
             });
           }
         });
         requiredRatings.forEach(id => {
           if (!safeData[id] || safeData[id] === 0) {
-            ctx.addIssue({ code: zod.ZodIssueCode.custom, message: 'Vui lòng đánh giá', path: [`answersData.${id}`] });
+            ctx.addIssue({ code: zod.ZodIssueCode.custom, message: 'Vui lòng đánh giá', path: ['answersData', id] });
           }
         });
         requiredRadios.forEach(qId => {
           if (!safeData[`q_${qId}`]) {
-            ctx.addIssue({ code: zod.ZodIssueCode.custom, message: 'Vui lòng chọn 1 đáp án', path: [`answersData.q_${qId}`] });
+            ctx.addIssue({ code: zod.ZodIssueCode.custom, message: 'Vui lòng chọn 1 đáp án', path: ['answersData', `q_${qId}`] });
           }
         });
         requiredTexts.forEach(id => {
-          if (!safeData[id] || String(safeData[id]).trim() === '') {
-            ctx.addIssue({ code: zod.ZodIssueCode.custom, message: 'Vui lòng nhập lý do', path: [`answersData.${id}`] });
+          const text = String(safeData[id] ?? '');
+          if (!text.trim()) {
+            ctx.addIssue({ code: zod.ZodIssueCode.custom, message: 'Vui lòng nhập lý do', path: ['answersData', id] });
+            return;
+          }
+          const formatErr = getNameFormatError(text);
+          if (formatErr) {
+            ctx.addIssue({ code: zod.ZodIssueCode.custom, message: formatErr, path: ['answersData', id] });
           }
         });
         conditionalTexts.forEach(cond => {
           let isParentSelected = cond.qId ? (String(safeData[`q_${cond.qId}`]) === cond.parentAnsId) : (safeData[cond.parentAnsId] === true);
           if (isParentSelected) {
-            if (!safeData[cond.textId] || String(safeData[cond.textId]).trim() === '') {
-              ctx.addIssue({ code: zod.ZodIssueCode.custom, message: 'Vui lòng nhập lý do chi tiết', path: [`answersData.${cond.textId}`] });
+            const text = String(safeData[cond.textId] ?? '');
+            if (!text.trim()) {
+              ctx.addIssue({ code: zod.ZodIssueCode.custom, message: 'Vui lòng nhập lý do chi tiết', path: ['answersData', cond.textId] });
+              return;
+            }
+            const formatErr = getNameFormatError(text);
+            if (formatErr) {
+              ctx.addIssue({ code: zod.ZodIssueCode.custom, message: formatErr, path: ['answersData', cond.textId] });
             }
           }
         });
@@ -300,8 +425,31 @@ const initializeForm = async () => {
           const selectedCount = checkboxIds.filter(id => safeData[id] === true).length;
           if (selectedCount === 0) {
             checkboxIds.forEach(id => {
-              ctx.addIssue({ code: zod.ZodIssueCode.custom, message: `Vui lòng chọn ít nhất 1 lý do`, path: [`answersData.${id}`] });
+              ctx.addIssue({ code: zod.ZodIssueCode.custom, message: `Vui lòng chọn ít nhất 1 lý do`, path: ['answersData', id] });
             });
+          }
+        }
+
+        const userInfo = data?.userInfo;
+        if (userInfo) {
+          const nameFormatError = getModalNameFormatError(userInfo.employeeName || '');
+          if (nameFormatError) {
+            ctx.addIssue({ code: zod.ZodIssueCode.custom, message: nameFormatError, path: ['userInfo', 'employeeName'] });
+          }
+
+          const codeFormatError = getCodeFormatError(userInfo.employeeCode || '');
+          if (codeFormatError) {
+            ctx.addIssue({ code: zod.ZodIssueCode.custom, message: codeFormatError, path: ['userInfo', 'employeeCode'] });
+          }
+
+          const jobFormatError = getNameFormatError(userInfo.jobPositionName || '');
+          if (jobFormatError) {
+            ctx.addIssue({ code: zod.ZodIssueCode.custom, message: jobFormatError, path: ['userInfo', 'jobPositionName'] });
+          }
+
+          const orgKeywordFormatError = getOrganizationNameFormatError(orgSearchKeyword.value);
+          if (orgKeywordFormatError) {
+            ctx.addIssue({ code: zod.ZodIssueCode.custom, message: orgKeywordFormatError, path: ['userInfo', 'organizationId'] });
           }
         }
       });
@@ -318,6 +466,8 @@ const initializeForm = async () => {
       },
       answersData: initData
     });
+
+    resetFieldFormatErrors();
 
     orgSearchKeyword.value = apiData.value.organizationName || '';
 
@@ -345,10 +495,18 @@ const isSearching = ref(false);
 let searchTimeout: any = null;
 
 const handleSearchOrg = (event: Event) => {
-  const keyword = (event.target as HTMLInputElement).value;
+  const el = event.target as HTMLInputElement;
+  const keyword = el.value;
   orgSearchKeyword.value = keyword;
+  fieldFormatErrors.value.organizationKeyword = getOrganizationNameFormatError(keyword);
   setFieldValue('userInfo.organizationId', 0);
   if (searchTimeout) clearTimeout(searchTimeout);
+
+  if (fieldFormatErrors.value.organizationKeyword) {
+    organizationList.value = [];
+    showOrgList.value = false;
+    return;
+  }
 
   if (!keyword.trim()) {
     organizationList.value = [];
@@ -375,12 +533,117 @@ const selectOrg = (org: any) => {
   if (searchTimeout) clearTimeout(searchTimeout);
   setFieldValue('userInfo.organizationId', org.id);
   orgSearchKeyword.value = org.name;
+  fieldFormatErrors.value.organizationKeyword = getOrganizationNameFormatError(org.name || '');
+  showOrgList.value = false;
+};
+
+const clearOrgSearch = () => {
+  if (searchTimeout) clearTimeout(searchTimeout);
+  orgSearchKeyword.value = '';
+  fieldFormatErrors.value.organizationKeyword = '';
+  setFieldValue('userInfo.organizationId', 0);
+  organizationList.value = [];
   showOrgList.value = false;
 };
 
 // ==========================================
 // SUBMIT FORM
 // ==========================================
+const scrollToElement = async (el: Element) => {
+  await nextTick();
+
+  const contentEl = resolveIonContentElement(el);
+  const headerOffset = 72;
+
+  if (contentEl?.getScrollElement) {
+    try {
+      const scrollEl = await contentEl.getScrollElement();
+      const elRect = el.getBoundingClientRect();
+      const scrollRect = scrollEl.getBoundingClientRect();
+      const targetTop = elRect.top - scrollRect.top + scrollEl.scrollTop - headerOffset;
+
+      if (contentEl.scrollToPoint) {
+        await contentEl.scrollToPoint(0, Math.max(0, targetTop), 400);
+        return;
+      }
+    } catch {
+      // fallback below
+    }
+  }
+
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+const hasInfoSectionErrors = () => {
+  const formatErrors = fieldFormatErrors.value;
+  if (formatErrors.employeeName || formatErrors.employeeCode || formatErrors.jobPositionName || formatErrors.organizationKeyword) {
+    return true;
+  }
+
+  return Object.keys(errors.value).some((key) => key.startsWith('userInfo.'));
+};
+
+const getAnswerErrorSectionIds = () => {
+  const sectionIds = new Set<string>();
+
+  Object.keys(errors.value).forEach((key) => {
+    if (!key.startsWith('answersData.')) return;
+
+    const fieldKey = key.slice('answersData.'.length);
+    const sectionId = fieldToTopSectionMap.value[fieldKey];
+    if (sectionId) sectionIds.add(sectionId);
+  });
+
+  return sectionIds;
+};
+
+const sectionHasVisibleAnswerError = (sectionEl: Element) =>
+  !!sectionEl.querySelector(
+    '.nested-childs textarea.is-invalid, .text-input-box textarea.is-invalid, .text-input-box .error-msg, .invalid-pill, .checkbox-card.is-invalid, .num-error',
+  );
+
+const getFirstAnswerErrorSectionElement = () => {
+  const answerErrorSections = getAnswerErrorSectionIds();
+
+  for (const sectionId of topLevelSectionIds.value) {
+    if (answerErrorSections.has(sectionId)) {
+      return document.getElementById(`form-section-${sectionId}`);
+    }
+  }
+
+  for (const sectionId of topLevelSectionIds.value) {
+    const sectionEl = document.getElementById(`form-section-${sectionId}`);
+    if (sectionEl && sectionHasVisibleAnswerError(sectionEl)) {
+      return sectionEl;
+    }
+  }
+
+  return null;
+};
+
+const scrollToFirstValidationError = async () => {
+  await nextTick();
+  await nextTick();
+  await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
+  if (hasInfoSectionErrors()) {
+    const infoSection = document.getElementById('form-section-info');
+    if (infoSection) {
+      await scrollToElement(infoSection);
+      return;
+    }
+  }
+
+  const answerSectionEl = getFirstAnswerErrorSectionElement();
+  if (answerSectionEl) {
+    await scrollToElement(answerSectionEl);
+    return;
+  }
+
+  const formTop = document.querySelector('.info-section') ?? document.querySelector('.form-header');
+  if (formTop) await scrollToElement(formTop);
+};
+
 const submitForm = handleSubmit(
   async (formValues) => {
     if (isSubmitting.value) return;
@@ -435,7 +698,7 @@ const submitForm = handleSubmit(
 
       await interviewApi.postCreateInterview(finalPayloadForBE);
 
-      await present.Toast(t('messages.submitted'), 'success');
+      showToast('success', t('messages.notifi'), t('messages.submitted'));
 
       resetForm();
       orgSearchKeyword.value = '';
@@ -443,23 +706,17 @@ const submitForm = handleSubmit(
 
       router.push('/app-menu');
 
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert('Lỗi gửi dữ liệu/發送數據錯誤');
+      const message = error?.response?.data?.message;
+      showToast('error', t('messages.notifi'), message || t('messages.submit_failed'));
     } finally {
       isSubmitting.value = false;
     }
   },
-  (validationErrors) => {
-    console.warn("Zod đã chặn form vì các lỗi sau:", validationErrors.errors);
-
-    // Tự động cuộn mượt mà lên đầu trang để người dùng thấy ô viền đỏ
-    const contentBox = document.querySelector('ion-content');
-    if (contentBox) {
-      contentBox.scrollToTop(500);
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+  async () => {
+    showToast('warn', t('messages.notifi'), t('messages.form_incomplete'));
+    await scrollToFirstValidationError();
   }
 );
 </script>
@@ -683,6 +940,37 @@ const submitForm = handleSubmit(
 
 .search-wrapper {
   position: relative;
+}
+
+.search-input-box {
+  position: relative;
+}
+
+.search-input-box input {
+  padding-right: 40px;
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #a0aec0;
+}
+
+.search-clear-btn ion-icon {
+  font-size: 20px;
+}
+
+.search-clear-btn:hover {
+  color: #718096;
 }
 
 .org-dropdown {

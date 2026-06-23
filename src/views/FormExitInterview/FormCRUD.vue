@@ -146,10 +146,12 @@
             <div class="field-builder-card" v-for="field in currentSection.fields" :key="'build-' + field.id">
               <div class="field-header">
                 <div class="field-labels">
-                  <input v-model="field.label" type="text" class="edit-label main-label"
-                    placeholder="Nhãn chính (VD: Tôi tên)" @input="markDirty" />
-                  <input v-model="field.subLabel" type="text" class="edit-label sub-label"
-                    placeholder="Nhãn phụ (VD: 姓名)" @input="markDirty" />
+                  <input :value="field.label" type="text" class="edit-label main-label"
+                    placeholder="Nhãn chính (VD: Tôi tên)"
+                    @input="(e) => onBuilderTextInput(e, (v) => field.label = v)" />
+                  <input :value="field.subLabel" type="text" class="edit-label sub-label"
+                    placeholder="Nhãn phụ (VD: 姓名)"
+                    @input="(e) => onBuilderTextInput(e, (v) => field.subLabel = v)" />
                 </div>
                 <button class="btn-icon text-danger" @click="removeField(field.id)">
                   <ion-icon :icon="trashOutline"></ion-icon>
@@ -173,14 +175,14 @@
           <div v-if="currentSection && currentSection.isCustom" class="form-builder-area">
 
             <div class="custom-input builder-header">
-              <input v-model="currentSection.name" type="text" class="section-title-input" placeholder="Tên section..."
-                @input="markDirty" />
+              <input :value="currentSection.name" type="text" class="section-title-input" placeholder="Tên section..."
+                @input="(e) => onBuilderTextInput(e, (v) => currentSection!.name = v)" />
             </div>
 
             <div class="builder-question-card" v-for="ques in currentSection.questions" :key="'build-' + ques.id">
               <div class="question-header">
-                <input v-model="ques.title" type="text" class="question-title-input" placeholder="Nhập câu hỏi..."
-                  @input="markDirty" />
+                <input :value="ques.title" type="text" class="question-title-input" placeholder="Nhập câu hỏi..."
+                  @input="(e) => onBuilderTextInput(e, (v) => ques.title = v)" />
                 <button class="btn-icon text-danger" @click="removeBuilderQuestion(ques.id)">
                   <ion-icon :icon="trashOutline"></ion-icon>
                 </button>
@@ -198,8 +200,9 @@
               <div class="options-builder" v-if="ques.type === 'text'">
                 <div class="option-row" v-for="opt in ques.options" :key="'opt-build-' + opt.id">
                   <ion-icon :icon="documentTextOutline" class="opt-icon"></ion-icon>
-                  <input v-model="opt.text" type="text" class="option-text-input"
-                    placeholder="Nhập tiêu đề ô text phụ..." @input="markDirty" />
+                  <input :value="opt.text" type="text" class="option-text-input"
+                    placeholder="Nhập tiêu đề ô text phụ..."
+                    @input="(e) => onBuilderTextInput(e, (v) => opt.text = v)" />
                   <button class="btn-icon text-muted" @click="removeBuilderOption(ques, opt.id)">
                     <ion-icon :icon="trashOutline"></ion-icon>
                   </button>
@@ -212,8 +215,8 @@
               <div class="options-builder" v-if="ques.type === 'radio' || ques.type === 'checkbox'">
                 <div class="option-row" v-for="opt in ques.options" :key="'opt-build-' + opt.id">
                   <ion-icon :icon="ques.type === 'radio' ? radioButtonOff : squareOutline" class="opt-icon"></ion-icon>
-                  <input v-model="opt.text" type="text" class="option-text-input" placeholder="Nhập đáp án..."
-                    @input="markDirty" />
+                  <input :value="opt.text" type="text" class="option-text-input" placeholder="Nhập đáp án..."
+                    @input="(e) => onBuilderTextInput(e, (v) => opt.text = v)" />
                   <button class="btn-icon text-muted" @click="removeBuilderOption(ques, opt.id)">
                     <ion-icon :icon="trashOutline"></ion-icon>
                   </button>
@@ -237,8 +240,9 @@
 
                 <div class="option-row" v-for="opt in ques.options" :key="'opt-build-' + opt.id">
                   <ion-icon :icon="starOutline" class="opt-icon"></ion-icon>
-                  <input v-model="opt.text" type="text" class="option-text-input"
-                    placeholder="Nhập tiêu chí đánh giá..." @input="markDirty" />
+                  <input :value="opt.text" type="text" class="option-text-input"
+                    placeholder="Nhập tiêu chí đánh giá..."
+                    @input="(e) => onBuilderTextInput(e, (v) => opt.text = v)" />
                   <button class="btn-icon text-muted" @click="removeBuilderOption(ques, opt.id)">
                     <ion-icon :icon="trashOutline"></ion-icon>
                   </button>
@@ -273,6 +277,7 @@ import {
   trashOutline, addCircleOutline, radioButtonOff, squareOutline,
   settingsOutline, closeOutline, starOutline, documentTextOutline
 } from 'ionicons/icons';
+import { onInputSanitize, sanitizePlainText } from '@/utils/inputSanitize';
 
 // --- ĐỊNH NGHĨA KIỂU DỮ LIỆU BUILDER ---
 interface FormField { id: number; label: string; subLabel: string; inputType: 'text' | 'date' | 'number'; }
@@ -304,6 +309,13 @@ const currentSection = computed(() => sections.value.find(s => s.id === activeSe
 const currentSectionName = computed(() => currentSection.value ? currentSection.value.name : '');
 
 const markDirty = () => { isDirty.value = true; };
+
+const onBuilderTextInput = (event: Event, assign: (value: string) => void) => {
+  onInputSanitize(event, sanitizePlainText, (value) => {
+    assign(value);
+    markDirty();
+  });
+};
 
 const openBuilder = () => { isBuilderOpen.value = true; };
 const closeBuilder = () => { isBuilderOpen.value = false; };

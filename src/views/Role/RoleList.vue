@@ -53,8 +53,9 @@
                   @change="onSelectFilterChange(filterCallback)" />
               </template>
               <template v-else>
-                <InputText v-model="filterModel.value" type="text" :placeholder="col.filterPlaceholder" class="w-full"
-                  @update:modelValue="onTextFilterInput(filterCallback)" />
+                <InputText :model-value="filterModel.value as string | null" :placeholder="col.filterPlaceholder"
+                  class="w-full"
+                  @update:model-value="(v) => onTextFilterInput(v, filterModel, filterCallback)" />
               </template>
             </template>
           </Column>
@@ -84,7 +85,8 @@
             {{ t('role.form.name') }} <span class="role-form__required">*</span>
           </label>
           <InputText id="role-form-name" v-model="formState.name" class="role-form__input"
-            :placeholder="t('role.form.name_placeholder')" :invalid="!!formErrors.name" autocomplete="off" />
+            :placeholder="t('role.form.name_placeholder')" :invalid="!!formErrors.name" autocomplete="off"
+            @update:model-value="onNameInput" />
           <small v-if="formErrors.name" class="role-form__error">{{ formErrors.name }}</small>
         </div>
 
@@ -158,11 +160,13 @@ import {
 import type { Role, RolePermissionGroup, RolePermissionPayload, RoleQueryPayload } from '@/types/role';
 import { useMenuPermissions } from '@/composables/useMenuPermissions';
 import { usePageDataRefresh } from '@/composables/usePageDataRefresh';
+import { useModalFieldValidation } from '@/composables/useModalFieldValidation';
 
 const toast = useToast();
 const router = useRouter();
 const { t } = useI18n();
 const authStore = useAuthStore();
+const { getModalNameFormatError } = useModalFieldValidation();
 
 const roleList = ref<Role[]>([]);
 const permissionMenus = ref<RolePermissionGroup[]>([]);
@@ -206,11 +210,11 @@ const currentUserId = computed(() => {
 const serverFilterPassthrough = () => true;
 
 const tableColumns = computed(() => [
-  { field: '#', header: '#', width: '3rem', type: '#', filterable: false, bodyClass: 'text-center' },
+  { field: '#', header: '#', width: '5rem', type: '#', filterable: false, bodyClass: 'text-center' },
   {
     field: 'code',
     header: t('role.columns.code'),
-    width: 'auto',
+    width: '200px',
     type: 'text',
     filterable: true,
     filterPlaceholder: t('role.filters.search_code'),
@@ -373,7 +377,12 @@ const onPageChange = (event: { page: number; rows: number }) => {
   loadData(event);
 };
 
-const onTextFilterInput = (filterCallback?: () => void) => {
+const onTextFilterInput = (
+  value: string | null | undefined,
+  filterModel: { value: string | null },
+  filterCallback?: () => void,
+) => {
+  filterModel.value = value ? String(value) : null;
   filterCallback?.();
   scheduleFilterLoad(true);
 };
@@ -478,10 +487,16 @@ const validateForm = () => {
 
   if (!name) {
     errors.name = t('role.errors.name_required');
+  } else {
+    errors.name = getModalNameFormatError(name);
   }
 
   formErrors.value = errors;
   return !errors.name;
+};
+
+const onNameInput = () => {
+  formErrors.value.name = getModalNameFormatError(formState.value.name);
 };
 
 const submitForm = async () => {
