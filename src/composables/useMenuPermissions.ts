@@ -57,5 +57,6 @@ export function useMenuPermissions(permissionHints: MaybeRefOrGetter<string[]>) 
     canUpdate: computed(() => resolve('UPDATE')),
     canDelete: computed(() => resolve('DELETE')),
     canExport: computed(() => resolve('EXPORT')),
+    canImport: computed(() => resolve('IMPORT')),
   };
 }

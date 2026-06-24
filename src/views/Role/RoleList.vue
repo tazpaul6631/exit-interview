@@ -54,8 +54,7 @@
               </template>
               <template v-else>
                 <InputText :model-value="filterModel.value as string | null" :placeholder="col.filterPlaceholder"
-                  class="w-full"
-                  @update:model-value="(v) => onTextFilterInput(v, filterModel, filterCallback)" />
+                  class="w-full" @update:model-value="(v) => onTextFilterInput(v, filterModel, filterCallback)" />
               </template>
             </template>
           </Column>
@@ -847,7 +846,7 @@ usePageDataRefresh('ListRole', () => {
   display: grid;
   grid-template-columns: minmax(5.5rem, 7rem) 1fr;
   gap: 0.375rem 0.625rem;
-  align-items: center;
+  align-items: start;
   padding: 0.375rem 0;
 }
 
@@ -863,8 +862,10 @@ usePageDataRefresh('ListRole', () => {
 }
 
 .role-form__permission-items {
-  display: flex;
-  gap: 0.25rem 0.625rem;
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 0.375rem 0.625rem;
+  justify-content: start;
 }
 
 .role-form__permission-item {

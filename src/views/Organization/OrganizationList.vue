@@ -11,7 +11,7 @@
           @page="onPageChange" @filter="onTableFilter">
           <template #header>
             <div class="organization-toolbar">
-              <Button type="button" size="small" outlined
+              <Button type="button" size="small" outlined :disabled="!canImport"
                 class="organization-toolbar__btn organization-toolbar__btn--import" @click="openImportDialog">
                 <i class="pi pi-file-import organization-toolbar__icon" aria-hidden="true" />
                 <span class="organization-toolbar__label">{{ t('organization.import.title') }}</span>
@@ -232,7 +232,7 @@ const formMode = ref<'create' | 'edit'>('create');
 const editingOrganizationId = ref<number | null>(null);
 const deletingOrganization = ref<Organization | null>(null);
 
-const { canCreate, canUpdate, canDelete } = useMenuPermissions(['organization']);
+const { canCreate, canUpdate, canDelete, canImport } = useMenuPermissions(['organization']);
 
 const formState = ref({
   name: '',
