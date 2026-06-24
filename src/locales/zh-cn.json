@@ -34,7 +34,7 @@
     "notifi": "通知！",
     "submitted": "提交成功，谢谢！",
     "form_incomplete": "请检查并填写完整必填资料",
-    "submit_failed": "服务器错误，请稍后再试"
+    "submit_failed": "服务器没有响应，请稍后再试"
   },
   "login": {
     "banner_title": "离职面谈记录",

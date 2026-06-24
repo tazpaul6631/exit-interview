@@ -34,7 +34,7 @@
     "notifi": "Notification!",
     "submitted": "Submitted successfully, thank you!",
     "form_incomplete": "Please check and fill in all required fields",
-    "submit_failed": "Server error, please try again after."
+    "submit_failed": "Server not responding, please try again after."
   },
   "login": {
     "banner_title": "Exit Interview Record",
