@@ -11,6 +11,11 @@
           @page="onPageChange" @filter="onTableFilter">
           <template #header>
             <div class="organization-toolbar">
+              <Button type="button" size="small" outlined
+                class="organization-toolbar__btn organization-toolbar__btn--import" @click="openImportDialog">
+                <i class="pi pi-file-import organization-toolbar__icon" aria-hidden="true" />
+                <span class="organization-toolbar__label">{{ t('organization.import.title') }}</span>
+              </Button>
               <Button type="button" size="small" outlined :disabled="!canCreate"
                 class="organization-toolbar__btn organization-toolbar__btn--create" @click="openCreateDialog">
                 <i class="pi pi-plus organization-toolbar__icon" aria-hidden="true" />
@@ -65,8 +70,7 @@
               </template>
               <template v-else>
                 <InputText :model-value="filterModel.value as string | null" :placeholder="col.filterPlaceholder"
-                  class="w-full"
-                  @update:model-value="(v) => onTextFilterInput(v, filterModel, filterCallback)" />
+                  class="w-full" @update:model-value="(v) => onTextFilterInput(v, filterModel, filterCallback)" />
               </template>
             </template>
           </Column>
@@ -85,6 +89,50 @@
         </DataTable>
       </div>
     </div>
+
+    <Dialog v-model:visible="importDialogVisible" modal :draggable="false" :header="t('organization.import.title')"
+      class="organization-import-dialog" :style="{ width: '32rem' }" @hide="resetImportDialog">
+      <div class="organization-import-dialog__template">
+        <Button type="button" size="small" outlined @click="downloadTemplate"
+          class="organization-import-dialog__template-button">
+          <i class="pi pi-download organization-import-dialog__template-button-icon" aria-hidden="true" />
+          <span class="organization-import-dialog__template-button-label">{{ t('organization.import.download_template')
+          }}</span>
+        </Button>
+      </div>
+      <input ref="importFileInputRef" type="file" accept=".xlsx,.xls" class="organization-import-dialog__input"
+        @change="onImportFileInputChange" />
+
+      <div v-if="!selectedImportFile" class="organization-import-dialog__dropzone"
+        :class="{ 'organization-import-dialog__dropzone--active': isDragOver }" role="button" tabindex="0"
+        @click="triggerImportFilePicker" @keydown.enter.prevent="triggerImportFilePicker"
+        @keydown.space.prevent="triggerImportFilePicker" @dragover.prevent="isDragOver = true"
+        @dragleave.prevent="isDragOver = false" @drop.prevent="onImportFileDrop">
+        <i class="pi pi-cloud-upload organization-import-dialog__dropzone-icon" aria-hidden="true" />
+        <p class="organization-import-dialog__dropzone-title">{{ t('organization.import.drop_hint') }}</p>
+        <Button type="button" size="small" outlined severity="success" :label="t('organization.import.choose_file')"
+          @click.stop="triggerImportFilePicker" />
+      </div>
+
+      <div v-else class="organization-import-dialog__file">
+        <div class="organization-import-dialog__file-info">
+          <i class="pi pi-file-excel organization-import-dialog__file-icon" aria-hidden="true" />
+          <div class="organization-import-dialog__file-meta">
+            <span class="organization-import-dialog__file-name">{{ selectedImportFile.name }}</span>
+            <span class="organization-import-dialog__file-size">{{ formatImportFileSize(selectedImportFile.size)
+              }}</span>
+          </div>
+        </div>
+        <Button type="button" icon="pi pi-times" rounded outlined severity="danger" size="small"
+          :aria-label="t('organization.import.remove_file')" :disabled="isImporting" @click="clearImportFile" />
+      </div>
+
+      <template #footer>
+        <Button :label="t('common.cancel')" text severity="secondary" @click="closeImportDialog" />
+        <Button :label="t('organization.import.btn')" severity="primary" :loading="isImporting"
+          :disabled="!selectedImportFile" @click="confirmImport" />
+      </template>
+    </Dialog>
 
     <Dialog v-model:visible="formDialogVisible" modal :draggable="false"
       :header="formMode === 'create' ? t('organization.form.create_title') : t('organization.form.edit_title')"
@@ -113,7 +161,7 @@
         <div class="organization-form__field organization-form__field--checkbox">
           <Checkbox v-model="formState.isActive" inputId="organization-active" binary />
           <label for="organization-active" class="organization-form__checkbox-label">{{ t('organization.form.is_active')
-            }}</label>
+          }}</label>
         </div>
       </form>
 
@@ -146,6 +194,12 @@ import { useI18n } from 'vue-i18n';
 import { useToast } from 'primevue/usetoast';
 import { FilterMatchMode } from '@primevue/core/api';
 import organizationApi from '@/api/organization';
+import {
+  OrganizationImportValidationError,
+  formatOrganizationImportErrorLocations,
+  parseOrganizationExcel,
+} from '@/utils/organizationExcelImport';
+import type { OrganizationImportPayload } from '@/types/organization';
 import { usePageDataRefresh } from '@/composables/usePageDataRefresh';
 import { useAuthStore } from '@/store/auth';
 import { getLocalDateTimeNow } from '@/utils/localDateTime';
@@ -162,6 +216,11 @@ const organizationList = ref<Organization[]>([]);
 const isLoading = ref(false);
 const isSaving = ref(false);
 const isDeleting = ref(false);
+const isImporting = ref(false);
+const importDialogVisible = ref(false);
+const selectedImportFile = ref<File | null>(null);
+const importFileInputRef = ref<HTMLInputElement | null>(null);
+const isDragOver = ref(false);
 const filters = ref<Record<string, { value: unknown; matchMode: string }>>();
 const totalRecords = ref(0);
 const first = ref(0);
@@ -256,7 +315,7 @@ const showToast = (
     severity,
     summary,
     detail: detail ?? summary,
-    life: 3000,
+    life: severity === 'warn' ? 10000 : 3000,
   });
 };
 
@@ -561,6 +620,173 @@ const confirmDelete = async () => {
 usePageDataRefresh('ListOrganization', () => {
   loadData();
 });
+
+const openImportDialog = () => {
+  selectedImportFile.value = null;
+  isDragOver.value = false;
+  importDialogVisible.value = true;
+};
+
+const closeImportDialog = () => {
+  importDialogVisible.value = false;
+};
+
+const resetImportDialog = () => {
+  clearImportFile();
+  isDragOver.value = false;
+};
+
+const isExcelFile = (file: File) => {
+  const extension = file.name.split('.').pop()?.toLowerCase();
+  return extension === 'xlsx' || extension === 'xls';
+};
+
+const setImportFile = (file: File | null) => {
+  if (!file) {
+    selectedImportFile.value = null;
+    return;
+  }
+
+  if (!isExcelFile(file)) {
+    showToast('warn', t('organization.toast.error'), t('organization.import.invalid_file'));
+    return;
+  }
+
+  selectedImportFile.value = file;
+};
+
+const triggerImportFilePicker = () => {
+  if (isImporting.value) return;
+  importFileInputRef.value?.click();
+};
+
+const onImportFileInputChange = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0] ?? null;
+  input.value = '';
+  setImportFile(file);
+};
+
+const onImportFileDrop = (event: DragEvent) => {
+  isDragOver.value = false;
+  if (isImporting.value) return;
+  setImportFile(event.dataTransfer?.files?.[0] ?? null);
+};
+
+const clearImportFile = () => {
+  selectedImportFile.value = null;
+  if (importFileInputRef.value) {
+    importFileInputRef.value.value = '';
+  }
+};
+
+type ImportProcessResult = 'success' | 'warn' | 'error';
+
+const formatImportFileSize = (bytes: number) => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const ORGANIZATION_IMPORT_TEMPLATE_PATH = `${import.meta.env.BASE_URL}assets/templates/File-Mau.xlsx`;
+const ORGANIZATION_IMPORT_TEMPLATE_FILENAME = 'File-Mẫu.xlsx';
+
+const downloadTemplate = () => {
+  const link = document.createElement('a');
+  link.href = ORGANIZATION_IMPORT_TEMPLATE_PATH;
+  link.download = ORGANIZATION_IMPORT_TEMPLATE_FILENAME;
+  link.rel = 'noopener';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+const processImportFile = async (file: File): Promise<ImportProcessResult> => {
+  if (!currentUserId.value) {
+    showToast('error', t('organization.toast.error'), t('organization.toast.account_missing'));
+    return 'error';
+  }
+
+  isImporting.value = true;
+
+  try {
+    const rows = await parseOrganizationExcel(file);
+
+    if (rows.length === 0) {
+      showToast('warn', t('organization.toast.error'), t('organization.import.empty'));
+      return 'warn';
+    }
+
+    const payload: OrganizationImportPayload[] = rows.map((row) => ({
+      priority: row.priority,
+      name: row.name,
+      isActive: row.isActive,
+      importBy: currentUserId.value,
+    }));
+
+    const response = await organizationApi.postOrganizationImport(payload);
+
+    if (response.data?.success) {
+      showToast(
+        'success',
+        t('organization.toast.success'),
+        response.data.message || t('organization.import.success', { count: rows.length }),
+      );
+      await loadData();
+      return 'success';
+    }
+
+    showToast(
+      'error',
+      t('organization.toast.failure'),
+      response.data?.message || t('organization.import.failed'),
+    );
+    return 'error';
+  } catch (error) {
+    if (error instanceof OrganizationImportValidationError) {
+      showToast(
+        'warn',
+        t('organization.toast.error'),
+        t('organization.import.invalid_status', {
+          locations: formatOrganizationImportErrorLocations(error.locations, t),
+        }),
+      );
+      return 'warn';
+    }
+
+    const message = error instanceof Error ? error.message : '';
+    if (message === 'invalid_file') {
+      showToast('warn', t('organization.toast.error'), t('organization.import.invalid_file'));
+      return 'warn';
+    }
+
+    if (message === 'missing_columns') {
+      showToast('warn', t('organization.toast.error'), t('organization.import.missing_columns'));
+      return 'warn';
+    }
+
+    console.error('Import organization excel error:', error);
+    const apiMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
+    showToast('error', t('organization.toast.error'), apiMessage || t('organization.import.failed'));
+    return 'error';
+  } finally {
+    isImporting.value = false;
+  }
+};
+
+const confirmImport = async () => {
+  if (!selectedImportFile.value || isImporting.value) return;
+
+  const result = await processImportFile(selectedImportFile.value);
+  if (result === 'success') {
+    closeImportDialog();
+    return;
+  }
+
+  if (result === 'warn') {
+    clearImportFile();
+  }
+};
 </script>
 
 <style scoped lang="scss">
@@ -746,6 +972,163 @@ usePageDataRefresh('ListOrganization', () => {
       color: #047857;
     }
   }
+}
+
+:deep(.organization-toolbar .organization-toolbar__btn--import) {
+  .organization-toolbar__icon {
+    color: #217346;
+  }
+
+  &:enabled:hover {
+    background: #ecfdf5;
+    border-color: #86efac;
+    color: #166534;
+
+    .organization-toolbar__icon {
+      color: #166534;
+    }
+  }
+}
+
+.organization-import-dialog__template {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.organization-import-dialog__input {
+  display: none;
+}
+
+.organization-import-dialog__dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem 1.25rem;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+
+  &--active,
+  &:hover {
+    border-color: #86efac;
+    background: #f0fdf4;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #22c55e;
+    outline-offset: 2px;
+  }
+}
+
+.organization-import-dialog__dropzone-icon {
+  font-size: 2.25rem;
+  color: #217346;
+}
+
+.organization-import-dialog__dropzone-title {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.875rem;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.organization-import-dialog__file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 10px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.organization-import-dialog__file-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.organization-import-dialog__file-icon {
+  flex-shrink: 0;
+  font-size: 1.5rem;
+  color: #217346;
+}
+
+.organization-import-dialog__file-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.organization-import-dialog__file-name {
+  color: #166534;
+  font-size: 0.875rem;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.organization-import-dialog__file-size {
+  color: #64748b;
+  font-size: 0.8125rem;
+}
+
+:deep(.organization-import-dialog__template-button.p-button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.4375rem 0.875rem;
+  min-height: 2.25rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #334155;
+  box-shadow: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+  .p-button-label {
+    padding: 0;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.25;
+  }
+
+  &:enabled:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #1e293b;
+  }
+
+  &:enabled:active {
+    background: #f1f5f9;
+  }
+
+  &:disabled {
+    opacity: 0.65;
+  }
+}
+
+:deep(.organization-import-dialog__template-button-icon) {
+  font-size: 1rem;
+  line-height: 1;
+  color: #217346;
+}
+
+:deep(.organization-import-dialog__template-button-label) {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.25;
 }
 
 :deep(.organization-toolbar .organization-toolbar__btn--clear) {

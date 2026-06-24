@@ -19,6 +19,7 @@ import Toast from 'primevue/toast';
 import ProgressBar from 'primevue/progressbar';
 import Skeleton from 'primevue/skeleton';
 import FloatLabel from 'primevue/floatlabel';
+import FileUpload from 'primevue/fileupload';
 import 'primeicons/primeicons.css';
 
 export default {
@@ -41,5 +42,6 @@ export default {
         app.component('ProgressBar', ProgressBar);
         app.component('Skeleton', Skeleton);
         app.component('FloatLabel', FloatLabel);
+        app.component('FileUpload', FileUpload);
     }
 };

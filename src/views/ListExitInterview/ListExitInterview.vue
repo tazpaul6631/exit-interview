@@ -81,8 +81,7 @@
 
               <template v-else>
                 <InputText :model-value="filterModel.value as string | null" :placeholder="col.filterPlaceholder"
-                  class="w-full"
-                  @update:model-value="(v) => onTextFilterInput(v, filterModel, filterCallback)" />
+                  class="w-full" @update:model-value="(v) => onTextFilterInput(v, filterModel, filterCallback)" />
               </template>
 
             </template>
@@ -572,8 +571,8 @@ usePageDataRefresh('ListExitInterview', () => {
 }
 
 :deep(.compact-table .row-actions .p-button) {
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 2rem;
+  height: 2rem;
   padding: 0;
 }
 

@@ -48,8 +48,8 @@ const CHART_SPACING = {
   barValueGap: 10,
 };
 
-const CHART_HEADER_ROW = 4;
-const CHART_DATA_START_ROW = 5;
+const CHART_HEADER_ROW = 5;
+const CHART_DATA_START_ROW = 6;
 
 const CHART_THEME = {
   headerFill: 'FFD9E2F3',

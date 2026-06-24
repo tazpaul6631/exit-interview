@@ -431,7 +431,7 @@ function renderPart1(sections: InterviewSection[]): string {
 
   return `
     <div class="section-title">${escapeHtml(part1?.sectionName ?? 'PHẦN 1: LÝ DO CHÍNH NGHỈ VIỆC/第一部分：離職主因')}</div>
-    <p class="section-note">${escapeHtml(part1Child?.sectionName?.trim() || 'Vui lòng chọn 1-2 lý do chính/請勾選最主要的 1-2 項:')}</p>
+    <p class="section-note">${escapeHtml(part1Child?.sectionName?.trim() || 'Vui lòng chọn 1 lý do chính/請選勾最主要的 一項:')}</p>
     ${rows}
   `;
 }
@@ -831,7 +831,7 @@ async function saveInterviewAsDocx(
   const part1Blocks = [
     sectionNameParagraph(part1?.sectionName ?? 'PHẦN 1: LÝ DO CHÍNH NGHỈ VIỆC/第一部分：離職主因'),
     sectionNameParagraph(
-      part1Child?.sectionName?.trim() || 'Vui lòng chọn 1-2 lý do chính/請勾選最主要的 1-2 項:',
+      part1Child?.sectionName?.trim() || 'Vui lòng chọn 1 lý do chính/請選勾最主要的 一項',
     ),
     ...(part1Items.length
       ? part1Items.map((item) =>

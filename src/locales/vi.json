@@ -148,6 +148,7 @@
   "organization": {
     "page_report": "Hiển thị {first} đến {last} trên {totalRecords} phòng ban",
     "add": "Thêm phòng ban",
+    "import_excel": "Import Excel",
     "clear_filter": "Xóa lọc",
     "empty": "Không tìm thấy phòng ban.",
     "columns": {
@@ -187,6 +188,27 @@
     "errors": {
       "name_required": "Vui lòng nhập tên phòng ban",
       "priority_non_negative": "Thứ tự ưu tiên phải là số không âm"
+    },
+    "import": {
+      "title": "Import bộ phận",
+      "choose_file": "Chọn file bộ phận",
+      "download_template": "Tải file mẫu",
+      "drop_hint": "Kéo thả file bộ phận vào đây hoặc bấm để chọn file bộ phận",
+      "remove_file": "Xóa file",
+      "btn": "Import bộ phận",
+      "empty": "File bộ phận không có dữ liệu hợp lệ.",
+      "invalid_file": "Chỉ hỗ trợ file .xlsx hoặc .xls bộ phận.",
+      "missing_name_column": "Không tìm thấy cột tên bộ phận (Tên bộ phận).",
+      "missing_columns": "File bộ phận cần 3 cột: Thứ tự ưu tiên, Tên bộ phận, Trạng thái.",
+      "error_location_row": "dòng ({value})",
+      "error_location_stt": "STT ({value})",
+      "invalid_status": "Dữ liệu không hợp lệ tại {locations}. Kiểm tra STT, Tên bộ phận và Trạng thái (chỉ chấp nhận đúng chữ: \"Đang hoạt động\", \"Ngưng\" hoặc để trống).",
+      "parsed": "Đã gửi {count} bộ phận.",
+      "success": "Import thành công {count} bộ phận.",
+      "partial": "Import xong: {success} thành công, {failed} thất bại.",
+      "failed": "Không thể import file bộ phận.",
+      "no_permission": "Bạn không có quyền import bộ phận.",
+      "server_success": "Import bộ phận thành công."
     },
     "toast": {
       "error": "Lỗi",

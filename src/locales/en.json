@@ -148,6 +148,7 @@
   "organization": {
     "page_report": "Showing {first} to {last} of {totalRecords} departments",
     "add": "Add department",
+    "import_excel": "Import Excel",
     "clear_filter": "Clear filters",
     "empty": "No departments found.",
     "columns": {
@@ -187,6 +188,27 @@
     "errors": {
       "name_required": "Please enter department name",
       "priority_non_negative": "Priority order must be a non-negative number"
+    },
+    "import": {
+      "title": "Import department",
+      "choose_file": "Choose department file",
+      "download_template": "Download template",
+      "drop_hint": "Drag and drop an department file here, or click to browse",
+      "remove_file": "Remove file",
+      "btn": "Import department",
+      "empty": "The department file has no valid rows.",
+      "invalid_file": "Only .xlsx or .xls department files are supported.",
+      "missing_name_column": "Department name column not found (Department name).",
+      "missing_columns": "Department file must have 3 columns: Priority, Department name, Status.",
+      "error_location_row": "row ({value})",
+      "error_location_stt": "STT ({value})",
+      "invalid_status": "Invalid data at {locations}. Check STT, department name and status (exact values only: \"Active\", \"Inactive\", or empty).",
+      "parsed": "Sent {count} departments.",
+      "success": "Imported {count} departments successfully.",
+      "partial": "Import finished: {success} succeeded, {failed} failed.",
+      "failed": "Unable to import the department file.",
+      "no_permission": "You do not have permission to import departments.",
+      "server_success": "Department import completed successfully."
     },
     "toast": {
       "error": "Error",

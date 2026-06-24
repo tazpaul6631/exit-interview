@@ -309,6 +309,8 @@ const initializeForm = async () => {
 
     const response = await interviewApi.getInterview();
     apiData.value = response.data.data;
+    const maxRatingPoint = Number(apiData.value?.maxRatingPoint) || 5;
+    const maxReasonSelect = Number(apiData.value?.maxReasonSelect) || 1;
     const initData: Record<string, any> = {};
     const sectionIdsList: string[] = [];
     const fieldMap: Record<string, string> = {};
@@ -319,7 +321,7 @@ const initializeForm = async () => {
 
     const processAnswer = (ans: any, qId: string | null, parentAnsId: string | null, topSectionId: string | null) => {
       if (ans.allowRating) {
-        initData[ans.answerId] = ans.ratingValue || 5;
+        initData[ans.answerId] = ans.ratingValue || maxRatingPoint;
         requiredRatings.push(String(ans.answerId));
         registerAnswerField(String(ans.answerId), topSectionId);
       }
@@ -425,8 +427,17 @@ const initializeForm = async () => {
           }
         });
         requiredRatings.forEach(id => {
-          if (!safeData[id] || safeData[id] === 0) {
+          const rating = Number(safeData[id]);
+          if (!rating || rating === 0) {
             ctx.addIssue({ code: zod.ZodIssueCode.custom, message: 'Vui lòng đánh giá', path: ['answersData', id] });
+            return;
+          }
+          if (rating > maxRatingPoint) {
+            ctx.addIssue({
+              code: zod.ZodIssueCode.custom,
+              message: `Điểm đánh giá không được vượt quá ${maxRatingPoint}`,
+              path: ['answersData', id],
+            });
           }
         });
         requiredRadios.forEach(qId => {
@@ -464,6 +475,14 @@ const initializeForm = async () => {
           if (selectedCount === 0) {
             checkboxIds.forEach(id => {
               ctx.addIssue({ code: zod.ZodIssueCode.custom, message: `Vui lòng chọn ít nhất 1 lý do`, path: ['answersData', id] });
+            });
+          } else if (selectedCount > maxReasonSelect) {
+            checkboxIds.forEach(id => {
+              ctx.addIssue({
+                code: zod.ZodIssueCode.custom,
+                message: `Chỉ được chọn tối đa ${maxReasonSelect} lý do`,
+                path: ['answersData', id],
+              });
             });
           }
         }

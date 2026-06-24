@@ -20,17 +20,18 @@
       <template v-for="ans in node.answers" :key="'child-' + ans.answerId">
         <transition name="fade-slide">
           <div v-if="ans.childs?.length > 0 && isSelected(ans)" class="nested-childs">
-            <DynamicInput v-for="cAns in ans.childs" :key="cAns.answerId" :answer="cAns" />
+            <DynamicInput v-for="cAns in ans.childs" :key="cAns.answerId" :answer="cAns"
+              :maxRating="maxRating" :maxSelect="maxSelect" />
           </div>
         </transition>
       </template>
     </div>
 
     <RecursiveNode v-for="ques in node.questions || []" :key="ques.questionId" :node="ques"
-      :parentQuestionId="ques.questionId" :maxSelect="maxSelect" :level="level + 1" />
+      :parentQuestionId="ques.questionId" :maxRating="maxRating" :maxSelect="maxSelect" :level="level + 1" />
 
     <RecursiveNode v-for="child in node.childs || []" :key="child.id" :node="child" :parentQuestionId="parentQuestionId"
-      :maxSelect="maxSelect" :level="level + 1" />
+      :maxRating="maxRating" :maxSelect="maxSelect" :level="level + 1" />
   </div>
 </template>
 
@@ -42,7 +43,7 @@ const props = defineProps({
   node: { type: Object, required: true },
   parentQuestionId: { type: [Number, String], default: null },
   maxRating: { type: Number, default: 5 },
-  maxSelect: { type: Number, default: 2 },
+  maxSelect: { type: Number, default: 1 },
   level: { type: Number, default: 1 }
 });
 

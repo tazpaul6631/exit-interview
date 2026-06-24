@@ -53,7 +53,7 @@ const props = defineProps({
   answer: { type: Object, required: true },
   questionId: { type: [Number, String], default: null },
   maxRating: { type: Number, default: 5 },
-  maxSelect: { type: Number, default: 2 }
+  maxSelect: { type: Number, default: 1 }
 });
 
 const isRadio = computed(() => !!props.questionId);
@@ -123,7 +123,7 @@ const isCheckboxDisabled = computed(() => {
 
 onMounted(() => {
   if (fieldValue.value === undefined || fieldValue.value === null) {
-    if (props.answer.allowRating) fieldValue.value = props.answer.ratingValue || 5;
+    if (props.answer.allowRating) fieldValue.value = props.answer.ratingValue || props.maxRating || 5;
     else if (isSelectable.value && isRadio.value && props.answer.checkValue) fieldValue.value = props.answer.answerId;
     else if (isSelectable.value && !isRadio.value) fieldValue.value = props.answer.checkValue || false;
     else if (props.answer.allowText) setValue(String(props.answer.textValue || ''));

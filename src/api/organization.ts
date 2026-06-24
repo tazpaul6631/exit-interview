@@ -2,6 +2,7 @@ import request from '@/services/apiService';
 import type {
     OrganizationCreatePayload,
     OrganizationDeletePayload,
+    OrganizationImportPayload,
     OrganizationQueryPayload,
     OrganizationUpdatePayload,
 } from '@/types/organization';
@@ -24,5 +25,8 @@ export default {
     },
     deleteOrganizationById(id: string | number, data: OrganizationDeletePayload) {
         return request.delete(`/organization/delete/${id}`, data);
+    },
+    postOrganizationImport(data: OrganizationImportPayload[]) {
+        return request.post('/organization/import', data);
     },
 };

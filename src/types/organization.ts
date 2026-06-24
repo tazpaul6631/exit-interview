@@ -48,3 +48,10 @@ export interface OrganizationDeletePayload {
   updatedBy: string;
   updatedAt?: string;
 }
+
+export interface OrganizationImportPayload {
+  priority: number;
+  name: string;
+  isActive: boolean;
+  importBy: string;
+}

@@ -148,6 +148,7 @@
   "organization": {
     "page_report": "顯示第 {first} 至 {last} 筆，共 {totalRecords} 個部門",
     "add": "新增部門",
+    "import_excel": "匯入 Excel",
     "clear_filter": "清除篩選",
     "empty": "找不到部門。",
     "columns": {
@@ -187,6 +188,27 @@
     "errors": {
       "name_required": "請輸入部門名稱",
       "priority_non_negative": "優先順序必須為非負數"
+    },
+    "import": {
+      "title": "匯入部門",
+      "choose_file": "選擇部門檔案",
+      "download_template": "下載範本",
+      "drop_hint": "將部門檔案拖放到此處，或點擊選擇檔案",
+      "remove_file": "刪除檔案",
+      "btn": "匯入部門",
+      "empty": "部門檔案中沒有有效資料。",
+      "invalid_file": "僅支援 .xlsx 或 .xls 部門檔案。",
+      "missing_name_column": "找不到部門名稱欄（部門名稱）。",
+      "missing_columns": "部門檔案需要 3 欄：優先順序、部門名稱、狀態。",
+      "error_location_row": "第 ({value}) 行",
+      "error_location_stt": "STT ({value})",
+      "invalid_status": "{locations} 資料無效。請檢查 STT、部門名稱和狀態（必須完全匹配：\"啟用中\"、\"停用\" 或留空）。",
+      "parsed": "已匯入 {count} 個部門。",
+      "success": "成功匯入 {count} 個部門。",
+      "partial": "匯入完成：成功 {success} 個，失敗 {failed} 個。",
+      "failed": "無法匯入部門檔案。",
+      "no_permission": "您沒有匯入部門的權限。",
+      "server_success": "部門匯入成功。"
     },
     "toast": {
       "error": "錯誤",

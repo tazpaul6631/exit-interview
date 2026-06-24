@@ -148,6 +148,7 @@
   "organization": {
     "page_report": "显示第 {first} 至 {last} 条，共 {totalRecords} 个部门",
     "add": "新增部门",
+    "import_excel": "导入 Excel",
     "clear_filter": "清除筛选",
     "empty": "找不到部门。",
     "columns": {
@@ -187,6 +188,27 @@
     "errors": {
       "name_required": "请输入部门名称",
       "priority_non_negative": "优先顺序必须为非负数"
+    },
+    "import": {
+      "title": "导入部门",
+      "choose_file": "选择部门文件",
+      "download_template": "下载模板",
+      "drop_hint": "将部门文件拖放到此处，或点击选择文件",
+      "remove_file": "删除文件",
+      "btn": "导入部门",
+      "empty": "部门文件中没有有效数据。",
+      "invalid_file": "仅支持 .xlsx 或 .xls 部门文件。",
+      "missing_name_column": "未找到部门名称列（部门名称）。",
+      "missing_columns": "部门文件需要 3 列：优先顺序、部门名称、状态。",
+      "error_location_row": "第 ({value}) 行",
+      "error_location_stt": "STT ({value})",
+      "invalid_status": "{locations} 数据无效。请检查 STT、部门名称和状态（必须完全匹配：\"启用中\"、\"停用\" 或留空）。",
+      "parsed": "已导入 {count} 个部门。",
+      "success": "成功导入 {count} 个部门。",
+      "partial": "导入完成：成功 {success} 个，失败 {failed} 个。",
+      "failed": "无法导入部门文件。",
+      "no_permission": "您没有导入部门的权限。",
+      "server_success": "部门导入成功。"
     },
     "toast": {
       "error": "错误",
