@@ -317,9 +317,33 @@
       "loading_organization": "Đang tải phòng ban..."
     },
     "actions": {
+      "edit": "Sửa",
       "export_word": "Xuất Word",
       "export_pdf": "Xuất PDF",
       "view_detail": "Xem chi tiết"
+    },
+    "form": {
+      "edit_title": "Cập nhật thông tin phỏng vấn",
+      "employee_code_placeholder": "Nhập mã nhân viên",
+      "employee_name_placeholder": "Nhập họ tên",
+      "job_position_placeholder": "Nhập chức vụ",
+      "exited_at_placeholder": "Chọn ngày nghỉ",
+      "exited_at_required": "Vui lòng chọn ngày nghỉ",
+      "exited_at_invalid": "Ngày nghỉ không hợp lệ",
+      "organization_placeholder": "Chọn phòng ban",
+      "employee_code_required": "Vui lòng nhập mã nhân viên",
+      "employee_name_required": "Vui lòng nhập họ tên",
+      "job_position_required": "Vui lòng nhập chức vụ",
+      "organization_required": "Vui lòng chọn phòng ban"
+    },
+    "toast": {
+      "error": "Lỗi",
+      "success": "Thành công",
+      "failure": "Thất bại",
+      "account_missing": "Không tìm thấy tài khoản. Vui lòng đăng nhập lại.",
+      "update_success": "Cập nhật phỏng vấn thành công.",
+      "update_failed": "Không thể cập nhật phỏng vấn.",
+      "update_retry": "Không thể cập nhật phỏng vấn. Vui lòng thử lại."
     },
     "errors": {
       "export_word_failed": "Không thể xuất file Word. Vui lòng thử lại.",

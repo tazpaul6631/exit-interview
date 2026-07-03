@@ -686,7 +686,7 @@ async function saveInterviewAsDocx(
 
   const smallRun = (text: string) => run(text, { size: DOC_SIZE_SMALL });
 
-  const checkboxRun = (checked: boolean) => run(checked ? '[√] ' : '[ ] ');
+  const checkboxRun = (checked: boolean) => run(checked ? '☑ ' : '☐ ');
 
   const paragraph = (
     children: InstanceType<typeof TextRun>[],

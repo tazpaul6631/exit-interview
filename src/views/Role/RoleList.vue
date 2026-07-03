@@ -61,7 +61,8 @@
 
           <Column class="text-center" style="width: 200px">
             <template #body="{ data }">
-              <div class="role-row-actions">
+              <Skeleton v-if="isLoading" width="7rem" height="1rem" />
+              <div v-else class="role-row-actions">
                 <Button icon="pi pi-eye" size="small" severity="secondary" rounded outlined
                   :aria-label="t('role.actions.view')" :disabled="!canView" @click="goToDetail(data)" />
                 <Button icon="pi pi-pencil" size="small" severity="info" rounded outlined

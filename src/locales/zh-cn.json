@@ -317,9 +317,33 @@
       "loading_organization": "正在加载部门..."
     },
     "actions": {
+      "edit": "编辑",
       "export_word": "导出 Word",
       "export_pdf": "导出 PDF",
       "view_detail": "查看详情"
+    },
+    "form": {
+      "edit_title": "更新离职面谈信息",
+      "employee_code_placeholder": "请输入员工编号",
+      "employee_name_placeholder": "请输入姓名",
+      "job_position_placeholder": "请输入职务",
+      "exited_at_placeholder": "选择离职日期",
+      "exited_at_required": "请选择离职日期",
+      "exited_at_invalid": "离职日期无效",
+      "organization_placeholder": "请选择部门",
+      "employee_code_required": "请输入员工编号",
+      "employee_name_required": "请输入姓名",
+      "job_position_required": "请输入职务",
+      "organization_required": "请选择部门"
+    },
+    "toast": {
+      "error": "错误",
+      "success": "成功",
+      "failure": "失败",
+      "account_missing": "找不到账号，请重新登录。",
+      "update_success": "离职面谈更新成功。",
+      "update_failed": "无法更新离职面谈。",
+      "update_retry": "无法更新离职面谈，请重试。"
     },
     "errors": {
       "export_word_failed": "无法导出 Word 文件，请重试。",

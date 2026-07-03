@@ -37,8 +37,8 @@ const LINE_HEIGHT_PT = 15;
 const ROW_PADDING_PT = 10;
 const MIN_DATA_ROW_HEIGHT = 22;
 const MAX_DATA_ROW_HEIGHT = 180;
-const MIN_HEADER_ROW_HEIGHT = 30;
-const MAX_HEADER_ROW_HEIGHT = 120;
+const MIN_HEADER_ROW_HEIGHT = 60;
+const MAX_HEADER_ROW_HEIGHT = 180;
 
 const THEME = {
   titleFill: '',
@@ -161,7 +161,7 @@ function writeSheetLayout(ws: ExcelJS.Worksheet, layout: ReportSheetLayout) {
 
   headerRow.height = Math.min(
     MAX_HEADER_ROW_HEIGHT,
-    Math.max(MIN_HEADER_ROW_HEIGHT, headerLines * LINE_HEIGHT_PT + ROW_PADDING_PT + 4),
+    Math.max(MIN_HEADER_ROW_HEIGHT, headerLines * LINE_HEIGHT_PT + ROW_PADDING_PT + 8),
   );
 }
 
@@ -187,7 +187,7 @@ function styleDataRow(
   for (let c = 3; c <= colCount; c++) {
     const cell = row.getCell(c);
     if (textColumns.includes(c)) {
-      cell.alignment = { vertical: 'top', horizontal: 'left', wrapText: true };
+      cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
     } else {
       cell.alignment = { vertical: 'middle', horizontal: 'center' };
       cell.numFmt = '0';
@@ -370,15 +370,16 @@ function fillRatingsSheet(
 
 function fillTextsSheet(ws: ExcelJS.Worksheet, layout: ReportSheetLayout, rows: TextRow[]) {
   const lastRow = fillDataSheet(ws, layout, rows, {
-    textColumns: [2, 3, 4, 5],
-    autoHeightColumns: [2, 3, 4, 5],
+    textColumns: [3, 4, 5, 6],
+    autoHeightColumns: [3, 4, 5, 6],
     fillData: (row, item, index) => {
       const data = item as TextRow;
       row.getCell(1).value = index + 1;
-      row.getCell(2).value = data.employeeName ?? '';
-      row.getCell(3).value = data.answerOne ?? '';
-      row.getCell(4).value = data.answerTwo ?? '';
-      row.getCell(5).value = data.answerThree ?? '';
+      row.getCell(2).value = data.employeeCode ?? '';
+      row.getCell(3).value = data.employeeName ?? '';
+      row.getCell(4).value = data.answerOne ?? '';
+      row.getCell(5).value = data.answerTwo ?? '';
+      row.getCell(6).value = data.answerThree ?? '';
     },
   });
   finalizeSheet(ws, layout, lastRow);

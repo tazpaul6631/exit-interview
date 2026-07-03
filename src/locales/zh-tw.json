@@ -317,9 +317,33 @@
       "loading_organization": "正在載入部門..."
     },
     "actions": {
+      "edit": "編輯",
       "export_word": "匯出 Word",
       "export_pdf": "匯出 PDF",
       "view_detail": "查看詳情"
+    },
+    "form": {
+      "edit_title": "更新離職面談資訊",
+      "employee_code_placeholder": "請輸入員工編號",
+      "employee_name_placeholder": "請輸入姓名",
+      "job_position_placeholder": "請輸入職務",
+      "exited_at_placeholder": "選擇離職日期",
+      "exited_at_required": "請選擇離職日期",
+      "exited_at_invalid": "離職日期無效",
+      "organization_placeholder": "請選擇部門",
+      "employee_code_required": "請輸入員工編號",
+      "employee_name_required": "請輸入姓名",
+      "job_position_required": "請輸入職務",
+      "organization_required": "請選擇部門"
+    },
+    "toast": {
+      "error": "錯誤",
+      "success": "成功",
+      "failure": "失敗",
+      "account_missing": "找不到帳號，請重新登入。",
+      "update_success": "離職面談更新成功。",
+      "update_failed": "無法更新離職面談。",
+      "update_retry": "無法更新離職面談，請再試一次。"
     },
     "errors": {
       "export_word_failed": "無法匯出 Word 檔案，請再試一次。",

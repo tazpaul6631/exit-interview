@@ -1,4 +1,5 @@
 import request from "@/services/apiService";
+import type { InterviewUpdatePayload } from '@/types/interview';
 
 export default {
     getInterview() {
@@ -6,5 +7,8 @@ export default {
     },
     postCreateInterview(data: any) {
         return request.post(`/interview/create`, data)
-    }
+    },
+    patchUpdateInterview(data: InterviewUpdatePayload) {
+        return request.patch(`/interview/update/${data.id}`, data);
+    },
 };

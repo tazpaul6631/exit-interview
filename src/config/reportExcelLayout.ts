@@ -108,12 +108,13 @@ export const TEXTS_LAYOUT: ReportSheetLayout = {
   sectionTitle: 'PHẦN 3: CÁC CÂU HỎI TRỌNG TÂM/第三部分：核心問答',
   columnHeaders: [
     'STT',
+    'Mã nhân viên',
     'Họ tên',
     '(1) So sánh với công việc mới/競爭力對比: Điểm nào của công việc mới tốt hơn công ty mình?/新工作的哪一點比我們公司好？',
     '(2) Góp ý về quản lý/管理建議: Nếu bạn là sếp, bạn muốn thay đổi quy định nào nhất tại xưởng?/如果你是老闆，你最想改變現場哪一個規定？',
     '(3) Ý định quay lại/回任意願: Sau này nếu điều kiện cải thiện, bạn có muốn quay lại làm việc không?/未來如果條件改善，你願意回來工作嗎？',
   ],
-  columnWidths: [9, 35, 50, 60, 60],
+  columnWidths: [9, 15, 28, 50, 64, 60],
   hasTotalRow: false,
 };
 

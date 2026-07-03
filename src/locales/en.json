@@ -317,9 +317,33 @@
       "loading_organization": "Loading departments..."
     },
     "actions": {
+      "edit": "Edit",
       "export_word": "Export Word",
       "export_pdf": "Export PDF",
       "view_detail": "View details"
+    },
+    "form": {
+      "edit_title": "Update exit interview",
+      "employee_code_placeholder": "Enter employee code",
+      "employee_name_placeholder": "Enter employee name",
+      "job_position_placeholder": "Enter job position",
+      "exited_at_placeholder": "Select exit date",
+      "exited_at_required": "Please select exit date",
+      "exited_at_invalid": "Invalid exit date",
+      "organization_placeholder": "Select department",
+      "employee_code_required": "Please enter employee code",
+      "employee_name_required": "Please enter employee name",
+      "job_position_required": "Please enter job position",
+      "organization_required": "Please select department"
+    },
+    "toast": {
+      "error": "Error",
+      "success": "Success",
+      "failure": "Failed",
+      "account_missing": "Account not found. Please sign in again.",
+      "update_success": "Exit interview updated successfully.",
+      "update_failed": "Unable to update exit interview.",
+      "update_retry": "Unable to update exit interview. Please try again."
     },
     "errors": {
       "export_word_failed": "Unable to export Word file. Please try again.",

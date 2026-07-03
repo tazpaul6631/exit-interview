@@ -77,7 +77,8 @@
 
           <Column class="text-center" style="width: 200px">
             <template #body="{ data }">
-              <div class="organization-row-actions">
+              <Skeleton v-if="isLoading" width="5rem" height="1rem" />
+              <div v-else class="organization-row-actions">
                 <Button icon="pi pi-pencil" size="small" severity="info" rounded outlined
                   :aria-label="t('organization.actions.edit')" :disabled="!canUpdate" @click="openEditDialog(data)" />
                 <Button icon="pi pi-trash" size="small" severity="danger" rounded outlined

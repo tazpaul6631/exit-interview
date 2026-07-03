@@ -19,6 +19,7 @@ export interface RatingRow {
 
 export interface TextRow {
   interviewId: number;
+  employeeCode: string;
   employeeName: string;
   answerOne: string;
   answerTwo: string;

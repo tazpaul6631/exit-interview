@@ -28,6 +28,24 @@ const formatDate = (dateString: string | null | undefined): string => {
     return date.toLocaleDateString('vi-VN');
 };
 
+/** Local calendar date at midnight, e.g. 2026-06-30T00:00:00 (no timezone shift). */
+const formatDateOnlyIso = (date: Date): string => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}T00:00:00`;
+};
+
+/** Local calendar date at end of day, e.g. 2026-06-30T23:59:59 (no timezone shift). */
+const formatDateOnlyEndIso = (date: Date): string => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}T23:59:59`;
+};
+
 export default {
-    formatDate
+    formatDate,
+    formatDateOnlyIso,
+    formatDateOnlyEndIso,
 }

@@ -65,9 +65,9 @@
 
             <template #filter="{ filterModel, filterCallback }" v-if="col.filterable">
               <template v-if="col.type === 'date'">
-                <DatePicker v-model="filterModel.value" dateFormat="dd/mm/yy"
+                <DatePicker v-model="filterModel.value" dateFormat="dd/mm/yy" :manualInput="false"
                   :placeholder="t('exit_interview.filters.select_date')" class="w-full" showClear showIcon
-                  @update:modelValue="onDateFilterChange(filterCallback)" />
+                  selectionMode="range" @update:modelValue="onDateFilterChange(filterCallback)" />
               </template>
 
               <template v-else-if="col.type === 'multiselect'">
@@ -89,22 +89,94 @@
 
           <Column class="text-center" style="width: 200px">
             <template #body="{ data }">
-              <div class="row-actions">
+              <Skeleton v-if="isLoading" width="9rem" height="1rem" />
+              <div v-else class="row-actions">
+                <Button icon="pi pi-eye" size="small" severity="secondary" rounded outlined
+                  :aria-label="t('exit_interview.actions.view_detail')" :disabled="!canView"
+                  @click="handleSeen(data)" />
+                <Button icon="pi pi-pencil" size="small" severity="info" rounded outlined
+                  :aria-label="t('exit_interview.actions.edit')" :disabled="!canUpdate" @click="openEditDialog(data)" />
                 <Button icon="pi pi-file-word" size="small" severity="info" rounded outlined
                   :aria-label="t('exit_interview.actions.export_word')" :loading="isRowExporting(data.id, 'word')"
                   :disabled="!!exportingRowKey || !canExport" @click="exportWord(data)" />
                 <Button icon="pi pi-file-pdf" size="small" severity="danger" rounded outlined
                   :aria-label="t('exit_interview.actions.export_pdf')" :loading="isRowExporting(data.id, 'pdf')"
                   :disabled="!!exportingRowKey || !canExport" @click="exportPdf(data)" />
-                <Button icon="pi pi-eye" size="small" severity="secondary" rounded outlined
-                  :aria-label="t('exit_interview.actions.view_detail')" :disabled="!canView"
-                  @click="handleSeen(data)" />
               </div>
             </template>
           </Column>
         </DataTable>
       </div>
     </div>
+
+    <Dialog v-model:visible="editDialogVisible" modal :draggable="false" :header="t('exit_interview.form.edit_title')"
+      class="exit-interview-form-dialog" :style="{ width: '28rem' }" @hide="resetEditDialog">
+      <form class="exit-interview-form" autocomplete="off" @submit.prevent="submitEditForm">
+        <div class="exit-interview-form__field">
+          <label for="exit-interview-code" class="exit-interview-form__label">
+            {{ t('exit_interview.columns.employee_code') }} <span class="exit-interview-form__required">*</span>
+          </label>
+          <InputText id="exit-interview-code" v-model="editForm.employeeCode" class="exit-interview-form__input"
+            :placeholder="t('exit_interview.form.employee_code_placeholder')" :invalid="!!editFormErrors.employeeCode"
+            @update:model-value="onEditEmployeeCodeInput" />
+          <small v-if="editFormErrors.employeeCode" class="exit-interview-form__error">{{ editFormErrors.employeeCode
+          }}</small>
+        </div>
+
+        <div class="exit-interview-form__field">
+          <label for="exit-interview-name" class="exit-interview-form__label">
+            {{ t('exit_interview.columns.employee_name') }} <span class="exit-interview-form__required">*</span>
+          </label>
+          <InputText id="exit-interview-name" v-model="editForm.employeeName" class="exit-interview-form__input"
+            :placeholder="t('exit_interview.form.employee_name_placeholder')" :invalid="!!editFormErrors.employeeName"
+            @update:model-value="onEditEmployeeNameInput" />
+          <small v-if="editFormErrors.employeeName" class="exit-interview-form__error">{{ editFormErrors.employeeName
+          }}</small>
+        </div>
+
+        <div class="exit-interview-form__field">
+          <label for="exit-interview-position" class="exit-interview-form__label">
+            {{ t('exit_interview.columns.job_position') }} <span class="exit-interview-form__required">*</span>
+          </label>
+          <InputText id="exit-interview-position" v-model="editForm.jobPositionName" class="exit-interview-form__input"
+            :placeholder="t('exit_interview.form.job_position_placeholder')" :invalid="!!editFormErrors.jobPositionName"
+            @update:model-value="onEditJobPositionInput" />
+          <small v-if="editFormErrors.jobPositionName" class="exit-interview-form__error">{{
+            editFormErrors.jobPositionName
+          }}</small>
+        </div>
+
+        <div class="exit-interview-form__field">
+          <label for="exit-interview-exited-at" class="exit-interview-form__label">
+            {{ t('exit_interview.columns.exited_at') }} <span class="exit-interview-form__required">*</span>
+          </label>
+          <DatePicker id="exit-interview-exited-at" v-model="editForm.exitedAt" dateFormat="dd/mm/yy"
+            :placeholder="t('exit_interview.form.exited_at_placeholder')" showIcon showClear
+            class="exit-interview-form__input w-full" :invalid="!!editFormErrors.exitedAt"
+            @update:model-value="onEditExitedAtChange" />
+          <small v-if="editFormErrors.exitedAt" class="exit-interview-form__error">{{ editFormErrors.exitedAt }}</small>
+        </div>
+
+        <div class="exit-interview-form__field">
+          <label for="exit-interview-organization" class="exit-interview-form__label">
+            {{ t('exit_interview.columns.organization') }} <span class="exit-interview-form__required">*</span>
+          </label>
+          <Select id="exit-interview-organization" v-model="editForm.organizationId" :options="organizations"
+            optionLabel="name" optionValue="id" :loading="isOrgLoading"
+            :placeholder="isOrgLoading ? t('exit_interview.filters.loading_organization') : t('exit_interview.form.organization_placeholder')"
+            class="exit-interview-form__input" :invalid="!!editFormErrors.organizationId" showClear
+            @show="loadOrganizations" @update:model-value="onEditOrganizationChange" />
+          <small v-if="editFormErrors.organizationId" class="exit-interview-form__error">{{
+            editFormErrors.organizationId
+          }}</small>
+        </div>
+      </form>
+
+      <template #footer>
+        <Button :label="t('common.cancel')" text severity="secondary" @click="closeEditDialog" />
+        <Button :label="t('common.save')" :loading="isSavingEdit" @click="submitEditForm" />
+      </template>
+    </Dialog>
   </ion-page>
 </template>
 
@@ -113,13 +185,17 @@ import { ref, computed, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { IonPage } from '@ionic/vue';
+import { useToast } from 'primevue/usetoast';
 import interviewView from "@/api/interviewView";
+import interviewApi from '@/api/interview';
 import organizationApi from "@/api/organization";
 import reportApi, { type ReportExcelPayload } from "@/api/report";
 import { FilterMatchMode } from '@primevue/core/api';
 import format from '@/mixins/format';
 import { usePageDataRefresh } from '@/composables/usePageDataRefresh';
 import { useMenuPermissions } from '@/composables/useMenuPermissions';
+import { useModalFieldValidation } from '@/composables/useModalFieldValidation';
+import { useAuthStore } from '@/store/auth';
 interface EmployeeRecord {
   id: number;
   employeeCode: string;
@@ -144,6 +220,9 @@ interface InterviewViewPagedData {
 
 const router = useRouter();
 const { t } = useI18n();
+const toast = useToast();
+const authStore = useAuthStore();
+const { getCodeFormatError, getNameFormatError } = useModalFieldValidation();
 const employeeList = ref<EmployeeRecord[]>([]);
 const organizations = ref<any[]>([]);
 const isLoading = ref(false);
@@ -158,7 +237,34 @@ const first = ref(0);
 const orgSelectOptions = computed(() => (isOrgLoading.value ? [] : organizations.value));
 const rows = ref(13);
 
-const { canView, canExport } = useMenuPermissions(['exitinterview']);
+const { canView, canUpdate, canExport } = useMenuPermissions(['exitinterview']);
+
+const editDialogVisible = ref(false);
+const isSavingEdit = ref(false);
+const editingInterviewId = ref<string | null>(null);
+const editForm = ref({
+  employeeCode: '',
+  employeeName: '',
+  jobPositionName: '',
+  exitedAt: null as Date | null,
+  organizationId: null as number | null,
+});
+const editFormErrors = ref({
+  employeeCode: '',
+  employeeName: '',
+  jobPositionName: '',
+  exitedAt: '',
+  organizationId: '',
+});
+
+const currentUserId = computed(() => {
+  const id = authStore.getUserId;
+  return id != null ? String(id) : '';
+});
+
+const showToast = (severity: 'success' | 'info' | 'warn' | 'error', summary: string, detail: string) => {
+  toast.add({ severity, summary, detail, life: 4000 });
+};
 
 /** Lazy + server filter: không lọc client, chỉ dùng totalCount từ API */
 const serverFilterPassthrough = () => true;
@@ -200,14 +306,14 @@ const tableColumns = computed(() => [
   {
     field: 'exitedAt',
     header: t('exit_interview.columns.exited_at'),
-    width: '250px',
+    width: 'auto',
     type: 'date',
     filterable: true,
   },
   {
     field: 'createdAt',
     header: t('exit_interview.columns.created_at'),
-    width: '250px',
+    width: 'auto',
     type: 'date',
     filterable: true,
   },
@@ -221,8 +327,8 @@ const initFilters = () => {
     employeeName: { value: null, matchMode: FilterMatchMode.CONTAINS },
     jobPositionName: { value: null, matchMode: FilterMatchMode.CONTAINS },
     organizationName: { value: [], matchMode: FilterMatchMode.IN },
-    exitedAt: { value: null, matchMode: FilterMatchMode.DATE_IS },
-    createdAt: { value: null, matchMode: FilterMatchMode.DATE_IS },
+    exitedAt: { value: null, matchMode: FilterMatchMode.BETWEEN },
+    createdAt: { value: null, matchMode: FilterMatchMode.BETWEEN },
   };
 };
 
@@ -265,14 +371,35 @@ const onOrgFilterApply = async (filterCallback?: () => void) => {
   scheduleFilterLoad(true);
 };
 
-const getFormatRange = (dateValue: any) => {
-  if (!dateValue || isNaN(new Date(dateValue).getTime())) {
+const toFilterDate = (value: unknown): Date | null => {
+  if (!value) return null;
+  const date = value instanceof Date ? value : new Date(value as string);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+/** DatePicker range → from/to; single date → cùng ngày. */
+const getFormatRange = (dateValue: unknown) => {
+  if (!dateValue) {
     return { from: null, to: null };
   }
-  const d = new Date(dateValue);
+
+  if (Array.isArray(dateValue)) {
+    const start = toFilterDate(dateValue[0]);
+    if (!start) return { from: null, to: null };
+
+    const end = toFilterDate(dateValue[1]) ?? start;
+    return {
+      from: format.formatDateOnlyIso(start),
+      to: format.formatDateOnlyEndIso(end),
+    };
+  }
+
+  const date = toFilterDate(dateValue);
+  if (!date) return { from: null, to: null };
+
   return {
-    from: new Date(d.setHours(0, 0, 0, 0)).toISOString(),
-    to: new Date(d.setHours(23, 59, 59, 999)).toISOString()
+    from: format.formatDateOnlyIso(date),
+    to: format.formatDateOnlyEndIso(date),
   };
 };
 
@@ -414,6 +541,163 @@ const clearFilter = () => {
 
 const handleSeen = (emp: EmployeeRecord) => {
   router.push({ name: 'DetailExitInterview', params: { id: String(emp.id) } });
+};
+
+const resetEditFormErrors = () => {
+  editFormErrors.value = {
+    employeeCode: '',
+    employeeName: '',
+    jobPositionName: '',
+    exitedAt: '',
+    organizationId: '',
+  };
+};
+
+const resetEditDialog = () => {
+  editingInterviewId.value = null;
+  editForm.value = {
+    employeeCode: '',
+    employeeName: '',
+    jobPositionName: '',
+    exitedAt: null,
+    organizationId: null,
+  };
+  resetEditFormErrors();
+};
+
+const toEditExitedAt = (value: Date | string | null | undefined) => {
+  if (!value) return null;
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const getExitedAtError = (value: Date | null) => {
+  if (!value) return t('exit_interview.form.exited_at_required');
+  return Number.isNaN(value.getTime()) ? t('exit_interview.form.exited_at_invalid') : '';
+};
+
+const closeEditDialog = () => {
+  editDialogVisible.value = false;
+};
+
+const resolveOrganizationId = (emp: EmployeeRecord) => {
+  if (emp.organizationId != null && Number(emp.organizationId) > 0) {
+    return Number(emp.organizationId);
+  }
+
+  const matched = organizations.value.find((org) => org.name === emp.organizationName);
+  return matched?.id != null ? Number(matched.id) : null;
+};
+
+const openEditDialog = async (emp: EmployeeRecord) => {
+  if (!canUpdate.value) return;
+
+  await loadOrganizations();
+  editingInterviewId.value = String(emp.id);
+  editForm.value = {
+    employeeCode: emp.employeeCode ?? '',
+    employeeName: emp.employeeName ?? '',
+    jobPositionName: emp.jobPositionName ?? '',
+    exitedAt: toEditExitedAt(emp.exitedAt),
+    organizationId: resolveOrganizationId(emp),
+  };
+  resetEditFormErrors();
+  editDialogVisible.value = true;
+};
+
+const onEditEmployeeCodeInput = (value: string | null | undefined) => {
+  editForm.value.employeeCode = value ?? '';
+  editFormErrors.value.employeeCode = getCodeFormatError(editForm.value.employeeCode);
+};
+
+const onEditEmployeeNameInput = (value: string | null | undefined) => {
+  editForm.value.employeeName = value ?? '';
+  editFormErrors.value.employeeName = getNameFormatError(editForm.value.employeeName);
+};
+
+const onEditJobPositionInput = (value: string | null | undefined) => {
+  editForm.value.jobPositionName = value ?? '';
+  editFormErrors.value.jobPositionName = getNameFormatError(editForm.value.jobPositionName);
+};
+
+const onEditExitedAtChange = () => {
+  editFormErrors.value.exitedAt = getExitedAtError(editForm.value.exitedAt);
+};
+
+const onEditOrganizationChange = () => {
+  editFormErrors.value.organizationId = editForm.value.organizationId ? '' : t('exit_interview.form.organization_required');
+};
+
+const validateEditForm = () => {
+  resetEditFormErrors();
+
+  const employeeCode = editForm.value.employeeCode.trim();
+  const employeeName = editForm.value.employeeName.trim();
+  const jobPositionName = editForm.value.jobPositionName.trim();
+
+  editFormErrors.value.employeeCode = employeeCode
+    ? getCodeFormatError(employeeCode)
+    : t('exit_interview.form.employee_code_required');
+  editFormErrors.value.employeeName = employeeName
+    ? getNameFormatError(employeeName)
+    : t('exit_interview.form.employee_name_required');
+  editFormErrors.value.jobPositionName = jobPositionName
+    ? getNameFormatError(jobPositionName)
+    : t('exit_interview.form.job_position_required');
+  editFormErrors.value.exitedAt = getExitedAtError(editForm.value.exitedAt);
+  editFormErrors.value.organizationId = editForm.value.organizationId
+    ? ''
+    : t('exit_interview.form.organization_required');
+
+  return !Object.values(editFormErrors.value).some(Boolean);
+};
+
+const submitEditForm = async () => {
+  if (!editingInterviewId.value || isSavingEdit.value) return;
+
+  if (!currentUserId.value) {
+    showToast('error', t('exit_interview.toast.error'), t('exit_interview.toast.account_missing'));
+    return;
+  }
+
+  if (!validateEditForm()) return;
+
+  isSavingEdit.value = true;
+
+  try {
+    const response = await interviewApi.patchUpdateInterview({
+      id: editingInterviewId.value,
+      employeeCode: editForm.value.employeeCode.trim(),
+      employeeName: editForm.value.employeeName.trim(),
+      jobPositionName: editForm.value.jobPositionName.trim(),
+      organizationId: Number(editForm.value.organizationId),
+      exitedAt: format.formatDateOnlyIso(editForm.value.exitedAt as Date),
+      updatedBy: currentUserId.value,
+    });
+
+    if (response.data?.success) {
+      showToast(
+        'success',
+        t('exit_interview.toast.success'),
+        response.data.message || t('exit_interview.toast.update_success'),
+      );
+      closeEditDialog();
+      await loadData();
+      return;
+    }
+
+    showToast(
+      'error',
+      t('exit_interview.toast.failure'),
+      response.data?.message || t('exit_interview.toast.update_failed'),
+    );
+  } catch (error: unknown) {
+    console.error('Update interview error:', error);
+    const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
+    showToast('error', t('exit_interview.toast.error'), message || t('exit_interview.toast.update_retry'));
+  } finally {
+    isSavingEdit.value = false;
+  }
 };
 
 type RowExportType = 'word' | 'pdf';
@@ -831,5 +1115,36 @@ usePageDataRefresh('ListExitInterview', () => {
     border-color: #94a3b8;
     color: #475569;
   }
+}
+
+.exit-interview-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.exit-interview-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.exit-interview-form__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.exit-interview-form__required {
+  color: #ef4444;
+}
+
+.exit-interview-form__input {
+  width: 100%;
+}
+
+.exit-interview-form__error {
+  color: #ef4444;
+  font-size: 0.8125rem;
 }
 </style>
