@@ -18,7 +18,7 @@ export default {
         return request.post(`/user/validate`, data)
     },
     postChangePassword(id: string | number, data: ChangePasswordPayload) {
-        return request.patch(`/user/changepassword/${id}`, data)
+        return request.patch(`/user/changepassword/${id}`, data, { withRequestBy: true })
     },
     postUserQueryResult(data: UserQueryPayload) {
         return request.post(`/user/queryresult`, data)
@@ -27,12 +27,12 @@ export default {
         return request.get(`/user/getone/${id}`)
     },
     postUserCreate(data: UserCreatePayload) {
-        return request.post(`/user/create`, data)
+        return request.post(`/user/create`, data, { withRequestBy: true })
     },
     patchUserUpdate(id: string | number, data: UserUpdatePayload) {
-        return request.patch(`/user/update/${id}`, data)
+        return request.patch(`/user/update/${id}`, data, { withRequestBy: true })
     },
     deleteUserById(id: string | number, data: UserDeletePayload) {
-        return request.delete(`/user/delete/${id}`, data)
+        return request.delete(`/user/delete/${id}`, data, { withRequestBy: true })
     },
 };

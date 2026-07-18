@@ -69,5 +69,11 @@ configurations.all {
         force 'androidx.browser:browser:1.8.0'
         force 'androidx.core:core-ktx:1.13.1'
         force 'androidx.core:core:1.13.1'
+
+        // CameraX ≥ 1.4.2 — native .so hỗ trợ 16 KB page size (Google Play)
+        force "androidx.camera:camera-core:$androidxCameraVersion"
+        force "androidx.camera:camera-camera2:$androidxCameraVersion"
+        force "androidx.camera:camera-lifecycle:$androidxCameraVersion"
+        force "androidx.camera:camera-view:$androidxCameraVersion"
     }
 }

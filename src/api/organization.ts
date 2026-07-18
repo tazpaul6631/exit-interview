@@ -18,15 +18,15 @@ export default {
         return request.get(`/organization/getone/${id}`);
     },
     postOrganizationCreate(data: OrganizationCreatePayload) {
-        return request.post('/organization/create', data);
+        return request.post('/organization/create', data, { withRequestBy: true });
     },
     patchOrganizationUpdate(id: string | number, data: OrganizationUpdatePayload) {
-        return request.patch(`/organization/update/${id}`, data);
+        return request.patch(`/organization/update/${id}`, data, { withRequestBy: true });
     },
     deleteOrganizationById(id: string | number, data: OrganizationDeletePayload) {
-        return request.delete(`/organization/delete/${id}`, data);
+        return request.delete(`/organization/delete/${id}`, data, { withRequestBy: true });
     },
     postOrganizationImport(data: OrganizationImportPayload[]) {
-        return request.post('/organization/import', data);
+        return request.post('/organization/import', data, { withRequestBy: true });
     },
 };

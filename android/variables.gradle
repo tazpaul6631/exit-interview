@@ -15,4 +15,6 @@ ext {
     androidxJunitVersion = '1.1.5'
     androidxEspressoCoreVersion = '3.5.1'
     cordovaAndroidVersion = '13.0.0'
+    // CameraX ≥ 1.4.2: 16 KB-aligned libimage_processing_util_jni / libsurface_util_jni
+    androidxCameraVersion = '1.4.2'
 }

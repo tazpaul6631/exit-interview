@@ -6,9 +6,9 @@ export default {
         return request.get(`/interview/getblankinterview`, {})
     },
     postCreateInterview(data: any) {
-        return request.post(`/interview/create`, data)
+        return request.post(`/interview/create`, data, { withRequestBy: true })
     },
     patchUpdateInterview(data: InterviewUpdatePayload) {
-        return request.patch(`/interview/update/${data.id}`, data);
+        return request.patch(`/interview/update/${data.id}`, data, { withRequestBy: true });
     },
 };

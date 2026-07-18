@@ -5,7 +5,8 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.2.1'
+        // AGP ≥ 8.5.1 required for 16 KB zip alignment of native .so (Play Store)
+        classpath 'com.android.tools.build:gradle:8.13.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -29,9 +30,9 @@ allprojects {
     }
 
     tasks.withType(JavaCompile) {
+        // AGP 8.5+ không hỗ trợ options.release — dùng source/targetCompatibility
         sourceCompatibility = '17'
         targetCompatibility = '17'
-        options.release = 17
     }
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
