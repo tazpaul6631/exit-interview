@@ -60,6 +60,9 @@ export function normalizeRole(raw: unknown): Role | null {
       .filter((item): item is RolePermissionGroup => item !== null)
     : [];
 
+  const updatedNameRaw = role.updatedName ?? role.UpdatedName;
+  const updatedAtRaw = role.updatedAt ?? role.UpdatedAt;
+
   return {
     id: Number(id),
     status: Number(role.status ?? role.Status ?? 0),
@@ -67,6 +70,8 @@ export function normalizeRole(raw: unknown): Role | null {
     code: String(role.code ?? role.Code ?? ''),
     name,
     isAdmin: Boolean(role.isAdmin ?? role.IsAdmin ?? false),
+    updatedName: updatedNameRaw != null ? String(updatedNameRaw) : undefined,
+    updatedAt: updatedAtRaw != null ? String(updatedAtRaw) : undefined,
     permissions,
   };
 }

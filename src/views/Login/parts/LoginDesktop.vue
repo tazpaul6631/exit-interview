@@ -80,13 +80,14 @@ import loginLottieUrl from '@/assets/animations/logo-left-login.lottie?url';
 import { APP_LOGO_ALT, APP_LOGO_URL } from '@/constants/branding';
 import LocaleSelect from '@/components/LocaleSelect.vue';
 import { useModalFieldValidation } from '@/composables/useModalFieldValidation';
+import { getLocalDateTimeNow } from '@/utils/localDateTime';
 
 defineProps<{
   loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  (e: 'login', payload: { code: string; password: string }): void;
+  (e: 'login', payload: { code: string; password: string; loginAt: string }): void;
 }>();
 
 const toast = useToast();
@@ -176,6 +177,7 @@ const onLoginSubmit = handleSubmit(
     emit('login', {
       code: values.code.trim(),
       password: values.password,
+      loginAt: getLocalDateTimeNow(),
     });
   },
   ({ errors: formErrors }) => {

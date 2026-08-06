@@ -11,6 +11,8 @@ export interface AuthUser {
   isAdmin?: boolean;
   permissions?: AuthMenuPermission[];
   email?: string;
+  updatedName?: string;
+  updatedAt?: string;
 }
 
 export interface AuthPermissionAction {
@@ -24,7 +26,10 @@ export interface AuthMenuPermission extends AuthPermissionAction {
   permissions: AuthPermissionAction[];
 }
 
-export interface User extends AuthUser { }
+export interface User extends AuthUser {
+  updatedName?: string;
+  updatedAt?: string;
+}
 
 export interface PagedUserResponse {
   items: User[];
@@ -37,6 +42,17 @@ export interface PagedUserResponse {
 }
 
 export interface UserQueryPayload {
+  page: number;
+  pageSize: number;
+  keyword?: string;
+  code?: string;
+  name?: string;
+  email?: string;
+  status?: number;
+  roleId?: number;
+}
+
+export interface UserViewQueryPayload {
   page: number;
   pageSize: number;
   keyword?: string;
@@ -65,4 +81,8 @@ export interface UserUpdatePayload {
 
 export interface UserDeletePayload {
   id: number;
+}
+
+export interface UserLogoutPayload {
+  userId: string | number;
 }

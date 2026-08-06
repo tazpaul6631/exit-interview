@@ -22,7 +22,7 @@ const isPublicWebRoute = (path: string, name?: string | symbol | null) =>
 
 const isWebAuthenticated = () => {
   const authStore = useAuthStore();
-  return authStore.isAuthenticated && !!authStore.token;
+  return authStore.isAuthenticated && !!authStore.accessToken;
 };
 
 const routes: Array<RouteRecordRaw> = [

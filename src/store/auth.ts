@@ -17,16 +17,16 @@ const USER_BACKUP_KEY = 'web_user_backup';
 const TOKEN_BACKUP_KEY = 'web_token_backup';
 const ROLE_NAME_BACKUP_KEY = 'web_role_name';
 
-/** Đọc user/token đồng bộ từ localStorage — F5 vẫn hiện đúng profile ngay. */
-function readAuthFromLocalStorage(): { user: AuthUser | null; token: string } {
+/** Đọc user/accessToken đồng bộ từ localStorage — F5 vẫn hiện đúng profile ngay. */
+function readAuthFromLocalStorage(): { user: AuthUser | null; accessToken: string } {
   let user: AuthUser | null = null;
-  let token = localStorage.getItem(TOKEN_BACKUP_KEY) || '';
+  let accessToken = localStorage.getItem(TOKEN_BACKUP_KEY) || '';
 
   try {
     const raw = localStorage.getItem(AUTH_STORAGE_KEY);
     if (raw) {
-      const data = JSON.parse(raw) as { token?: string; user?: unknown };
-      token = data.token || token;
+      const data = JSON.parse(raw) as { accessToken?: string; token?: string; user?: unknown };
+      accessToken = data.accessToken || data.token || accessToken;
       user = normalizeAuthUser(data.user);
     }
   } catch {
@@ -42,21 +42,21 @@ function readAuthFromLocalStorage(): { user: AuthUser | null; token: string } {
     }
   }
 
-  return { user, token };
+  return { user, accessToken };
 }
 
 const initialAuth =
   typeof localStorage !== 'undefined'
     ? readAuthFromLocalStorage()
-    : { user: null as AuthUser | null, token: '' };
+    : { user: null as AuthUser | null, accessToken: '' };
 
 function readRoleNameBackup(): string {
   return localStorage.getItem(ROLE_NAME_BACKUP_KEY) || '';
 }
 
-function persistUserBackup(user: AuthUser | null, token: string) {
-  if (token) {
-    localStorage.setItem(TOKEN_BACKUP_KEY, token);
+function persistUserBackup(user: AuthUser | null, accessToken: string) {
+  if (accessToken) {
+    localStorage.setItem(TOKEN_BACKUP_KEY, accessToken);
   } else {
     localStorage.removeItem(TOKEN_BACKUP_KEY);
   }
@@ -79,7 +79,7 @@ function persistRoleNameBackup(roleName: string) {
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: initialAuth.user,
-    token: initialAuth.token,
+    accessToken: initialAuth.accessToken,
     roleName: readRoleNameBackup(),
     role: null as Role | null,
     isOnline: true,
@@ -87,7 +87,7 @@ export const useAuthStore = defineStore('auth', {
   }),
 
   getters: {
-    isAuthenticated: (state) => !!state.token,
+    isAuthenticated: (state) => !!state.accessToken,
     getUserName: (state) => state.user?.name || 'Guest',
     getUserCode: (state) => state.user?.code || '',
     getUserId: (state) => state.user?.id ?? null,
@@ -100,11 +100,11 @@ export const useAuthStore = defineStore('auth', {
   },
 
   actions: {
-    loginSession(user: AuthUser, sessionToken: string) {
+    loginSession(user: AuthUser, accessToken: string) {
       const normalized = normalizeAuthUser(user) ?? user;
       this.user = normalized;
-      this.token = sessionToken;
-      persistUserBackup(normalized, sessionToken);
+      this.accessToken = accessToken;
+      persistUserBackup(normalized, accessToken);
     },
     setRole(role: Role | null) {
       this.role = role;
@@ -120,19 +120,19 @@ export const useAuthStore = defineStore('auth', {
       this.roleName = '';
       persistRoleNameBackup('');
     },
-    setToken(token: string) {
-      this.token = token;
-      persistUserBackup(this.user, token);
+    setAccessToken(accessToken: string) {
+      this.accessToken = accessToken;
+      persistUserBackup(this.user, accessToken);
     },
     setUser(user: AuthUser | null) {
       this.user = user ? normalizeAuthUser(user) ?? user : null;
-      persistUserBackup(this.user, this.token);
+      persistUserBackup(this.user, this.accessToken);
     },
     setNetworkStatus(status: boolean) {
       this.isOnline = status;
     },
     async logout() {
-      this.token = '';
+      this.accessToken = '';
       this.user = null;
       this.role = null;
       this.roleName = '';
@@ -152,15 +152,15 @@ export const useAuthStore = defineStore('auth', {
   persist: {
     key: AUTH_STORAGE_KEY,
     storage: localStorage,
-    pick: ['token', 'user', 'role', 'roleName', 'lastSync'],
+    pick: ['accessToken', 'user', 'role', 'roleName', 'lastSync'],
     afterHydrate: (ctx) => {
       const store = ctx.store as ReturnType<typeof useAuthStore>;
       if (store.user) {
         const normalized = normalizeAuthUser(store.user);
         if (normalized) store.user = normalized;
       }
-      if (store.token || store.user) {
-        persistUserBackup(store.user, store.token);
+      if (store.accessToken || store.user) {
+        persistUserBackup(store.user, store.accessToken);
       }
       if (store.roleName) {
         persistRoleNameBackup(store.roleName);

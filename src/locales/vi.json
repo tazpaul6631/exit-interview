@@ -12,6 +12,9 @@
     "welcome": "Chào mừng",
     "save": "Lưu",
     "cancel": "Hủy",
+    "serverMaintenance": "Server đang bảo trì hoặc lỗi. Vui lòng liên hệ với IT và thử lại sau.",
+    "server_error": "Server đang bảo trì vui lòng liên hệ với IT và thử lại sau.",
+    "unauthorized_error": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!",
     "errors": {
       "no_special_characters": "Không được nhập ký tự đặc biệt",
       "name_no_numbers": "Tên không được chứa số",
@@ -91,7 +94,9 @@
     "columns": {
       "code": "Mã NV",
       "name": "Họ tên",
-      "role": "Vai trò"
+      "role": "Vai trò",
+      "updated_name": "Người cập nhật",
+      "updated_at": "Ngày cập nhật"
     },
     "filters": {
       "search_code": "Tìm mã",
@@ -133,7 +138,7 @@
       "error": "Lỗi",
       "success": "Thành công",
       "failure": "Thất bại",
-      "load_failed": "Không thể tải danh sách người dùng.",
+      "load_failed": "Server đang bảo trì vui lòng liên hệ IT và thử lại sau.",
       "account_missing": "Không tìm thấy tài khoản. Vui lòng đăng nhập lại.",
       "create_success": "Tạo người dùng thành công.",
       "create_failed": "Không thể tạo người dùng.",
@@ -155,7 +160,9 @@
       "code": "Mã",
       "name": "Tên phòng ban",
       "status": "Trạng thái",
-      "priority": "Thứ tự ưu tiên"
+      "priority": "Thứ tự ưu tiên",
+      "updated_name": "Người cập nhật",
+      "updated_at": "Ngày cập nhật"
     },
     "filters": {
       "search_code": "Tìm mã",
@@ -214,7 +221,7 @@
       "error": "Lỗi",
       "success": "Thành công",
       "failure": "Thất bại",
-      "load_failed": "Không thể tải danh sách phòng ban.",
+      "load_failed": "Server đang bảo trì vui lòng liên hệ IT và thử lại sau.",
       "account_missing": "Không tìm thấy tài khoản. Vui lòng đăng nhập lại.",
       "create_success": "Tạo phòng ban thành công.",
       "create_failed": "Không thể tạo phòng ban.",
@@ -233,7 +240,9 @@
     "empty": "Không tìm thấy vai trò.",
     "columns": {
       "code": "Mã",
-      "name": "Tên vai trò"
+      "name": "Tên vai trò",
+      "updated_name": "Người cập nhật",
+      "updated_at": "Ngày cập nhật"
     },
     "filters": {
       "search": "Tìm kiếm...",
@@ -280,10 +289,10 @@
       "error": "Lỗi",
       "success": "Thành công",
       "failure": "Thất bại",
-      "load_permissions_failed": "Không thể tải danh sách menu phân quyền.",
-      "load_role_permissions_failed": "Không thể tải phân quyền của vai trò.",
-      "load_failed": "Không thể tải danh sách vai trò.",
-      "load_detail_failed": "Không thể tải chi tiết vai trò.",
+      "load_permissions_failed": "Server đang bảo trì vui lòng liên hệ IT và thử lại sau.",
+      "load_role_permissions_failed": "Server đang bảo trì vui lòng liên hệ IT và thử lại sau.",
+      "load_failed": "Server đang bảo trì vui lòng liên hệ IT và thử lại sau.",
+      "load_detail_failed": "Server đang bảo trì vui lòng liên hệ IT và thử lại sau.",
       "account_missing": "Không tìm thấy tài khoản. Vui lòng đăng nhập lại.",
       "create_success": "Tạo vai trò thành công.",
       "create_failed": "Không thể tạo vai trò.",

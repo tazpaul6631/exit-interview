@@ -19,6 +19,8 @@ export interface Role {
   code: string;
   name: string;
   isAdmin: boolean;
+  updatedName?: string;
+  updatedAt?: string;
   permissions: RolePermissionGroup[];
 }
 
@@ -41,6 +43,14 @@ export interface RoleQueryPayload {
   isAdmin?: boolean;
 }
 
+export interface RoleViewQueryPayload {
+  page: number;
+  pageSize: number;
+  keyword?: string;
+  code?: string;
+  name?: string;
+  isAdmin?: boolean;
+}
 export interface RolePermissionPayload {
   roleId: number;
   menuId: number;

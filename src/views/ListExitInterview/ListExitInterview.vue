@@ -13,8 +13,8 @@
 
           <template #header>
             <div class="table-toolbar">
-              <Button type="button" outlined size="small" class="toolbar-btn toolbar-btn--export" :loading="isExporting"
-                :disabled="isExporting || !canExport" @click="exportExcel">
+              <Button v-if="canExport && !isExporting" type="button" outlined size="small"
+                class="toolbar-btn toolbar-btn--export" :loading="isExporting" @click="exportExcel">
                 <i class="pi pi-file-excel toolbar-btn__icon" aria-hidden="true"></i>
                 <span class="toolbar-btn__label">{{ t('exit_interview.export_excel') }}</span>
               </Button>
@@ -91,17 +91,16 @@
             <template #body="{ data }">
               <Skeleton v-if="isLoading" width="9rem" height="1rem" />
               <div v-else class="row-actions">
-                <Button icon="pi pi-eye" size="small" severity="secondary" rounded outlined
-                  :aria-label="t('exit_interview.actions.view_detail')" :disabled="!canView"
-                  @click="handleSeen(data)" />
-                <Button icon="pi pi-pencil" size="small" severity="info" rounded outlined
-                  :aria-label="t('exit_interview.actions.edit')" :disabled="!canUpdate" @click="openEditDialog(data)" />
-                <Button icon="pi pi-file-word" size="small" severity="info" rounded outlined
-                  :aria-label="t('exit_interview.actions.export_word')" :loading="isRowExporting(data.id, 'word')"
-                  :disabled="!!exportingRowKey || !canExport" @click="exportWord(data)" />
-                <Button icon="pi pi-file-pdf" size="small" severity="danger" rounded outlined
-                  :aria-label="t('exit_interview.actions.export_pdf')" :loading="isRowExporting(data.id, 'pdf')"
-                  :disabled="!!exportingRowKey || !canExport" @click="exportPdf(data)" />
+                <Button v-if="canView" icon="pi pi-eye" size="small" severity="secondary" rounded outlined
+                  :aria-label="t('exit_interview.actions.view_detail')" @click="handleSeen(data)" />
+                <Button v-if="canUpdate" icon="pi pi-pencil" size="small" severity="info" rounded outlined
+                  :aria-label="t('exit_interview.actions.edit')" @click="openEditDialog(data)" />
+                <Button v-if="canExport && !exportingRowKey" icon="pi pi-file-word" size="small" severity="info" rounded
+                  outlined :aria-label="t('exit_interview.actions.export_word')"
+                  :loading="isRowExporting(data.id, 'word')" @click="exportWord(data)" />
+                <Button v-if="canExport && !exportingRowKey" icon="pi pi-file-pdf" size="small" severity="danger"
+                  rounded outlined :aria-label="t('exit_interview.actions.export_pdf')"
+                  :loading="isRowExporting(data.id, 'pdf')" @click="exportPdf(data)" />
               </div>
             </template>
           </Column>
@@ -222,7 +221,7 @@ const router = useRouter();
 const { t } = useI18n();
 const toast = useToast();
 const authStore = useAuthStore();
-const { getCodeFormatError, getNameFormatError } = useModalFieldValidation();
+const { getCodeFormatError, getModalNameFormatError } = useModalFieldValidation();
 const employeeList = ref<EmployeeRecord[]>([]);
 const organizations = ref<any[]>([]);
 const isLoading = ref(false);
@@ -612,12 +611,12 @@ const onEditEmployeeCodeInput = (value: string | null | undefined) => {
 
 const onEditEmployeeNameInput = (value: string | null | undefined) => {
   editForm.value.employeeName = value ?? '';
-  editFormErrors.value.employeeName = getNameFormatError(editForm.value.employeeName);
+  editFormErrors.value.employeeName = getModalNameFormatError(editForm.value.employeeName);
 };
 
 const onEditJobPositionInput = (value: string | null | undefined) => {
   editForm.value.jobPositionName = value ?? '';
-  editFormErrors.value.jobPositionName = getNameFormatError(editForm.value.jobPositionName);
+  editFormErrors.value.jobPositionName = getModalNameFormatError(editForm.value.jobPositionName);
 };
 
 const onEditExitedAtChange = () => {
@@ -639,10 +638,10 @@ const validateEditForm = () => {
     ? getCodeFormatError(employeeCode)
     : t('exit_interview.form.employee_code_required');
   editFormErrors.value.employeeName = employeeName
-    ? getNameFormatError(employeeName)
+    ? getModalNameFormatError(employeeName)
     : t('exit_interview.form.employee_name_required');
   editFormErrors.value.jobPositionName = jobPositionName
-    ? getNameFormatError(jobPositionName)
+    ? getModalNameFormatError(jobPositionName)
     : t('exit_interview.form.job_position_required');
   editFormErrors.value.exitedAt = getExitedAtError(editForm.value.exitedAt);
   editFormErrors.value.organizationId = editForm.value.organizationId
@@ -721,7 +720,7 @@ const runRowExport = async (
       error instanceof Error
         ? error.message
         : t(type === 'word' ? 'exit_interview.errors.export_word_failed' : 'exit_interview.errors.export_pdf_failed');
-    alert(message);
+    showToast('error', t('exit_interview.toast.error'), message);
   } finally {
     exportingRowKey.value = null;
   }
@@ -758,7 +757,7 @@ const exportExcel = async () => {
   } catch (error: unknown) {
     console.error('Lỗi xuất Excel:', error);
     const message = error instanceof Error ? error.message : t('exit_interview.errors.export_excel_failed');
-    alert(message);
+    showToast('error', t('exit_interview.toast.error'), message);
   } finally {
     isExporting.value = false;
   }

@@ -4,11 +4,15 @@ import type {
   RoleDeletePayload,
   RoleQueryPayload,
   RoleUpdatePayload,
+  RoleViewQueryPayload,
 } from '@/types/role';
 
 export default {
   postRoleQueryResult(data: RoleQueryPayload) {
     return request.post('/role/queryresult', data);
+  },
+  postRoleViewQueryResult(data: RoleViewQueryPayload) {
+    return request.post('/roleview/queryresult', data);
   },
   getRoleBaseList() {
     return request.get('/role/getbaseList');

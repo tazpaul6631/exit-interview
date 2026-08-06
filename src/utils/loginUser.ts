@@ -106,6 +106,32 @@ export function parseLoginUser(responseBody: unknown): AuthUser | null {
   return normalizeAuthUser(payload);
 }
 
-export function resolveSessionToken(user: AuthUser, fallbackPassword: string): string {
-  return user.password?.trim() || fallbackPassword.trim();
+/** accessToken từ response login (BE trả trong `data`). */
+export function parseLoginAccessToken(responseBody: unknown): string | null {
+  if (!responseBody || typeof responseBody !== 'object') return null;
+
+  const readToken = (raw: unknown): string | null => {
+    if (!raw || typeof raw !== 'object') return null;
+    const payload = raw as Record<string, unknown>;
+    const token = payload.accessToken ?? payload.AccessToken;
+    if (token == null) return null;
+    const value = String(token).trim();
+    return value.length > 0 ? value : null;
+  };
+
+  const root = responseBody as Record<string, unknown>;
+  const fromRoot = readToken(root);
+  if (fromRoot) return fromRoot;
+
+  const data = root.data;
+  const fromData = readToken(data);
+  if (fromData) return fromData;
+
+  if (data && typeof data === 'object') {
+    const nested = (data as Record<string, unknown>).data;
+    const fromNested = readToken(nested);
+    if (fromNested) return fromNested;
+  }
+
+  return null;
 }

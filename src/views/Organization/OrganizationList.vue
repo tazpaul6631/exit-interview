@@ -11,12 +11,12 @@
           @page="onPageChange" @filter="onTableFilter">
           <template #header>
             <div class="organization-toolbar">
-              <Button type="button" size="small" outlined :disabled="!canImport"
+              <Button v-if="canImport" type="button" size="small" outlined
                 class="organization-toolbar__btn organization-toolbar__btn--import" @click="openImportDialog">
                 <i class="pi pi-file-import organization-toolbar__icon" aria-hidden="true" />
                 <span class="organization-toolbar__label">{{ t('organization.import.title') }}</span>
               </Button>
-              <Button type="button" size="small" outlined :disabled="!canCreate"
+              <Button v-if="canCreate" type="button" size="small" outlined
                 class="organization-toolbar__btn organization-toolbar__btn--create" @click="openCreateDialog">
                 <i class="pi pi-plus organization-toolbar__icon" aria-hidden="true" />
                 <span class="organization-toolbar__label">{{ t('organization.add') }}</span>
@@ -43,6 +43,16 @@
               <template v-if="col.type === '#'">
                 <Skeleton v-if="isLoading" width="2rem" height="1rem" />
                 <span v-else class="organization-fw-bold">{{ first + index + 1 }}</span>
+              </template>
+
+              <template v-else-if="col.type === 'updatedName'">
+                <Skeleton v-if="isLoading" width="100%" height="1rem" />
+                <span v-else>{{ data[col.field] }}</span>
+              </template>
+
+              <template v-else-if="col.type === 'updatedAt'">
+                <Skeleton v-if="isLoading" width="100%" height="1rem" />
+                <span v-else>{{ format.formatDate(data[col.field]) }}</span>
               </template>
 
               <template v-else-if="col.type === 'priority'">
@@ -75,15 +85,14 @@
             </template>
           </Column>
 
-          <Column class="text-center" style="width: 200px">
+          <Column v-if="canUpdate || canDelete" class="text-center" style="width: 200px">
             <template #body="{ data }">
               <Skeleton v-if="isLoading" width="5rem" height="1rem" />
               <div v-else class="organization-row-actions">
-                <Button icon="pi pi-pencil" size="small" severity="info" rounded outlined
-                  :aria-label="t('organization.actions.edit')" :disabled="!canUpdate" @click="openEditDialog(data)" />
-                <Button icon="pi pi-trash" size="small" severity="danger" rounded outlined
-                  :aria-label="t('organization.actions.delete')" :disabled="!canDelete"
-                  @click="openDeleteDialog(data)" />
+                <Button v-if="canUpdate" icon="pi pi-pencil" size="small" severity="info" rounded outlined
+                  :aria-label="t('organization.actions.edit')" @click="openEditDialog(data)" />
+                <Button v-if="canDelete" icon="pi pi-trash" size="small" severity="danger" rounded outlined
+                  :aria-label="t('organization.actions.delete')" @click="openDeleteDialog(data)" />
               </div>
             </template>
           </Column>
@@ -207,6 +216,7 @@ import { getLocalDateTimeNow } from '@/utils/localDateTime';
 import type { Organization, OrganizationPagedData, OrganizationQueryPayload } from '@/types/organization';
 import { useMenuPermissions } from '@/composables/useMenuPermissions';
 import { useModalFieldValidation } from '@/composables/useModalFieldValidation';
+import format from '@/mixins/format';
 
 const toast = useToast();
 const authStore = useAuthStore();
@@ -287,6 +297,20 @@ const tableColumns = computed(() => [
     filterable: true,
     filterPlaceholder: t('organization.filters.status'),
   },
+  {
+    field: 'updatedName',
+    header: t('organization.columns.updated_name'),
+    width: 'auto',
+    type: 'updatedName',
+    filterable: false,
+  },
+  {
+    field: 'updatedAt',
+    header: t('organization.columns.updated_at'),
+    width: 'auto',
+    type: 'updatedAt',
+    filterable: false,
+  },
 ]);
 
 const TEXT_FILTER_FIELDS = ['code', 'name', 'keyword'] as const;
@@ -353,13 +377,27 @@ const buildPayload = (event?: { page?: number; rows?: number }): OrganizationQue
   return payload;
 };
 
+const mapAuditFields = <T extends { updatedName?: string; updatedAt?: string }>(item: T): T => {
+  const raw = item as T & Record<string, unknown>;
+  const updatedName = raw.updatedName ?? raw.UpdatedName;
+  const updatedAt = raw.updatedAt ?? raw.UpdatedAt;
+  return {
+    ...item,
+    updatedName: updatedName != null ? String(updatedName) : undefined,
+    updatedAt: updatedAt != null ? String(updatedAt) : undefined,
+  };
+};
+
 const parsePagedResult = (response: unknown): OrganizationPagedData | null => {
   const body = response as { data?: { data?: OrganizationPagedData; items?: Organization[] } };
   const data = body?.data?.data ?? body?.data;
   if (!data || !Array.isArray(data.items)) {
     return null;
   }
-  return data as OrganizationPagedData;
+  return {
+    ...(data as OrganizationPagedData),
+    items: data.items.map((item) => mapAuditFields(item)),
+  };
 };
 
 const loadData = async (event?: { page?: number; rows?: number }) => {
@@ -367,7 +405,7 @@ const loadData = async (event?: { page?: number; rows?: number }) => {
 
   try {
     const payload = buildPayload(event);
-    const response = await organizationApi.postOrganizationQueryResult(payload);
+    const response = await organizationApi.postOrganizationViewQueryResult(payload);
     const result = parsePagedResult(response);
 
     if (result) {
@@ -386,7 +424,7 @@ const loadData = async (event?: { page?: number; rows?: number }) => {
     console.error('Load organization list error:', error);
     organizationList.value = [];
     totalRecords.value = 0;
-    showToast('error', t('organization.toast.error'), t('organization.toast.load_failed'));
+    // showToast('error', t('organization.toast.error'), t('organization.toast.load_failed'));
   } finally {
     isLoading.value = false;
   }

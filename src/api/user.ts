@@ -9,19 +9,27 @@ export interface ChangePasswordPayload {
 import type {
     UserCreatePayload,
     UserDeletePayload,
+    UserLogoutPayload,
     UserQueryPayload,
     UserUpdatePayload,
+    UserViewQueryPayload,
 } from '@/types/user';
 
 export default {
     postUserValidate(data: any) {
         return request.post(`/user/validate`, data)
     },
+    postUserLogout(data: UserLogoutPayload) {
+        return request.post(`/user/logout`, data)
+    },
     postChangePassword(id: string | number, data: ChangePasswordPayload) {
         return request.patch(`/user/changepassword/${id}`, data, { withRequestBy: true })
     },
     postUserQueryResult(data: UserQueryPayload) {
         return request.post(`/user/queryresult`, data)
+    },
+    postUserViewQueryResult(data: UserViewQueryPayload) {
+        return request.post(`/userview/queryresult`, data)
     },
     getUserOne(id: string | number) {
         return request.get(`/user/getone/${id}`)

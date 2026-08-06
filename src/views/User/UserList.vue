@@ -11,8 +11,8 @@
           @page="onPageChange" @filter="onTableFilter">
           <template #header>
             <div class="user-toolbar">
-              <Button type="button" size="small" outlined class="user-toolbar__btn user-toolbar__btn--create"
-                :disabled="!canCreate" @click="openCreateDialog">
+              <Button v-if="canCreate" type="button" size="small" outlined
+                class="user-toolbar__btn user-toolbar__btn--create" @click="openCreateDialog">
                 <i class="pi pi-plus user-toolbar__icon" aria-hidden="true" />
                 <span class="user-toolbar__label">{{ t('user.add') }}</span>
               </Button>
@@ -40,6 +40,16 @@
                 <span v-else class="user-fw-bold">{{ first + index + 1 }}</span>
               </template>
 
+              <template v-else-if="col.type === 'updatedName'">
+                <Skeleton v-if="isLoading" width="100%" height="1rem" />
+                <span v-else>{{ data[col.field] }}</span>
+              </template>
+
+              <template v-else-if="col.type === 'updatedAt'">
+                <Skeleton v-if="isLoading" width="100%" height="1rem" />
+                <span v-else>{{ format.formatDate(data[col.field]) }}</span>
+              </template>
+
               <template v-else-if="col.type === 'role'">
                 <Skeleton v-if="isLoading" width="6rem" height="1rem" />
                 <span v-else>{{ getRoleName(data.roleId) }}</span>
@@ -64,14 +74,14 @@
             </template>
           </Column>
 
-          <Column class="text-center" style="width: 200px">
+          <Column v-if="canUpdate || canDelete" class="text-center" style="width: 200px">
             <template #body="{ data }">
               <Skeleton v-if="isLoading" width="5rem" height="1rem" />
               <div v-else class="user-row-actions">
-                <Button icon="pi pi-pencil" size="small" severity="info" rounded outlined
-                  :aria-label="t('user.actions.edit')" :disabled="!canUpdate" @click="openEditDialog(data)" />
-                <Button icon="pi pi-trash" size="small" severity="danger" rounded outlined
-                  :aria-label="t('user.actions.delete')" :disabled="!canDelete" @click="openDeleteDialog(data)" />
+                <Button v-if="canUpdate" icon="pi pi-pencil" size="small" severity="info" rounded outlined
+                  :aria-label="t('user.actions.edit')" @click="openEditDialog(data)" />
+                <Button v-if="canDelete" icon="pi pi-trash" size="small" severity="danger" rounded outlined
+                  :aria-label="t('user.actions.delete')" @click="openDeleteDialog(data)" />
               </div>
             </template>
           </Column>
@@ -188,6 +198,7 @@ import { usePageDataRefresh } from '@/composables/usePageDataRefresh';
 import { useMenuPermissions } from '@/composables/useMenuPermissions';
 import { useAuthStore } from '@/store/auth';
 import { useModalFieldValidation } from '@/composables/useModalFieldValidation';
+import format from '@/mixins/format';
 
 const toast = useToast();
 const { t } = useI18n();
@@ -281,7 +292,21 @@ const tableColumns = computed(() => [
     type: 'role',
     filterable: true,
     filterPlaceholder: t('user.filters.role'),
-  }
+  },
+  {
+    field: 'updatedName',
+    header: t('user.columns.updated_name'),
+    width: 'auto',
+    type: 'updatedName',
+    filterable: false,
+  },
+  {
+    field: 'updatedAt',
+    header: t('user.columns.updated_at'),
+    width: 'auto',
+    type: 'updatedAt',
+    filterable: false,
+  },
 ]);
 
 const TEXT_FILTER_FIELDS = ['code', 'name', 'keyword'] as const;
@@ -367,13 +392,27 @@ const buildPayload = (event?: { page?: number; rows?: number }): UserQueryPayloa
   return payload;
 };
 
+const mapAuditFields = <T extends { updatedName?: string; updatedAt?: string }>(item: T): T => {
+  const raw = item as T & Record<string, unknown>;
+  const updatedName = raw.updatedName ?? raw.UpdatedName;
+  const updatedAt = raw.updatedAt ?? raw.UpdatedAt;
+  return {
+    ...item,
+    updatedName: updatedName != null ? String(updatedName) : undefined,
+    updatedAt: updatedAt != null ? String(updatedAt) : undefined,
+  };
+};
+
 const parsePagedResult = (response: unknown): PagedUserResponse | null => {
   const body = response as { data?: { data?: PagedUserResponse; items?: User[] } };
   const data = body?.data?.data ?? body?.data;
   if (!data || !Array.isArray(data.items)) {
     return null;
   }
-  return data as PagedUserResponse;
+  return {
+    ...(data as PagedUserResponse),
+    items: data.items.map((item) => mapAuditFields(item)),
+  };
 };
 
 const loadData = async (event?: { page?: number; rows?: number }) => {
@@ -381,7 +420,7 @@ const loadData = async (event?: { page?: number; rows?: number }) => {
 
   try {
     const payload = buildPayload(event);
-    const response = await userApi.postUserQueryResult(payload);
+    const response = await userApi.postUserViewQueryResult(payload);
     const result = parsePagedResult(response);
 
     if (result) {
@@ -400,7 +439,7 @@ const loadData = async (event?: { page?: number; rows?: number }) => {
     console.error('Lỗi tải danh sách người dùng:', error);
     userList.value = [];
     totalRecords.value = 0;
-    showToast('error', t('user.toast.error'), t('user.toast.load_failed'));
+    // showToast('error', t('user.toast.error'), t('user.toast.load_failed'));
   } finally {
     isLoading.value = false;
   }

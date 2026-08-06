@@ -6,6 +6,8 @@ export interface Organization {
   name: string;
   priority: number;
   isActive: boolean;
+  updatedName?: string;
+  updatedAt?: string;
 }
 
 export interface OrganizationPagedData {
@@ -27,6 +29,14 @@ export interface OrganizationQueryPayload {
   isActive?: boolean;
 }
 
+export interface OrganizationViewQueryPayload {
+  page: number;
+  pageSize: number;
+  code?: string;
+  name?: string;
+  keyword?: string;
+  isActive?: boolean;
+}
 export interface OrganizationCreatePayload {
   name: string;
   isActive: boolean;

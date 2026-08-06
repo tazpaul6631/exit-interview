@@ -12,6 +12,9 @@
     "welcome": "歡迎",
     "save": "儲存",
     "cancel": "取消",
+    "serverMaintenance": "伺服器正在維護或出現錯誤。請聯繫 IT 並稍後再試。",
+    "server_error": "伺服器正在維護或出現錯誤。請聯繫 IT 並稍後再試。",
+    "unauthorized_error": "登入會話已過期。請重新登入！",
     "errors": {
       "no_special_characters": "不能輸入特殊字元",
       "name_no_numbers": "姓名不能包含數字",
@@ -91,7 +94,9 @@
     "columns": {
       "code": "工號",
       "name": "姓名",
-      "role": "角色"
+      "role": "角色",
+      "updated_name": "更新人",
+      "updated_at": "更新時間"
     },
     "filters": {
       "search_code": "搜尋工號",
@@ -155,7 +160,9 @@
       "code": "代碼",
       "name": "部門名稱",
       "status": "狀態",
-      "priority": "優先順序"
+      "priority": "優先順序",
+      "updated_name": "更新人",
+      "updated_at": "更新時間"
     },
     "filters": {
       "search_code": "搜尋代碼",
@@ -233,7 +240,9 @@
     "empty": "找不到角色。",
     "columns": {
       "code": "代碼",
-      "name": "角色名稱"
+      "name": "角色名稱",
+      "updated_name": "更新人",
+      "updated_at": "更新時間"
     },
     "filters": {
       "search": "搜尋...",

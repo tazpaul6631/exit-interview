@@ -11,8 +11,8 @@
           @page="onPageChange" @filter="onTableFilter">
           <template #header>
             <div class="role-toolbar">
-              <Button type="button" size="small" outlined class="role-toolbar__btn role-toolbar__btn--create"
-                :disabled="!canCreate" @click="openCreateDialog">
+              <Button v-if="canCreate" type="button" size="small" outlined
+                class="role-toolbar__btn role-toolbar__btn--create" @click="openCreateDialog">
                 <i class="pi pi-plus role-toolbar__icon" aria-hidden="true" />
                 <span class="role-toolbar__label">{{ t('role.add') }}</span>
               </Button>
@@ -40,6 +40,16 @@
                 <span v-else class="role-fw-bold">{{ first + index + 1 }}</span>
               </template>
 
+              <template v-else-if="col.type === 'updatedName'">
+                <Skeleton v-if="isLoading" width="100%" height="1rem" />
+                <span v-else>{{ data[col.field] }}</span>
+              </template>
+
+              <template v-else-if="col.type === 'updatedAt'">
+                <Skeleton v-if="isLoading" width="100%" height="1rem" />
+                <span v-else>{{ format.formatDate(data[col.field]) }}</span>
+              </template>
+
               <template v-else>
                 <Skeleton v-if="isLoading" width="auto" height="1rem" />
                 <span v-else>{{ data[col.field] }}</span>
@@ -63,12 +73,12 @@
             <template #body="{ data }">
               <Skeleton v-if="isLoading" width="7rem" height="1rem" />
               <div v-else class="role-row-actions">
-                <Button icon="pi pi-eye" size="small" severity="secondary" rounded outlined
-                  :aria-label="t('role.actions.view')" :disabled="!canView" @click="goToDetail(data)" />
-                <Button icon="pi pi-pencil" size="small" severity="info" rounded outlined
-                  :aria-label="t('role.actions.edit')" :disabled="!canUpdate" @click="openEditDialog(data)" />
-                <Button icon="pi pi-trash" size="small" severity="danger" rounded outlined
-                  :aria-label="t('role.actions.delete')" :disabled="!canDelete" @click="openDeleteDialog(data)" />
+                <Button v-if="canView" icon="pi pi-eye" size="small" severity="secondary" rounded outlined
+                  :aria-label="t('role.actions.view')" @click="goToDetail(data)" />
+                <Button v-if="canUpdate" icon="pi pi-pencil" size="small" severity="info" rounded outlined
+                  :aria-label="t('role.actions.edit')" @click="openEditDialog(data)" />
+                <Button v-if="canDelete" icon="pi pi-trash" size="small" severity="danger" rounded outlined
+                  :aria-label="t('role.actions.delete')" @click="openDeleteDialog(data)" />
               </div>
             </template>
           </Column>
@@ -161,6 +171,7 @@ import type { Role, RolePermissionGroup, RolePermissionPayload, RoleQueryPayload
 import { useMenuPermissions } from '@/composables/useMenuPermissions';
 import { usePageDataRefresh } from '@/composables/usePageDataRefresh';
 import { useModalFieldValidation } from '@/composables/useModalFieldValidation';
+import format from '@/mixins/format';
 
 const toast = useToast();
 const router = useRouter();
@@ -227,6 +238,8 @@ const tableColumns = computed(() => [
     filterable: true,
     filterPlaceholder: t('role.filters.search_name'),
   },
+  { field: 'updatedName', header: t('role.columns.updated_name'), width: 'auto', type: 'updatedName', filterable: false },
+  { field: 'updatedAt', header: t('role.columns.updated_at'), width: 'auto', type: 'updatedAt', filterable: false },
 ]);
 
 const TEXT_FILTER_FIELDS = ['code', 'name', 'keyword'] as const;
@@ -331,7 +344,7 @@ const loadData = async (event?: { page?: number; rows?: number }) => {
 
   try {
     const payload = buildPayload(event);
-    const response = await roleApi.postRoleQueryResult(payload);
+    const response = await roleApi.postRoleViewQueryResult(payload);
     const result = parseRoleQueryResponse(response);
 
     if (result) {
@@ -350,7 +363,7 @@ const loadData = async (event?: { page?: number; rows?: number }) => {
     console.error('Lỗi tải danh sách vai trò:', error);
     roleList.value = [];
     totalRecords.value = 0;
-    showToast('error', t('role.toast.error'), t('role.toast.load_failed'));
+    // showToast('error', t('role.toast.error'), t('role.toast.load_failed'));
   } finally {
     isLoading.value = false;
   }

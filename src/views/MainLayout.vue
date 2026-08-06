@@ -95,7 +95,7 @@
 
               <footer class="layout-footer">
                 <img src="/assets/logocompany.png" alt="JIA HSIN" class="layout-footer__logo" />
-                <div class="copyright">© 2026 IT Jia Hsin CO., LTD</div>
+                <div class="copyright">HR Management System • © 2026 By App Team</div>
               </footer>
             </div>
           </div>
@@ -127,6 +127,7 @@ import {
 } from 'ionicons/icons';
 
 import { useAuthStore } from '@/store/auth';
+import userApi from '@/api/user';
 import { useUserRole } from '@/composables/useUserRole';
 import LocaleSelect from '@/components/LocaleSelect.vue';
 import ChangePasswordDialog from '@/components/ChangePasswordDialog.vue';
@@ -208,6 +209,16 @@ const changePasswordVisible = ref(false);
 const handleLogout = async () => {
   await dismissProfilePopover();
   await releaseFocusDeferred();
+
+  const userId = authStore.getUserId;
+  if (userId != null) {
+    try {
+      await userApi.postUserLogout({ userId });
+    } catch (error) {
+      console.error('Logout API error:', error);
+    }
+  }
+
   await authStore.logout();
 };
 

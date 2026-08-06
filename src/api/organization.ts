@@ -5,11 +5,15 @@ import type {
     OrganizationImportPayload,
     OrganizationQueryPayload,
     OrganizationUpdatePayload,
+    OrganizationViewQueryPayload,
 } from '@/types/organization';
 
 export default {
     postOrganizationQueryResult(data: OrganizationQueryPayload) {
         return request.post('/organization/queryresult', data);
+    },
+    postOrganizationViewQueryResult(data: OrganizationViewQueryPayload) {
+        return request.post('/organizationview/queryresult', data);
     },
     postOrganization(data: Record<string, unknown>) {
         return request.post('/organization/getbaselist', data);

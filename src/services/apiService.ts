@@ -1,4 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import ToastEventBus from 'primevue/toasteventbus';
 import { useAuthStore } from '@/store/auth';
 import baseURLApi from '@/api/baseURLApi';
 import i18n from '@/i18n';
@@ -7,6 +8,42 @@ const baseURL = baseURLApi.url;
 
 /** Header requestKey cố định (chỉ gửi khi withRequestBy: true). */
 const REQUEST_BY_KEY = 'key_666ttp10tyuio72612aqzvntnmyt1r2y9y3tre7823';
+
+/** Chặn toast/logout trùng khi nhiều API cùng trả 401. */
+let isHandlingUnauthorized = false;
+
+/**
+ * Chặn toast trùng trong cùng 1 “đợt” API (page gọi nhiều request song song).
+ * Hết cooldown → vào page khác / gọi lại vẫn toast được.
+ */
+let isHandlingServerOffline = false;
+let serverOfflineToastTimer: ReturnType<typeof setTimeout> | null = null;
+const SERVER_OFFLINE_TOAST_COOLDOWN_MS = 2500;
+
+const showGlobalToast = (
+  detail: string,
+  severity: 'success' | 'info' | 'warn' | 'error' = 'warn',
+) => {
+  ToastEventBus.emit('add', {
+    severity,
+    summary: i18n.global.t('messages.notifi') as string,
+    detail,
+    life: 5000,
+  });
+};
+
+const showServerOfflineToastOnce = (messageKey: string) => {
+  if (isHandlingServerOffline) return;
+
+  isHandlingServerOffline = true;
+  showGlobalToast(i18n.global.t(messageKey) as string, 'warn');
+
+  if (serverOfflineToastTimer) clearTimeout(serverOfflineToastTimer);
+  serverOfflineToastTimer = setTimeout(() => {
+    isHandlingServerOffline = false;
+    serverOfflineToastTimer = null;
+  }, SERVER_OFFLINE_TOAST_COOLDOWN_MS);
+};
 
 declare module 'axios' {
   export interface AxiosRequestConfig {
@@ -30,18 +67,24 @@ const api = axios.create({
 api.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     const authStore = useAuthStore(); // Pinia cho phép gọi store
-    const token = authStore.token; // Lấy token đã được Pinia tự động load từ Storage
+    const accessToken = authStore.accessToken;
+
+    // Đã login lại → sẵn sàng xử lý 401 mới
+    if (accessToken && isHandlingUnauthorized) {
+      isHandlingUnauthorized = false;
+    }
+
     const userId =
       String(authStore.user?.id ?? '').trim() ||
-      token ||
+      accessToken ||
       localStorage.getItem('web_token_backup') ||
       '';
 
     if (config.headers) {
       config.headers['Accept-Language'] = i18n.global.locale.value as string;
 
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
       }
 
       if (userId) {
@@ -64,6 +107,11 @@ api.interceptors.response.use(
   (response) => {
     const authStore = useAuthStore();
 
+    // Login lại thành công / request ok → cho phép xử lý 401 lần sau
+    if (isHandlingUnauthorized && authStore.accessToken) {
+      isHandlingUnauthorized = false;
+    }
+
     // Nếu có phản hồi thành công -> Chắc chắn đang Online
     if (!authStore.isOnline) {
       authStore.setNetworkStatus(true);
@@ -77,22 +125,28 @@ api.interceptors.response.use(
     if (!error.response) {
       console.warn("Mất kết nối mạng hoặc Server không phản hồi. Chuyển sang Offline Mode.");
       authStore.setNetworkStatus(false);
+      showServerOfflineToastOnce('common.server_error');
       return Promise.reject(error);
     }
 
     const status = error.response.status;
 
-    // TH2: Token hết hạn (401)
+    // TH2: Token hết hạn (401) — chỉ toast + logout UI lần đầu, không gọi API logout
     if (status === 401) {
-      console.error("Token hết hạn. Đang đăng xuất...");
-      alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!');
-      await authStore.logout();
+      if (!isHandlingUnauthorized) {
+        isHandlingUnauthorized = true;
+        console.error("Token hết hạn. Đang đăng xuất...");
+        showGlobalToast(i18n.global.t('common.unauthorized_error') as string, 'warn');
+        await authStore.logout();
+      }
+      return Promise.reject(error);
     }
 
     // TH3: Lỗi hệ thống Server (5xx) -> Ép về Offline để dùng dữ liệu SQLite
     if (status >= 500) {
       console.warn(`Server lỗi ${status}. Tạm thời chuyển sang chế độ Offline.`);
       authStore.setNetworkStatus(false);
+      showServerOfflineToastOnce('common.serverMaintenance');
     }
 
     return Promise.reject(error);
