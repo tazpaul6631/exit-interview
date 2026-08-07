@@ -321,6 +321,7 @@
       "search_code": "搜索编号",
       "search_name": "搜索姓名",
       "search_position": "搜索职务",
+      "select_position": "选择职务",
       "select_organization": "选择部门",
       "select_date": "选择日期",
       "loading_organization": "正在加载部门..."
@@ -344,6 +345,11 @@
       "employee_name_required": "请输入姓名",
       "job_position_required": "请输入职务",
       "organization_required": "请选择部门"
+    },
+    "job_positions": {
+      "worker": "工人",
+      "staff": "职员",
+      "manager": "管理"
     },
     "toast": {
       "error": "错误",

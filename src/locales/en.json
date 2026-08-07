@@ -321,6 +321,7 @@
       "search_code": "Search code",
       "search_name": "Search name",
       "search_position": "Search job title",
+      "select_position": "Select job position",
       "select_organization": "Select department",
       "select_date": "Select date",
       "loading_organization": "Loading departments..."
@@ -344,6 +345,11 @@
       "employee_name_required": "Please enter employee name",
       "job_position_required": "Please enter job position",
       "organization_required": "Please select department"
+    },
+    "job_positions": {
+      "worker": "Worker",
+      "staff": "Staff",
+      "manager": "Manager"
     },
     "toast": {
       "error": "Error",

@@ -79,6 +79,12 @@
                   @clear="onOrgFilterApply(filterCallback)" @hide="onOrgFilterApply(filterCallback)" />
               </template>
 
+              <template v-else-if="col.type === 'select'">
+                <Select v-model="filterModel.value" :options="jobPositionOptions" optionLabel="label"
+                  optionValue="value" :placeholder="col.filterPlaceholder" class="w-full" showClear
+                  @change="onSelectFilterChange(filterCallback)" />
+              </template>
+
               <template v-else>
                 <InputText :model-value="filterModel.value as string | null" :placeholder="col.filterPlaceholder"
                   class="w-full" @update:model-value="(v) => onTextFilterInput(v, filterModel, filterCallback)" />
@@ -119,7 +125,7 @@
             :placeholder="t('exit_interview.form.employee_code_placeholder')" :invalid="!!editFormErrors.employeeCode"
             @update:model-value="onEditEmployeeCodeInput" />
           <small v-if="editFormErrors.employeeCode" class="exit-interview-form__error">{{ editFormErrors.employeeCode
-          }}</small>
+            }}</small>
         </div>
 
         <div class="exit-interview-form__field">
@@ -130,7 +136,7 @@
             :placeholder="t('exit_interview.form.employee_name_placeholder')" :invalid="!!editFormErrors.employeeName"
             @update:model-value="onEditEmployeeNameInput" />
           <small v-if="editFormErrors.employeeName" class="exit-interview-form__error">{{ editFormErrors.employeeName
-          }}</small>
+            }}</small>
         </div>
 
         <div class="exit-interview-form__field">
@@ -167,7 +173,7 @@
             @show="loadOrganizations" @update:model-value="onEditOrganizationChange" />
           <small v-if="editFormErrors.organizationId" class="exit-interview-form__error">{{
             editFormErrors.organizationId
-          }}</small>
+            }}</small>
         </div>
       </form>
 
@@ -234,6 +240,14 @@ let orgLoadPromise: Promise<void> | null = null;
 const first = ref(0);
 
 const orgSelectOptions = computed(() => (isOrgLoading.value ? [] : organizations.value));
+
+/** Giá trị gửi BE giữ tiếng Việt cố định; label theo locale. */
+const jobPositionOptions = computed(() => [
+  { label: t('exit_interview.job_positions.worker'), value: 'Công nhân' },
+  { label: t('exit_interview.job_positions.staff'), value: 'Nhân viên' },
+  { label: t('exit_interview.job_positions.manager'), value: 'Quản lý' },
+]);
+
 const rows = ref(13);
 
 const { canView, canUpdate, canExport } = useMenuPermissions(['exitinterview']);
@@ -290,9 +304,9 @@ const tableColumns = computed(() => [
     field: 'jobPositionName',
     header: t('exit_interview.columns.job_position'),
     width: 'auto',
-    type: 'badge',
+    type: 'select',
     filterable: true,
-    filterPlaceholder: t('exit_interview.filters.search_position'),
+    filterPlaceholder: t('exit_interview.filters.select_position'),
   },
   {
     field: 'organizationName',
@@ -318,13 +332,13 @@ const tableColumns = computed(() => [
   },
 ]);
 
-const TEXT_FILTER_FIELDS = ['employeeCode', 'employeeName', 'jobPositionName'] as const;
+const TEXT_FILTER_FIELDS = ['employeeCode', 'employeeName'] as const;
 
 const initFilters = () => {
   filters.value = {
     employeeCode: { value: null, matchMode: FilterMatchMode.CONTAINS },
     employeeName: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    jobPositionName: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    jobPositionName: { value: null, matchMode: FilterMatchMode.EQUALS },
     organizationName: { value: [], matchMode: FilterMatchMode.IN },
     exitedAt: { value: null, matchMode: FilterMatchMode.BETWEEN },
     createdAt: { value: null, matchMode: FilterMatchMode.BETWEEN },
@@ -365,6 +379,12 @@ const onOrgMultiselectShow = () => {
 
 /** Chọn/xóa phòng ban xong → fetch table với organizationIds trong payload */
 const onOrgFilterApply = async (filterCallback?: () => void) => {
+  filterCallback?.();
+  await nextTick();
+  scheduleFilterLoad(true);
+};
+
+const onSelectFilterChange = async (filterCallback?: () => void) => {
   filterCallback?.();
   await nextTick();
   scheduleFilterLoad(true);
@@ -412,6 +432,11 @@ const appendFilterFields = (payload: ReportExcelPayload) => {
       (payload as Record<string, string>)[field] = value;
     }
   });
+
+  const jobPositionName = f.jobPositionName?.value;
+  if (jobPositionName != null && String(jobPositionName).trim()) {
+    payload.jobPositionName = String(jobPositionName).trim();
+  }
 
   const orgIds = f.organizationName?.value;
   if (Array.isArray(orgIds) && orgIds.length > 0) {

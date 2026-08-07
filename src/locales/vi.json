@@ -321,6 +321,7 @@
       "search_code": "Tìm mã NV",
       "search_name": "Tìm họ tên",
       "search_position": "Tìm chức vụ",
+      "select_position": "Chọn chức vụ",
       "select_organization": "Chọn phòng ban",
       "select_date": "Chọn ngày",
       "loading_organization": "Đang tải phòng ban..."
@@ -344,6 +345,11 @@
       "employee_name_required": "Vui lòng nhập họ tên",
       "job_position_required": "Vui lòng nhập chức vụ",
       "organization_required": "Vui lòng chọn phòng ban"
+    },
+    "job_positions": {
+      "worker": "Công nhân",
+      "staff": "Nhân viên",
+      "manager": "Quản lý"
     },
     "toast": {
       "error": "Lỗi",

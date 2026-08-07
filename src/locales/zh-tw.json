@@ -321,6 +321,7 @@
       "search_code": "搜尋編號",
       "search_name": "搜尋姓名",
       "search_position": "搜尋職務",
+      "select_position": "選擇職務",
       "select_organization": "選擇部門",
       "select_date": "選擇日期",
       "loading_organization": "正在載入部門..."
@@ -344,6 +345,11 @@
       "employee_name_required": "請輸入姓名",
       "job_position_required": "請輸入職務",
       "organization_required": "請選擇部門"
+    },
+    "job_positions": {
+      "worker": "工人",
+      "staff": "職員",
+      "manager": "管理"
     },
     "toast": {
       "error": "錯誤",
