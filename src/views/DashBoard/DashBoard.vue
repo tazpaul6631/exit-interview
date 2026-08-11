@@ -64,6 +64,7 @@ import {
   documentTextOutline,
   homeOutline,
   statsChartOutline,
+  briefcaseOutline
 } from 'ionicons/icons';
 import report from '@/api/report';
 import router from '@/router';
@@ -72,6 +73,7 @@ const { t, te } = useI18n();
 
 const CARD_ICONS = [
   documentTextOutline,
+  briefcaseOutline,
   homeOutline,
   peopleOutline
 ];
@@ -221,6 +223,9 @@ const navigateToPath = (path: string) => {
   switch (path) {
     case 'Interviews':
       router.push('/list-exit-interview');
+      break;
+    case 'JobPositions':
+      router.push('/list-job-position');
       break;
     case 'Organizations':
       router.push('/list-organization');

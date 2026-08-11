@@ -34,6 +34,7 @@
 
           <Column v-for="col in tableColumns" :key="col.field" :field="col.field" :header="col.header"
             :style="{ width: col.width }" :showFilterMenu="false" :bodyClass="col.bodyClass"
+            :headerClass="col.headerClass"
             :filterFunction="col.filterable ? serverFilterPassthrough : undefined">
 
             <template #body="{ data, index }">
@@ -80,9 +81,9 @@
               </template>
 
               <template v-else-if="col.type === 'select'">
-                <Select v-model="filterModel.value" :options="jobPositionOptions" optionLabel="label"
-                  optionValue="value" :placeholder="col.filterPlaceholder" class="w-full" showClear
-                  @change="onSelectFilterChange(filterCallback)" />
+                <Select v-model="filterModel.value" :options="jobPositionOptions" optionLabel="name" optionValue="id"
+                  :placeholder="col.filterPlaceholder" class="w-full" showClear :loading="isJobPositionLoading"
+                  @show="onJobPositionSelectShow" @change="onSelectFilterChange(filterCallback)" />
               </template>
 
               <template v-else>
@@ -143,11 +144,13 @@
           <label for="exit-interview-position" class="exit-interview-form__label">
             {{ t('exit_interview.columns.job_position') }} <span class="exit-interview-form__required">*</span>
           </label>
-          <InputText id="exit-interview-position" v-model="editForm.jobPositionName" class="exit-interview-form__input"
-            :placeholder="t('exit_interview.form.job_position_placeholder')" :invalid="!!editFormErrors.jobPositionName"
-            @update:model-value="onEditJobPositionInput" />
-          <small v-if="editFormErrors.jobPositionName" class="exit-interview-form__error">{{
-            editFormErrors.jobPositionName
+          <Select id="exit-interview-position" v-model="editForm.jobPositionId" :options="jobPositionOptions"
+            optionLabel="name" optionValue="id" :loading="isJobPositionLoading"
+            :placeholder="t('exit_interview.form.job_position_placeholder')" class="exit-interview-form__input"
+            :invalid="!!editFormErrors.jobPositionId" showClear @show="onJobPositionSelectShow"
+            @update:model-value="onEditJobPositionChange" />
+          <small v-if="editFormErrors.jobPositionId" class="exit-interview-form__error">{{
+            editFormErrors.jobPositionId
           }}</small>
         </div>
 
@@ -194,6 +197,7 @@ import { useToast } from 'primevue/usetoast';
 import interviewView from "@/api/interviewView";
 import interviewApi from '@/api/interview';
 import organizationApi from "@/api/organization";
+import jobPositionApi from '@/api/jobPosition';
 import reportApi, { type ReportExcelPayload } from "@/api/report";
 import { FilterMatchMode } from '@primevue/core/api';
 import format from '@/mixins/format';
@@ -205,6 +209,7 @@ interface EmployeeRecord {
   id: number;
   employeeCode: string;
   employeeName: string;
+  jobPositionId?: number;
   jobPositionName: string;
   organizationId?: number;
   organizationName: string;
@@ -230,23 +235,21 @@ const authStore = useAuthStore();
 const { getCodeFormatError, getModalNameFormatError } = useModalFieldValidation();
 const employeeList = ref<EmployeeRecord[]>([]);
 const organizations = ref<any[]>([]);
+const jobPositions = ref<Array<{ id: number; name: string }>>([]);
 const isLoading = ref(false);
 const isExporting = ref(false);
 const exportingRowKey = ref<string | null>(null);
 const filters = ref();
 const totalRecords = ref(0);
 const isOrgLoading = ref(false);
+const isJobPositionLoading = ref(false);
 let orgLoadPromise: Promise<void> | null = null;
+let jobPositionLoadPromise: Promise<void> | null = null;
 const first = ref(0);
 
 const orgSelectOptions = computed(() => (isOrgLoading.value ? [] : organizations.value));
 
-/** Giá trị gửi BE giữ tiếng Việt cố định; label theo locale. */
-const jobPositionOptions = computed(() => [
-  { label: t('exit_interview.job_positions.worker'), value: 'Công nhân' },
-  { label: t('exit_interview.job_positions.staff'), value: 'Nhân viên' },
-  { label: t('exit_interview.job_positions.manager'), value: 'Quản lý' },
-]);
+const jobPositionOptions = computed(() => (isJobPositionLoading.value ? [] : jobPositions.value));
 
 const rows = ref(13);
 
@@ -258,14 +261,14 @@ const editingInterviewId = ref<string | null>(null);
 const editForm = ref({
   employeeCode: '',
   employeeName: '',
-  jobPositionName: '',
+  jobPositionId: null as number | null,
   exitedAt: null as Date | null,
   organizationId: null as number | null,
 });
 const editFormErrors = ref({
   employeeCode: '',
   employeeName: '',
-  jobPositionName: '',
+  jobPositionId: '',
   exitedAt: '',
   organizationId: '',
 });
@@ -283,7 +286,7 @@ const showToast = (severity: 'success' | 'info' | 'warn' | 'error', summary: str
 const serverFilterPassthrough = () => true;
 
 const tableColumns = computed(() => [
-  { field: '#', header: '#', width: '5rem', type: '#', bodyClass: 'text-center' },
+  { field: '#', header: '#', width: '5rem', type: '#', bodyClass: 'text-center', headerClass: 'text-center' },
   {
     field: 'employeeCode',
     header: t('exit_interview.columns.employee_code'),
@@ -377,6 +380,44 @@ const onOrgMultiselectShow = () => {
   loadOrganizations();
 };
 
+const loadJobPositions = async () => {
+  if (isJobPositionLoading.value && jobPositionLoadPromise) {
+    return jobPositionLoadPromise;
+  }
+
+  isJobPositionLoading.value = true;
+  jobPositionLoadPromise = (async () => {
+    try {
+      const response = await jobPositionApi.postJobPosition({ active: true });
+      const rows = Array.isArray(response?.data?.data) ? response.data.data : [];
+      const mappedRows: Array<{ id: number; name: string } | null> = rows
+        .map((row: Record<string, unknown>) => {
+          const id = row.id ?? row.Id;
+          if (id == null) return null;
+          return {
+            id: Number(id),
+            name: String(row.name ?? row.Name ?? ''),
+          };
+        });
+      jobPositions.value = mappedRows.filter(
+        (item): item is { id: number; name: string } => item !== null && item.id > 0,
+      );
+    } catch (error) {
+      console.error('Lỗi lấy danh sách chức vụ:', error);
+      jobPositions.value = [];
+    } finally {
+      isJobPositionLoading.value = false;
+      jobPositionLoadPromise = null;
+    }
+  })();
+
+  return jobPositionLoadPromise;
+};
+
+const onJobPositionSelectShow = () => {
+  loadJobPositions();
+};
+
 /** Chọn/xóa phòng ban xong → fetch table với organizationIds trong payload */
 const onOrgFilterApply = async (filterCallback?: () => void) => {
   filterCallback?.();
@@ -433,9 +474,9 @@ const appendFilterFields = (payload: ReportExcelPayload) => {
     }
   });
 
-  const jobPositionName = f.jobPositionName?.value;
-  if (jobPositionName != null && String(jobPositionName).trim()) {
-    payload.jobPositionName = String(jobPositionName).trim();
+  const jobPositionId = f.jobPositionName?.value;
+  if (jobPositionId != null && String(jobPositionId).trim()) {
+    payload.jobPositionId = Number(jobPositionId);
   }
 
   const orgIds = f.organizationName?.value;
@@ -571,7 +612,7 @@ const resetEditFormErrors = () => {
   editFormErrors.value = {
     employeeCode: '',
     employeeName: '',
-    jobPositionName: '',
+    jobPositionId: '',
     exitedAt: '',
     organizationId: '',
   };
@@ -582,7 +623,7 @@ const resetEditDialog = () => {
   editForm.value = {
     employeeCode: '',
     employeeName: '',
-    jobPositionName: '',
+    jobPositionId: null,
     exitedAt: null,
     organizationId: null,
   };
@@ -616,12 +657,18 @@ const resolveOrganizationId = (emp: EmployeeRecord) => {
 const openEditDialog = async (emp: EmployeeRecord) => {
   if (!canUpdate.value) return;
 
-  await loadOrganizations();
+  await Promise.all([loadOrganizations(), loadJobPositions()]);
+  const matchedJobPosition = jobPositions.value.find((item) =>
+    emp.jobPositionId != null
+      ? Number(item.id) === Number(emp.jobPositionId)
+      : item.name === emp.jobPositionName,
+  );
+
   editingInterviewId.value = String(emp.id);
   editForm.value = {
     employeeCode: emp.employeeCode ?? '',
     employeeName: emp.employeeName ?? '',
-    jobPositionName: emp.jobPositionName ?? '',
+    jobPositionId: matchedJobPosition?.id ?? null,
     exitedAt: toEditExitedAt(emp.exitedAt),
     organizationId: resolveOrganizationId(emp),
   };
@@ -639,9 +686,11 @@ const onEditEmployeeNameInput = (value: string | null | undefined) => {
   editFormErrors.value.employeeName = getModalNameFormatError(editForm.value.employeeName);
 };
 
-const onEditJobPositionInput = (value: string | null | undefined) => {
-  editForm.value.jobPositionName = value ?? '';
-  editFormErrors.value.jobPositionName = getModalNameFormatError(editForm.value.jobPositionName);
+const onEditJobPositionChange = (value: number | null | undefined) => {
+  editForm.value.jobPositionId = value != null ? Number(value) : null;
+  editFormErrors.value.jobPositionId = editForm.value.jobPositionId
+    ? ''
+    : t('exit_interview.form.job_position_required');
 };
 
 const onEditExitedAtChange = () => {
@@ -657,7 +706,7 @@ const validateEditForm = () => {
 
   const employeeCode = editForm.value.employeeCode.trim();
   const employeeName = editForm.value.employeeName.trim();
-  const jobPositionName = editForm.value.jobPositionName.trim();
+  const jobPositionId = editForm.value.jobPositionId;
 
   editFormErrors.value.employeeCode = employeeCode
     ? getCodeFormatError(employeeCode)
@@ -665,8 +714,8 @@ const validateEditForm = () => {
   editFormErrors.value.employeeName = employeeName
     ? getModalNameFormatError(employeeName)
     : t('exit_interview.form.employee_name_required');
-  editFormErrors.value.jobPositionName = jobPositionName
-    ? getModalNameFormatError(jobPositionName)
+  editFormErrors.value.jobPositionId = jobPositionId
+    ? ''
     : t('exit_interview.form.job_position_required');
   editFormErrors.value.exitedAt = getExitedAtError(editForm.value.exitedAt);
   editFormErrors.value.organizationId = editForm.value.organizationId
@@ -693,7 +742,7 @@ const submitEditForm = async () => {
       id: editingInterviewId.value,
       employeeCode: editForm.value.employeeCode.trim(),
       employeeName: editForm.value.employeeName.trim(),
-      jobPositionName: editForm.value.jobPositionName.trim(),
+      jobPositionId: Number(editForm.value.jobPositionId),
       organizationId: Number(editForm.value.organizationId),
       exitedAt: format.formatDateOnlyIso(editForm.value.exitedAt as Date),
       updatedBy: currentUserId.value,
@@ -1170,5 +1219,9 @@ usePageDataRefresh('ListExitInterview', () => {
 .exit-interview-form__error {
   color: #ef4444;
   font-size: 0.8125rem;
+}
+
+:deep(.p-datatable-thead > tr > th.text-center) {
+  text-align: center !important;
 }
 </style>

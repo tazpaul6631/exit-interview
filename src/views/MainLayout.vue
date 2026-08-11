@@ -297,6 +297,8 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => {
       return [{ title: t('layout.breadcrumb.role_list') }];
     case '/detail-role':
       return [{ title: t('layout.breadcrumb.role_detail') }];
+    case '/list-job-position':
+      return [{ title: t('layout.breadcrumb.job_position_list') }];
     case '/list-organization':
       return [{ title: t('layout.breadcrumb.organization_list') }];
     case '/list-user':

@@ -68,6 +68,7 @@
     "chart_empty": "沒有圖表資料。",
     "cards": {
       "Interviews": "離職申請",
+      "JobPositions": "職務",
       "Organizations": "部門",
       "Users": "使用者"
     },
@@ -231,6 +232,67 @@
       "delete_success": "部門刪除成功。",
       "delete_failed": "無法刪除部門。",
       "delete_retry": "無法刪除部門，請再試一次。"
+    }
+  },
+  "job_position": {
+    "page_report": "顯示第 {first} 至 {last} 筆，共 {totalRecords} 個職務",
+    "add": "新增職務",
+    "clear_filter": "清除篩選",
+    "empty": "找不到職務。",
+    "columns": {
+      "code": "代碼",
+      "name": "職務名稱",
+      "status": "狀態",
+      "priority": "優先順序",
+      "updated_name": "更新人",
+      "updated_at": "更新時間"
+    },
+    "filters": {
+      "search_code": "搜尋代碼",
+      "search_name": "搜尋名稱",
+      "status": "狀態"
+    },
+    "status": {
+      "active": "啟用",
+      "inactive": "停用"
+    },
+    "actions": {
+      "edit": "編輯職務",
+      "delete": "刪除職務"
+    },
+    "form": {
+      "create_title": "新增職務",
+      "edit_title": "更新職務",
+      "name": "職務名稱",
+      "name_placeholder": "請輸入職務名稱",
+      "priority": "優先順序",
+      "priority_placeholder": "請輸入優先順序",
+      "is_active": "啟用中",
+      "create_btn": "建立"
+    },
+    "delete": {
+      "title": "刪除職務",
+      "confirm": "確定要刪除職務",
+      "btn": "刪除"
+    },
+    "errors": {
+      "name_required": "請輸入職務名稱",
+      "priority_non_negative": "優先順序必須為非負數"
+    },
+    "toast": {
+      "error": "錯誤",
+      "success": "成功",
+      "failure": "失敗",
+      "load_failed": "無法載入職務清單。",
+      "account_missing": "找不到帳號，請重新登入。",
+      "create_success": "職務建立成功。",
+      "create_failed": "無法建立職務。",
+      "update_success": "職務更新成功。",
+      "update_failed": "無法更新職務。",
+      "save_failed": "無法儲存職務，請再試一次。",
+      "delete_success": "職務刪除成功。",
+      "delete_failed": "無法刪除職務。",
+      "delete_retry": "無法刪除職務，請再試一次。"
     }
   },
   "role": {
@@ -401,6 +463,7 @@
       "dashboard": "儀表板",
       "list_user": "使用者列表",
       "list_role": "角色列表",
+      "list_job_position": "職務列表",
       "list_organization": "部門列表",
       "list_exit_interview": "離職面談列表"
     },
@@ -409,6 +472,7 @@
       "exit_interview_detail": "離職面談詳情",
       "role_list": "角色列表",
       "role_detail": "角色詳情",
+      "job_position_list": "職務列表",
       "organization_list": "部門列表",
       "user_list": "使用者列表",
       "not_found": "404"

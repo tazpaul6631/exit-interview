@@ -4,6 +4,7 @@ export interface ReportExcelPayload {
     employeeCode?: string;
     employeeName?: string;
     jobPositionName?: string;
+    jobPositionId?: number;
     organizationIds?: number[];
     exitedAtFrom?: string;
     exitedAtTo?: string;

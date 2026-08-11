@@ -11,6 +11,7 @@ import Select from 'primevue/select';
 import MultiSelect from 'primevue/multiselect';
 import Checkbox from 'primevue/checkbox';
 import DatePicker from 'primevue/datepicker';
+import AutoComplete from 'primevue/autocomplete';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import Password from 'primevue/password';
@@ -34,6 +35,7 @@ export default {
         app.component('MultiSelect', MultiSelect);
         app.component('Checkbox', Checkbox);
         app.component('DatePicker', DatePicker);
+        app.component('AutoComplete', AutoComplete);
         app.component('Button', Button);
         app.component('Dialog', Dialog);
         app.component('Password', Password);

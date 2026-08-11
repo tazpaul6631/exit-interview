@@ -30,6 +30,13 @@ export const APP_MENU_ITEMS: AppMenuItem[] = [
     routePrefixes: ['/list-user'],
   },
   {
+    titleKey: 'layout.menu.list_job_position',
+    url: '/list-job-position',
+    icon: 'pi pi-briefcase',
+    permissionHints: ['jobposition'],
+    routePrefixes: ['/list-job-position'],
+  },
+  {
     titleKey: 'layout.menu.list_organization',
     url: '/list-organization',
     icon: 'pi pi-warehouse',

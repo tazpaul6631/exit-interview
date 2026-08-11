@@ -13,9 +13,9 @@
             <ion-col size="12" size-md="6">
               <div class="custom-input">
                 <label><span class="request">*</span>Tôi tên/ <span>姓名</span></label>
-                <input :value="employeeName" type="text" placeholder="Nhập họ tên..."
-                  :class="{ 'is-invalid': !!fieldFormatErrors.employeeName || (submitCount > 0 && errors['userInfo.employeeName']) }"
-                  @input="onEmployeeNameInput" />
+                <InputText :model-value="employeeName" placeholder="Nhập họ tên..." class="info-field-input w-full"
+                  :invalid="!!fieldFormatErrors.employeeName || (submitCount > 0 && !!errors['userInfo.employeeName'])"
+                  @update:model-value="onEmployeeNameInput" />
                 <span class="error-msg" v-if="fieldFormatErrors.employeeName">{{ fieldFormatErrors.employeeName
                   }}</span>
                 <span class="error-msg" v-else-if="submitCount > 0 && errors['userInfo.employeeName']">
@@ -27,9 +27,9 @@
             <ion-col size="12" size-md="6">
               <div class="custom-input">
                 <label><span class="request">*</span>Mã Số/ <span>工號</span></label>
-                <input :value="employeeCode" type="text" placeholder="Nhập mã nhân viên..."
-                  :class="{ 'is-invalid': !!fieldFormatErrors.employeeCode || (submitCount > 0 && errors['userInfo.employeeCode']) }"
-                  @input="onEmployeeCodeInput" />
+                <InputText :model-value="employeeCode" placeholder="Nhập mã nhân viên..." class="info-field-input w-full"
+                  :invalid="!!fieldFormatErrors.employeeCode || (submitCount > 0 && !!errors['userInfo.employeeCode'])"
+                  @update:model-value="onEmployeeCodeInput" />
                 <span class="error-msg" v-if="fieldFormatErrors.employeeCode">{{ fieldFormatErrors.employeeCode
                   }}</span>
                 <span class="error-msg" v-else-if="submitCount > 0 && errors['userInfo.employeeCode']">
@@ -41,52 +41,41 @@
             <ion-col size="12" size-md="6">
               <div class="custom-input">
                 <label><span class="request">*</span>Chức vụ/ <span>任職</span></label>
-                <input :value="jobPositionName" type="text" placeholder="Bộ phận/Chức vụ..."
-                  :class="{ 'is-invalid': !!fieldFormatErrors.jobPositionName || (submitCount > 0 && errors['userInfo.jobPositionName']) }"
-                  @input="onJobPositionNameInput" />
-                <span class="error-msg" v-if="fieldFormatErrors.jobPositionName">{{ fieldFormatErrors.jobPositionName
-                  }}</span>
-                <span class="error-msg" v-else-if="submitCount > 0 && errors['userInfo.jobPositionName']">
-                  Bắt buộc nhập/ 必填
+                <Select :model-value="jobPositionId || null" :options="jobPositionList" optionLabel="name"
+                  optionValue="id" placeholder="Chọn chức vụ..." class="info-prime-select w-full" appendTo="body"
+                  :invalid="submitCount > 0 && !!errors['userInfo.jobPositionId']"
+                  :loading="isJobPositionLoading" showClear @show="onJobPositionSelectShow"
+                  @update:model-value="onJobPositionChange" />
+                <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.jobPositionId']">
+                  Bắt buộc chọn/ 必填
                 </span>
               </div>
             </ion-col>
 
             <ion-col size="12" size-md="6">
-              <div class="custom-input search-wrapper">
+              <div class="custom-input">
                 <label><span class="request">*</span>Bộ phận/ Mã bộ phận <span>部門/ 部門代碼</span></label>
-                <div class="search-input-box">
-                  <input :value="orgSearchKeyword" type="text" placeholder="Gõ để tìm kiếm phòng ban..."
-                    @input="handleSearchOrg" @focus="organizationList.length > 0 && (showOrgList = true)"
-                    @blur="showOrgList = false"
-                    :class="{ 'is-invalid': !!fieldFormatErrors.organizationKeyword || (submitCount > 0 && errors['userInfo.organizationId']) }" />
-                  <button v-if="orgSearchKeyword" type="button" class="search-clear-btn" aria-label="Xóa"
-                    @mousedown.prevent @click="clearOrgSearch">
-                    <ion-icon :icon="closeCircleOutline"></ion-icon>
-                  </button>
-                </div>
+                <AutoComplete v-model="selectedOrg" :suggestions="organizationSuggestions" optionLabel="name"
+                  placeholder="Gõ để tìm kiếm phòng ban..." forceSelection showClear appendTo="body"
+                  class="info-field-autocomplete w-full" :loading="isSearching"
+                  :invalid="!!fieldFormatErrors.organizationKeyword || (submitCount > 0 && !!errors['userInfo.organizationId'])"
+                  @complete="searchOrganizations" @update:model-value="onOrgModelChange" @clear="onOrgClear" />
                 <span class="error-msg" v-if="fieldFormatErrors.organizationKeyword">
                   {{ fieldFormatErrors.organizationKeyword }}
                 </span>
                 <span class="error-msg" v-else-if="submitCount > 0 && errors['userInfo.organizationId']">
                   Vui lòng chọn phòng ban từ danh sách
                 </span>
-                <ul v-if="showOrgList" class="org-dropdown">
-                  <li v-if="isSearching" class="status-text">Đang tìm kiếm...</li>
-                  <li v-else-if="organizationList.length === 0" class="status-text">Không tìm thấy phòng ban</li>
-                  <li v-else v-for="org in organizationList" :key="org.id || org.Id"
-                    @mousedown.prevent="selectOrg(org)">
-                    {{ org.name || org.Name || org.organizationName || org.OrganizationName || org.orgName }}
-                  </li>
-                </ul>
               </div>
             </ion-col>
 
             <ion-col size="12" size-md="6">
               <div class="custom-input">
                 <label><span class="request">*</span>Ngày thôi việc/ <span>離職日期</span></label>
-                <ion-input v-model="exitedAt" type="date" label-placement="stacked" class="ion-date-input"
-                  :class="{ 'is-invalid': submitCount > 0 && errors['userInfo.exitedAt'] }"></ion-input>
+                <DatePicker :model-value="exitedAtDate" dateFormat="dd/mm/yy" placeholder="Chọn ngày nghỉ..."
+                  showIcon showClear appendTo="body" class="info-field-datepicker w-full"
+                  :invalid="submitCount > 0 && !!errors['userInfo.exitedAt']"
+                  @update:model-value="onExitedAtChange" />
                 <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.exitedAt']">
                   Bắt buộc chọn/ 必填
                 </span>
@@ -149,14 +138,15 @@ import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as zod from 'zod';
 import {
-  IonGrid, IonRow, IonCol, IonButton, IonSpinner, IonIcon, IonInput
+  IonGrid, IonRow, IonCol, IonButton, IonSpinner, IonIcon
 } from '@ionic/vue';
-import { informationCircleOutline, closeCircleOutline } from 'ionicons/icons';
+import { informationCircleOutline } from 'ionicons/icons';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import interviewApi from '@/api/interview';
 import organization from '@/api/organization';
+import jobPositionApi from '@/api/jobPosition';
 import RecursiveNode from '@/views/FormExitInterview/components/RecursiveNode.vue';
 import { APP_LOGO_ALT, APP_LOGO_URL } from '@/constants/branding';
 import { useModalFieldValidation } from '@/composables/useModalFieldValidation';
@@ -175,9 +165,25 @@ const { getCodeFormatError, getNameFormatError, getModalNameFormatError, getOrga
 const fieldFormatErrors = ref({
   employeeName: '',
   employeeCode: '',
-  jobPositionName: '',
   organizationKeyword: '',
 });
+
+interface JobPositionOption {
+  id: number;
+  code: string;
+  name: string;
+}
+
+interface OrganizationOption {
+  id: number;
+  name: string;
+  code?: string;
+}
+
+const jobPositionList = ref<JobPositionOption[]>([]);
+const isJobPositionLoading = ref(false);
+const pendingLegacyJobPositionName = ref('');
+let jobPositionLoadPromise: Promise<void> | null = null;
 
 const topLevelSectionIds = ref<string[]>([]);
 const fieldToTopSectionMap = ref<Record<string, string>>({});
@@ -233,7 +239,7 @@ const pendingFormSchema = zod.object({
   userInfo: zod.object({
     employeeName: zod.string().optional(),
     employeeCode: zod.string().optional(),
-    jobPositionName: zod.string().optional(),
+    jobPositionId: zod.number().optional(),
     exitedAt: zod.string().optional(),
     organizationId: zod.number().optional(),
   }).optional(),
@@ -251,41 +257,142 @@ const validationSchema = ref(toTypedSchema(pendingFormSchema));
 const { handleSubmit, errors, defineField, values, submitCount, setFieldValue, setValues, resetForm } = useForm({
   validationSchema,
   initialValues: {
-    userInfo: { employeeName: '', employeeCode: '', jobPositionName: '', exitedAt: '', organizationId: 0 },
+    userInfo: { employeeName: '', employeeCode: '', jobPositionId: 0, exitedAt: '', organizationId: 0 },
     answersData: {} as Record<string, any>
   }
 });
 
 const [employeeName] = defineField('userInfo.employeeName');
 const [employeeCode] = defineField('userInfo.employeeCode');
-const [jobPositionName] = defineField('userInfo.jobPositionName');
-const [exitedAt] = defineField('userInfo.exitedAt');
+const [jobPositionId] = defineField('userInfo.jobPositionId');
 
-const onEmployeeNameInput = (event: Event) => {
-  const value = (event.target as HTMLInputElement).value;
-  setFieldValue('userInfo.employeeName', value);
-  fieldFormatErrors.value.employeeName = getModalNameFormatError(value);
+const exitedAtDate = ref<Date | null>(null);
+const selectedOrg = ref<OrganizationOption | null>(null);
+const organizationSuggestions = ref<OrganizationOption[]>([]);
+const orgSearchQuery = ref('');
+const isSearching = ref(false);
+let orgSearchTimeout: ReturnType<typeof setTimeout> | null = null;
+
+const parseExitedAtValue = (value: unknown): Date | null => {
+  if (!value) return null;
+  const date = value instanceof Date ? value : new Date(String(value));
+  return Number.isNaN(date.getTime()) ? null : date;
 };
 
-const onEmployeeCodeInput = (event: Event) => {
-  const value = (event.target as HTMLInputElement).value;
-  setFieldValue('userInfo.employeeCode', value);
-  fieldFormatErrors.value.employeeCode = getCodeFormatError(value);
+const onEmployeeNameInput = (value: string | null | undefined) => {
+  const next = value ?? '';
+  setFieldValue('userInfo.employeeName', next);
+  fieldFormatErrors.value.employeeName = getModalNameFormatError(next);
 };
 
-const onJobPositionNameInput = (event: Event) => {
-  const value = (event.target as HTMLInputElement).value;
-  setFieldValue('userInfo.jobPositionName', value);
-  fieldFormatErrors.value.jobPositionName = getModalNameFormatError(value);
+const onEmployeeCodeInput = (value: string | null | undefined) => {
+  const next = value ?? '';
+  setFieldValue('userInfo.employeeCode', next);
+  fieldFormatErrors.value.employeeCode = getCodeFormatError(next);
+};
+
+const onExitedAtChange = (value: Date | Date[] | (Date | null)[] | null | undefined) => {
+  const date = Array.isArray(value) ? (value[0] ?? null) : (value ?? null);
+  exitedAtDate.value = date ?? null;
+  if (!date) {
+    setFieldValue('userInfo.exitedAt', '');
+    return;
+  }
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  setFieldValue('userInfo.exitedAt', `${y}-${m}-${d}`);
+};
+
+const onJobPositionChange = (value: number | null | undefined) => {
+  setFieldValue('userInfo.jobPositionId', value != null ? Number(value) : 0);
 };
 
 const resetFieldFormatErrors = () => {
   fieldFormatErrors.value = {
     employeeName: '',
     employeeCode: '',
-    jobPositionName: '',
     organizationKeyword: '',
   };
+};
+
+const normalizeJobPositionList = (raw: unknown): JobPositionOption[] => {
+  if (!Array.isArray(raw)) return [];
+
+  return raw
+    .map((item) => {
+      if (!item || typeof item !== 'object') return null;
+      const row = item as Record<string, unknown>;
+      const id = row.id ?? row.Id;
+      if (id == null) return null;
+
+      return {
+        id: Number(id),
+        code: String(row.code ?? row.Code ?? ''),
+        name: String(row.name ?? row.Name ?? ''),
+      };
+    })
+    .filter((item): item is JobPositionOption => item !== null);
+};
+
+const loadJobPositions = async () => {
+  if (jobPositionLoadPromise) {
+    return jobPositionLoadPromise;
+  }
+
+  isJobPositionLoading.value = true;
+  jobPositionLoadPromise = (async () => {
+    try {
+      const response = await jobPositionApi.postJobPosition({});
+      jobPositionList.value = normalizeJobPositionList(response.data?.data);
+    } catch (error) {
+      console.error('Lỗi load danh sách chức vụ:', error);
+      jobPositionList.value = [];
+    } finally {
+      isJobPositionLoading.value = false;
+      jobPositionLoadPromise = null;
+    }
+  })();
+
+  return jobPositionLoadPromise;
+};
+
+const applyLegacyJobPositionIfNeeded = () => {
+  const currentId = Number(jobPositionId.value ?? 0);
+  if (currentId > 0 || !pendingLegacyJobPositionName.value) return;
+
+  const matched = jobPositionList.value.find(
+    (item) => item.name === pendingLegacyJobPositionName.value
+      || item.code === pendingLegacyJobPositionName.value,
+  );
+
+  if (matched) {
+    setFieldValue('userInfo.jobPositionId', matched.id);
+    pendingLegacyJobPositionName.value = '';
+  }
+};
+
+const onJobPositionSelectShow = async () => {
+  if (jobPositionList.value.length > 0) {
+    applyLegacyJobPositionIfNeeded();
+    return;
+  }
+
+  await loadJobPositions();
+  applyLegacyJobPositionIfNeeded();
+};
+
+const resolveInitialJobPositionId = (): number => {
+  const rawId = apiData.value?.jobPositionId ?? apiData.value?.JobPositionId;
+  if (rawId != null && Number(rawId) > 0) {
+    pendingLegacyJobPositionName.value = '';
+    return Number(rawId);
+  }
+
+  pendingLegacyJobPositionName.value = String(
+    apiData.value?.jobPositionName ?? apiData.value?.JobPositionName ?? '',
+  ).trim();
+  return 0;
 };
 
 // ==========================================
@@ -305,7 +412,13 @@ const initializeForm = async () => {
     mandatoryQuestions = [];
     questionAnswerIds.clear();
     isConfirmed.value = false;
-    orgSearchKeyword.value = '';
+    selectedOrg.value = null;
+    exitedAtDate.value = null;
+    orgSearchQuery.value = '';
+    organizationSuggestions.value = [];
+    pendingLegacyJobPositionName.value = '';
+    jobPositionList.value = [];
+    jobPositionLoadPromise = null;
 
     const response = await interviewApi.getInterview();
     apiData.value = response.data.data;
@@ -400,14 +513,14 @@ const initializeForm = async () => {
       userInfo: zod.object({
         employeeName: zod.string().min(1, t('valid.required')),
         employeeCode: zod.string().min(1, t('valid.required')),
-        jobPositionName: zod.string().min(1, t('valid.required')),
+        jobPositionId: zod.number().min(1, t('valid.required')),
         exitedAt: zod.string().min(1, t('valid.required')),
         organizationId: zod.number().min(1, t('valid.required')),
-      }).default({ employeeName: '', employeeCode: '', jobPositionName: '', exitedAt: '', organizationId: 0 }),
+      }).default({ employeeName: '', employeeCode: '', jobPositionId: 0, exitedAt: '', organizationId: 0 }),
       answersData: zod.any().default({})
     })
       .default({
-        userInfo: { employeeName: '', employeeCode: '', jobPositionName: '', exitedAt: '', organizationId: 0 },
+        userInfo: { employeeName: '', employeeCode: '', jobPositionId: 0, exitedAt: '', organizationId: 0 },
         answersData: {}
       })
       .superRefine((data, ctx) => {
@@ -499,12 +612,9 @@ const initializeForm = async () => {
             ctx.addIssue({ code: zod.ZodIssueCode.custom, message: codeFormatError, path: ['userInfo', 'employeeCode'] });
           }
 
-          const jobFormatError = getNameFormatError(userInfo.jobPositionName || '');
-          if (jobFormatError) {
-            ctx.addIssue({ code: zod.ZodIssueCode.custom, message: jobFormatError, path: ['userInfo', 'jobPositionName'] });
-          }
-
-          const orgKeywordFormatError = getOrganizationNameFormatError(orgSearchKeyword.value);
+          const orgKeywordFormatError = getOrganizationNameFormatError(
+            selectedOrg.value?.name ?? orgSearchQuery.value,
+          );
           if (orgKeywordFormatError) {
             ctx.addIssue({ code: zod.ZodIssueCode.custom, message: orgKeywordFormatError, path: ['userInfo', 'organizationId'] });
           }
@@ -517,7 +627,7 @@ const initializeForm = async () => {
       userInfo: {
         employeeName: apiData.value.employeeName || '',
         employeeCode: apiData.value.employeeCode || '',
-        jobPositionName: apiData.value.jobPositionName || '',
+        jobPositionId: resolveInitialJobPositionId(),
         exitedAt: apiData.value.exitedAt || '',
         organizationId: apiData.value.organizationId || 0
       },
@@ -526,7 +636,14 @@ const initializeForm = async () => {
 
     resetFieldFormatErrors();
 
-    orgSearchKeyword.value = apiData.value.organizationName || '';
+    const orgId = Number(apiData.value.organizationId ?? 0);
+    selectedOrg.value = orgId > 0
+      ? {
+        id: orgId,
+        name: String(apiData.value.organizationName ?? ''),
+      }
+      : null;
+    exitedAtDate.value = parseExitedAtValue(apiData.value.exitedAt);
     isFormReady.value = true;
 
   } catch (error) {
@@ -548,64 +665,71 @@ const initializeForm = async () => {
 onMounted(initializeForm);
 
 // ==========================================
-// SEARCH ORGANIZATION 
+// SEARCH ORGANIZATION
 // ==========================================
-const orgSearchKeyword = ref('');
-const organizationList = ref<any[]>([]);
-const showOrgList = ref(false);
-const isSearching = ref(false);
-let searchTimeout: any = null;
+const normalizeOrganization = (raw: unknown): OrganizationOption | null => {
+  if (!raw || typeof raw !== 'object') return null;
+  const row = raw as Record<string, unknown>;
+  const id = row.id ?? row.Id;
+  if (id == null) return null;
 
-const handleSearchOrg = (event: Event) => {
-  const el = event.target as HTMLInputElement;
-  const keyword = el.value;
-  orgSearchKeyword.value = keyword;
+  return {
+    id: Number(id),
+    name: String(row.name ?? row.Name ?? row.organizationName ?? row.OrganizationName ?? row.orgName ?? ''),
+    code: String(row.code ?? row.Code ?? ''),
+  };
+};
+
+const searchOrganizations = (event: { query: string }) => {
+  const keyword = event.query.trim();
+  orgSearchQuery.value = keyword;
   fieldFormatErrors.value.organizationKeyword = getOrganizationNameFormatError(keyword);
-  setFieldValue('userInfo.organizationId', 0);
-  if (searchTimeout) clearTimeout(searchTimeout);
 
-  if (fieldFormatErrors.value.organizationKeyword) {
-    organizationList.value = [];
-    showOrgList.value = false;
+  if (selectedOrg.value?.name !== keyword) {
+    selectedOrg.value = null;
+    setFieldValue('userInfo.organizationId', 0);
+  }
+
+  if (orgSearchTimeout) clearTimeout(orgSearchTimeout);
+
+  if (fieldFormatErrors.value.organizationKeyword || !keyword) {
+    organizationSuggestions.value = [];
     return;
   }
 
-  if (!keyword.trim()) {
-    organizationList.value = [];
-    showOrgList.value = false;
-    return;
-  }
-
-  searchTimeout = setTimeout(async () => {
+  orgSearchTimeout = setTimeout(async () => {
     isSearching.value = true;
-    showOrgList.value = true;
     try {
-      const res = await organization.postOrganization({ keyword: keyword.trim(), isActive: true });
-      organizationList.value = res.data?.data || [];
+      const res = await organization.postOrganization({ keyword, isActive: true });
+      const rows: unknown[] = Array.isArray(res.data?.data) ? res.data.data : [];
+      organizationSuggestions.value = rows
+        .map(normalizeOrganization)
+        .filter((item): item is OrganizationOption => item !== null);
     } catch (error) {
-      console.error("Lỗi khi tìm phòng ban:", error);
-      organizationList.value = [];
+      console.error('Lỗi khi tìm phòng ban:', error);
+      organizationSuggestions.value = [];
     } finally {
       isSearching.value = false;
     }
   }, 500);
 };
 
-const selectOrg = (org: any) => {
-  if (searchTimeout) clearTimeout(searchTimeout);
-  setFieldValue('userInfo.organizationId', org.id);
-  orgSearchKeyword.value = org.name;
-  fieldFormatErrors.value.organizationKeyword = getOrganizationNameFormatError(org.name || '');
-  showOrgList.value = false;
+const onOrgModelChange = (value: OrganizationOption | null) => {
+  if (!value) {
+    setFieldValue('userInfo.organizationId', 0);
+    return;
+  }
+  setFieldValue('userInfo.organizationId', value.id);
+  fieldFormatErrors.value.organizationKeyword = getOrganizationNameFormatError(value.name);
 };
 
-const clearOrgSearch = () => {
-  if (searchTimeout) clearTimeout(searchTimeout);
-  orgSearchKeyword.value = '';
+const onOrgClear = () => {
+  if (orgSearchTimeout) clearTimeout(orgSearchTimeout);
+  selectedOrg.value = null;
+  orgSearchQuery.value = '';
   fieldFormatErrors.value.organizationKeyword = '';
   setFieldValue('userInfo.organizationId', 0);
-  organizationList.value = [];
-  showOrgList.value = false;
+  organizationSuggestions.value = [];
 };
 
 // ==========================================
@@ -638,7 +762,7 @@ const scrollToElement = async (el: Element) => {
 
 const hasInfoSectionErrors = () => {
   const formatErrors = fieldFormatErrors.value;
-  if (formatErrors.employeeName || formatErrors.employeeCode || formatErrors.jobPositionName || formatErrors.organizationKeyword) {
+  if (formatErrors.employeeName || formatErrors.employeeCode || formatErrors.organizationKeyword) {
     return true;
   }
 
@@ -753,9 +877,12 @@ const submitForm = handleSubmit(
       extractPayload(apiData.value);
 
       const finalPayloadForBE = {
-        ...formValues.userInfo,
+        employeeCode: formValues.userInfo.employeeCode,
+        employeeName: formValues.userInfo.employeeName,
+        jobPositionId: formValues.userInfo.jobPositionId,
+        organizationId: formValues.userInfo.organizationId,
         exitedAt: formValues.userInfo.exitedAt ? new Date(formValues.userInfo.exitedAt).toISOString() : null,
-        answers: finalAnswers
+        answers: finalAnswers,
       };
 
       await interviewApi.postCreateInterview(finalPayloadForBE);
@@ -763,7 +890,10 @@ const submitForm = handleSubmit(
       showToast('success', t('messages.notifi'), t('messages.submitted'));
 
       resetForm();
-      orgSearchKeyword.value = '';
+      selectedOrg.value = null;
+      exitedAtDate.value = null;
+      orgSearchQuery.value = '';
+      organizationSuggestions.value = [];
       isConfirmed.value = false;
 
       router.push('/app-menu');
@@ -875,9 +1005,81 @@ const submitForm = handleSubmit(
   transition: all 0.2s;
 }
 
-.custom-input input:focus {
+:deep(.info-field-input) {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 15px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+:deep(.info-field-input:focus) {
   border-color: #3182ce;
   box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+:deep(.info-field-input.p-invalid) {
+  border-color: #e53e3e;
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12);
+}
+
+:deep(.info-prime-select) {
+  width: 100%;
+}
+
+:deep(.info-prime-select .p-select) {
+  width: 100%;
+  min-height: 48px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+:deep(.info-prime-select .p-select-label) {
+  padding: 12px 15px;
+  font-size: 16px;
+}
+
+:deep(.info-prime-select.p-invalid .p-select) {
+  border-color: #e53e3e;
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12);
+}
+
+:deep(.info-field-autocomplete) {
+  width: 100%;
+}
+
+:deep(.info-field-autocomplete .p-autocomplete-input) {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 15px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+:deep(.info-field-autocomplete.p-invalid .p-autocomplete-input) {
+  border-color: #e53e3e;
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12);
+}
+
+:deep(.info-field-datepicker) {
+  width: 100%;
+}
+
+:deep(.info-field-datepicker .p-inputtext) {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 15px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+:deep(.info-field-datepicker.p-invalid .p-inputtext) {
+  border-color: #e53e3e;
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12);
 }
 
 .divider {
@@ -965,28 +1167,6 @@ const submitForm = handleSubmit(
   }
 }
 
-.ion-date-input {
-  --background: #ffffff;
-  --border-color: #e2e8f0;
-  --border-radius: 8px;
-  --border-width: 1.5px;
-  --border-style: solid;
-  --padding-start: 15px;
-  --padding-end: 15px;
-  --color: #2d3748;
-  margin-top: 5px;
-  min-height: 48px;
-  width: 100%;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 16px;
-  outline: none;
-  transition: all 0.2s;
-  --highlight-height: 0;
-  --inner-border-width: 0;
-  --show-full-highlight: 0;
-}
-
 .is-invalid {
   border: 1.5px solid var(--ion-color-danger) !important;
   background-color: #fff5f5;
@@ -998,82 +1178,5 @@ const submitForm = handleSubmit(
   margin-top: 4px;
   font-weight: 500;
   display: block;
-}
-
-.search-wrapper {
-  position: relative;
-}
-
-.search-input-box {
-  position: relative;
-}
-
-.search-input-box input {
-  padding-right: 40px;
-}
-
-.search-clear-btn {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  border: none;
-  background: transparent;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: #a0aec0;
-}
-
-.search-clear-btn ion-icon {
-  font-size: 20px;
-}
-
-.search-clear-btn:hover {
-  color: #718096;
-}
-
-.org-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  max-height: 200px;
-  overflow-y: auto;
-  margin: 4px 0 0 0;
-  padding: 0;
-  list-style: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.org-dropdown li {
-  padding: 12px 16px;
-  border-bottom: 1px solid #f5f5f5;
-  cursor: pointer;
-  font-size: 14px;
-  color: #333;
-  transition: background-color 0.2s;
-}
-
-.org-dropdown li:last-child {
-  border-bottom: none;
-}
-
-.org-dropdown li:hover {
-  background-color: #f0f7ff;
-  color: #0056b3;
-}
-
-.org-dropdown li.status-text {
-  color: #888;
-  text-align: center;
-  font-style: italic;
-  cursor: default;
 }
 </style>

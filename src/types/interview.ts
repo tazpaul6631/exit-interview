@@ -2,7 +2,7 @@ export interface InterviewUpdatePayload {
   id: string;
   employeeCode: string;
   employeeName: string;
-  jobPositionName: string;
+  jobPositionId: number;
   organizationId: number;
   exitedAt: string;
   updatedBy: string;

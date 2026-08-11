@@ -68,6 +68,7 @@
     "chart_empty": "Không có dữ liệu biểu đồ.",
     "cards": {
       "Interviews": "Đơn nghỉ việc",
+      "JobPositions": "Chức vụ",
       "Organizations": "Phòng ban",
       "Users": "Người dùng"
     },
@@ -231,6 +232,67 @@
       "delete_success": "Xóa phòng ban thành công.",
       "delete_failed": "Không thể xóa phòng ban.",
       "delete_retry": "Không thể xóa phòng ban. Vui lòng thử lại."
+    }
+  },
+  "job_position": {
+    "page_report": "Hiển thị {first} đến {last} trên {totalRecords} chức vụ",
+    "add": "Thêm chức vụ",
+    "clear_filter": "Xóa lọc",
+    "empty": "Không tìm thấy chức vụ.",
+    "columns": {
+      "code": "Mã",
+      "name": "Tên chức vụ",
+      "status": "Trạng thái",
+      "priority": "Thứ tự ưu tiên",
+      "updated_name": "Người cập nhật",
+      "updated_at": "Ngày cập nhật"
+    },
+    "filters": {
+      "search_code": "Tìm mã",
+      "search_name": "Tìm tên",
+      "status": "Trạng thái"
+    },
+    "status": {
+      "active": "Hoạt động",
+      "inactive": "Ngưng"
+    },
+    "actions": {
+      "edit": "Sửa chức vụ",
+      "delete": "Xóa chức vụ"
+    },
+    "form": {
+      "create_title": "Thêm chức vụ",
+      "edit_title": "Cập nhật chức vụ",
+      "name": "Tên chức vụ",
+      "name_placeholder": "Nhập tên chức vụ",
+      "priority": "Thứ tự ưu tiên",
+      "priority_placeholder": "Nhập thứ tự ưu tiên",
+      "is_active": "Đang hoạt động",
+      "create_btn": "Tạo mới"
+    },
+    "delete": {
+      "title": "Xóa chức vụ",
+      "confirm": "Bạn có chắc muốn xóa chức vụ",
+      "btn": "Xóa"
+    },
+    "errors": {
+      "name_required": "Vui lòng nhập tên chức vụ",
+      "priority_non_negative": "Thứ tự ưu tiên phải là số không âm"
+    },
+    "toast": {
+      "error": "Lỗi",
+      "success": "Thành công",
+      "failure": "Thất bại",
+      "load_failed": "Server đang bảo trì vui lòng liên hệ IT và thử lại sau.",
+      "account_missing": "Không tìm thấy tài khoản. Vui lòng đăng nhập lại.",
+      "create_success": "Tạo chức vụ thành công.",
+      "create_failed": "Không thể tạo chức vụ.",
+      "update_success": "Cập nhật chức vụ thành công.",
+      "update_failed": "Không thể cập nhật chức vụ.",
+      "save_failed": "Không thể lưu chức vụ. Vui lòng thử lại.",
+      "delete_success": "Xóa chức vụ thành công.",
+      "delete_failed": "Không thể xóa chức vụ.",
+      "delete_retry": "Không thể xóa chức vụ. Vui lòng thử lại."
     }
   },
   "role": {
@@ -401,6 +463,7 @@
       "dashboard": "Trang chủ",
       "list_user": "Danh sách người dùng",
       "list_role": "Danh sách vai trò",
+      "list_job_position": "Danh sách chức vụ",
       "list_organization": "Danh sách phòng ban",
       "list_exit_interview": "Danh sách đơn nghỉ việc"
     },
@@ -409,6 +472,7 @@
       "exit_interview_detail": "Chi tiết đơn nghỉ việc",
       "role_list": "Danh sách vai trò",
       "role_detail": "Chi tiết vai trò",
+      "job_position_list": "Danh sách chức vụ",
       "organization_list": "Danh sách phòng ban",
       "user_list": "Danh sách người dùng",
       "not_found": "404"

@@ -68,6 +68,7 @@
     "chart_empty": "没有图表数据。",
     "cards": {
       "Interviews": "离职申请",
+      "JobPositions": "职务",
       "Organizations": "部门",
       "Users": "用户"
     },
@@ -231,6 +232,67 @@
       "delete_success": "部门删除成功。",
       "delete_failed": "无法删除部门。",
       "delete_retry": "无法删除部门，请重试。"
+    }
+  },
+  "job_position": {
+    "page_report": "显示第 {first} 至 {last} 条，共 {totalRecords} 个职务",
+    "add": "新增职务",
+    "clear_filter": "清除筛选",
+    "empty": "找不到职务。",
+    "columns": {
+      "code": "编码",
+      "name": "职务名称",
+      "status": "状态",
+      "priority": "优先顺序",
+      "updated_name": "更新人",
+      "updated_at": "更新时间"
+    },
+    "filters": {
+      "search_code": "搜索编码",
+      "search_name": "搜索名称",
+      "status": "状态"
+    },
+    "status": {
+      "active": "启用",
+      "inactive": "停用"
+    },
+    "actions": {
+      "edit": "编辑职务",
+      "delete": "删除职务"
+    },
+    "form": {
+      "create_title": "新增职务",
+      "edit_title": "更新职务",
+      "name": "职务名称",
+      "name_placeholder": "请输入职务名称",
+      "priority": "优先顺序",
+      "priority_placeholder": "请输入优先顺序",
+      "is_active": "启用中",
+      "create_btn": "创建"
+    },
+    "delete": {
+      "title": "删除职务",
+      "confirm": "确定要删除职务",
+      "btn": "删除"
+    },
+    "errors": {
+      "name_required": "请输入职务名称",
+      "priority_non_negative": "优先顺序必须为非负数"
+    },
+    "toast": {
+      "error": "错误",
+      "success": "成功",
+      "failure": "失败",
+      "load_failed": "无法加载职务列表。",
+      "account_missing": "找不到账号，请重新登录。",
+      "create_success": "职务创建成功。",
+      "create_failed": "无法创建职务。",
+      "update_success": "职务更新成功。",
+      "update_failed": "无法更新职务。",
+      "save_failed": "无法保存职务，请重试。",
+      "delete_success": "职务删除成功。",
+      "delete_failed": "无法删除职务。",
+      "delete_retry": "无法删除职务，请重试。"
     }
   },
   "role": {
@@ -401,6 +463,7 @@
       "dashboard": "仪表板",
       "list_user": "用户列表",
       "list_role": "角色列表",
+      "list_job_position": "职务列表",
       "list_organization": "部门列表",
       "list_exit_interview": "离职面谈列表"
     },
@@ -410,6 +473,7 @@
       "role_list": "角色列表",
       "role_detail": "角色详情",
       "organization_list": "部门列表",
+      "job_position_list": "职务列表",
       "user_list": "用户列表",
       "not_found": "404"
     }

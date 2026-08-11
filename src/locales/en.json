@@ -68,6 +68,7 @@
     "chart_empty": "No chart data available.",
     "cards": {
       "Interviews": "Exit applications",
+      "JobPositions": "Job positions",
       "Organizations": "Departments",
       "Users": "Users"
     },
@@ -231,6 +232,67 @@
       "delete_success": "Department deleted successfully.",
       "delete_failed": "Unable to delete department.",
       "delete_retry": "Unable to delete department. Please try again."
+    }
+  },
+  "job_position": {
+    "page_report": "Showing {first} to {last} of {totalRecords} job positions",
+    "add": "Add job position",
+    "clear_filter": "Clear filters",
+    "empty": "No job positions found.",
+    "columns": {
+      "code": "Code",
+      "name": "Job position name",
+      "status": "Status",
+      "priority": "Priority",
+      "updated_name": "Updated by",
+      "updated_at": "Updated at"
+    },
+    "filters": {
+      "search_code": "Search code",
+      "search_name": "Search name",
+      "status": "Status"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "edit": "Edit job position",
+      "delete": "Delete job position"
+    },
+    "form": {
+      "create_title": "Add job position",
+      "edit_title": "Update job position",
+      "name": "Job position name",
+      "name_placeholder": "Enter job position name",
+      "priority": "Priority order",
+      "priority_placeholder": "Enter priority order",
+      "is_active": "Active",
+      "create_btn": "Create"
+    },
+    "delete": {
+      "title": "Delete job position",
+      "confirm": "Are you sure you want to delete job position",
+      "btn": "Delete"
+    },
+    "errors": {
+      "name_required": "Please enter job position name",
+      "priority_non_negative": "Priority order must be a non-negative number"
+    },
+    "toast": {
+      "error": "Error",
+      "success": "Success",
+      "failure": "Failed",
+      "load_failed": "Unable to load job position list.",
+      "account_missing": "Account not found. Please sign in again.",
+      "create_success": "Job position created successfully.",
+      "create_failed": "Unable to create job position.",
+      "update_success": "Job position updated successfully.",
+      "update_failed": "Unable to update job position.",
+      "save_failed": "Unable to save job position. Please try again.",
+      "delete_success": "Job position deleted successfully.",
+      "delete_failed": "Unable to delete job position.",
+      "delete_retry": "Unable to delete job position. Please try again."
     }
   },
   "role": {
@@ -401,6 +463,7 @@
       "dashboard": "Dashboard",
       "list_user": "List users",
       "list_role": "List roles",
+      "list_job_position": "List job positions",
       "list_organization": "List departments",
       "list_exit_interview": "List exit interviews"
     },
@@ -410,6 +473,7 @@
       "role_list": "List roles",
       "role_detail": "Role details",
       "organization_list": "List departments",
+      "job_position_list": "List job positions",
       "user_list": "List users",
       "not_found": "404"
     }

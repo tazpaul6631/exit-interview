@@ -2,29 +2,24 @@
   <ion-page class="organization-list-page">
     <div class="organization-page-container organization-flex-column">
       <div class="organization-table-responsive organization-flex-column">
-        <DataTable :class="{ 'organization-table--empty': organizationList.length === 0 }" v-model:filters="filters"
-          v-model:first="first" :value="organizationList" lazy paginator :rows="rows" :rowsPerPageOptions="[13, 20, 50]"
+        <DataTable :class="{ 'organization-table--empty': jobPositionList.length === 0 }" v-model:filters="filters"
+          v-model:first="first" :value="jobPositionList" lazy paginator :rows="rows" :rowsPerPageOptions="[13, 20, 50]"
           :totalRecords="totalRecords" dataKey="id" filterDisplay="row" scrollable scrollHeight="flex"
           class="organization-table organization-full-height-table organization-compact-table" showGridlines
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-          :currentPageReportTemplate="t('organization.page_report', { first: first + 1, last: first + rows, totalRecords: totalRecords })"
+          :currentPageReportTemplate="t('job_position.page_report', { first: first + 1, last: first + rows, totalRecords: totalRecords })"
           @page="onPageChange" @filter="onTableFilter">
           <template #header>
             <div class="organization-toolbar">
-              <Button v-if="canImport" type="button" size="small" outlined
-                class="organization-toolbar__btn organization-toolbar__btn--import" @click="openImportDialog">
-                <i class="pi pi-file-import organization-toolbar__icon" aria-hidden="true" />
-                <span class="organization-toolbar__label">{{ t('organization.import.title') }}</span>
-              </Button>
               <Button v-if="canCreate" type="button" size="small" outlined
                 class="organization-toolbar__btn organization-toolbar__btn--create" @click="openCreateDialog">
                 <i class="pi pi-plus organization-toolbar__icon" aria-hidden="true" />
-                <span class="organization-toolbar__label">{{ t('organization.add') }}</span>
+                <span class="organization-toolbar__label">{{ t('job_position.add') }}</span>
               </Button>
               <Button type="button" outlined size="small"
                 class="organization-toolbar__btn organization-toolbar__btn--clear" @click="clearFilter">
                 <i class="pi pi-filter-slash organization-toolbar__icon" aria-hidden="true" />
-                <span class="organization-toolbar__label">{{ t('organization.clear_filter') }}</span>
+                <span class="organization-toolbar__label">{{ t('job_position.clear_filter') }}</span>
               </Button>
             </div>
           </template>
@@ -32,7 +27,7 @@
           <template #empty>
             <div class="organization-empty-state">
               <i class="pi pi-inbox organization-empty-state__icon" />
-              <p class="organization-empty-state__text">{{ t('organization.empty') }}</p>
+              <p class="organization-empty-state__text">{{ t('job_position.empty') }}</p>
             </div>
           </template>
 
@@ -62,7 +57,7 @@
 
               <template v-else-if="col.type === 'active'">
                 <Skeleton v-if="isLoading" width="4rem" height="1rem" />
-                <Tag v-else :value="data.isActive ? t('organization.status.active') : t('organization.status.inactive')"
+                <Tag v-else :value="data.isActive ? t('job_position.status.active') : t('job_position.status.inactive')"
                   :severity="data.isActive ? 'success' : 'secondary'" />
               </template>
 
@@ -75,7 +70,7 @@
             <template #filter="{ filterModel, filterCallback }" v-if="col.filterable">
               <template v-if="col.type === 'active'">
                 <Select v-model="filterModel.value" :options="activeFilterOptions" optionLabel="label"
-                  optionValue="value" :placeholder="t('organization.filters.status')" class="organization-filter-select"
+                  optionValue="value" :placeholder="t('job_position.filters.status')" class="organization-filter-select"
                   showClear @change="onSelectFilterChange(filterCallback)" />
               </template>
               <template v-else>
@@ -90,9 +85,9 @@
               <Skeleton v-if="isLoading" width="5rem" height="1rem" />
               <div v-else class="organization-row-actions">
                 <Button v-if="canUpdate" icon="pi pi-pencil" size="small" severity="info" rounded outlined
-                  :aria-label="t('organization.actions.edit')" @click="openEditDialog(data)" />
+                  :aria-label="t('job_position.actions.edit')" @click="openEditDialog(data)" />
                 <Button v-if="canDelete" icon="pi pi-trash" size="small" severity="danger" rounded outlined
-                  :aria-label="t('organization.actions.delete')" @click="openDeleteDialog(data)" />
+                  :aria-label="t('job_position.actions.delete')" @click="openDeleteDialog(data)" />
               </div>
             </template>
           </Column>
@@ -100,98 +95,55 @@
       </div>
     </div>
 
-    <Dialog v-model:visible="importDialogVisible" modal :draggable="false" :header="t('organization.import.title')"
-      class="organization-import-dialog" :style="{ width: '32rem' }" @hide="resetImportDialog">
-      <div class="organization-import-dialog__template">
-        <Button type="button" size="small" outlined @click="downloadTemplate"
-          class="organization-import-dialog__template-button">
-          <i class="pi pi-download organization-import-dialog__template-button-icon" aria-hidden="true" />
-          <span class="organization-import-dialog__template-button-label">{{ t('organization.import.download_template')
-          }}</span>
-        </Button>
-      </div>
-      <input ref="importFileInputRef" type="file" accept=".xlsx,.xls" class="organization-import-dialog__input"
-        @change="onImportFileInputChange" />
-
-      <div v-if="!selectedImportFile" class="organization-import-dialog__dropzone"
-        :class="{ 'organization-import-dialog__dropzone--active': isDragOver }" role="button" tabindex="0"
-        @click="triggerImportFilePicker" @keydown.enter.prevent="triggerImportFilePicker"
-        @keydown.space.prevent="triggerImportFilePicker" @dragover.prevent="isDragOver = true"
-        @dragleave.prevent="isDragOver = false" @drop.prevent="onImportFileDrop">
-        <i class="pi pi-cloud-upload organization-import-dialog__dropzone-icon" aria-hidden="true" />
-        <p class="organization-import-dialog__dropzone-title">{{ t('organization.import.drop_hint') }}</p>
-        <Button type="button" size="small" outlined severity="success" :label="t('organization.import.choose_file')"
-          @click.stop="triggerImportFilePicker" />
-      </div>
-
-      <div v-else class="organization-import-dialog__file">
-        <div class="organization-import-dialog__file-info">
-          <i class="pi pi-file-excel organization-import-dialog__file-icon" aria-hidden="true" />
-          <div class="organization-import-dialog__file-meta">
-            <span class="organization-import-dialog__file-name">{{ selectedImportFile.name }}</span>
-            <span class="organization-import-dialog__file-size">{{ formatImportFileSize(selectedImportFile.size)
-              }}</span>
-          </div>
-        </div>
-        <Button type="button" icon="pi pi-times" rounded outlined severity="danger" size="small"
-          :aria-label="t('organization.import.remove_file')" :disabled="isImporting" @click="clearImportFile" />
-      </div>
-
-      <template #footer>
-        <Button :label="t('common.cancel')" text severity="secondary" @click="closeImportDialog" />
-        <Button :label="t('organization.import.btn')" severity="primary" :loading="isImporting"
-          :disabled="!selectedImportFile" @click="confirmImport" />
-      </template>
-    </Dialog>
-
     <Dialog v-model:visible="formDialogVisible" modal :draggable="false"
-      :header="formMode === 'create' ? t('organization.form.create_title') : t('organization.form.edit_title')"
+      :header="formMode === 'create' ? t('job_position.form.create_title') : t('job_position.form.edit_title')"
       class="organization-form-dialog" :style="{ width: '28rem' }" @hide="resetFormDialog">
       <form class="organization-form" @submit.prevent="submitForm">
         <div class="organization-form__field">
           <label for="organization-name" class="organization-form__label">
-            {{ t('organization.form.name') }} <span class="organization-form__required">*</span>
+            {{ t('job_position.form.name') }} <span class="organization-form__required">*</span>
           </label>
           <InputText id="organization-name" v-model="formState.name" class="organization-form__input"
-            :placeholder="t('organization.form.name_placeholder')" :invalid="!!formErrors.name"
+            :placeholder="t('job_position.form.name_placeholder')" :invalid="!!formErrors.name"
             @update:model-value="onNameInput" />
           <small v-if="formErrors.name" class="organization-form__error">{{ formErrors.name }}</small>
         </div>
 
-        <div class="organization-form__field" v-if="formMode !== 'create'">
+        <div class="organization-form__field">
           <label for="organization-priority" class="organization-form__label">
-            {{ t('organization.form.priority') }} <span class="organization-form__required">*</span>
+            {{ t('job_position.form.priority') }} <span class="organization-form__required">*</span>
           </label>
           <InputText id="organization-priority" v-model="formState.priority" type="number" min="0"
-            class="organization-form__input" :placeholder="t('organization.form.priority_placeholder')"
+            class="organization-form__input" :placeholder="t('job_position.form.priority_placeholder')"
             :invalid="!!formErrors.priority" @update:model-value="onPriorityInput" />
           <small v-if="formErrors.priority" class="organization-form__error">{{ formErrors.priority }}</small>
         </div>
 
         <div class="organization-form__field organization-form__field--checkbox">
           <Checkbox v-model="formState.isActive" inputId="organization-active" binary />
-          <label for="organization-active" class="organization-form__checkbox-label">{{ t('organization.form.is_active')
+          <label for="organization-active" class="organization-form__checkbox-label">{{
+            t('job_position.form.is_active')
           }}</label>
         </div>
       </form>
 
       <template #footer>
         <Button :label="t('common.cancel')" text severity="secondary" @click="closeFormDialog" />
-        <Button :label="formMode === 'create' ? t('organization.form.create_btn') : t('common.save')"
+        <Button :label="formMode === 'create' ? t('job_position.form.create_btn') : t('common.save')"
           :loading="isSaving" @click="submitForm" />
       </template>
     </Dialog>
 
-    <Dialog v-model:visible="deleteDialogVisible" modal :draggable="false" :header="t('organization.delete.title')"
+    <Dialog v-model:visible="deleteDialogVisible" modal :draggable="false" :header="t('job_position.delete.title')"
       class="organization-delete-dialog" :style="{ width: '24rem' }">
       <p class="organization-delete-dialog__message">
-        {{ t('organization.delete.confirm') }}
-        <strong>{{ deletingOrganization?.name }}</strong>?
+        {{ t('job_position.delete.confirm') }}
+        <strong>{{ deletingJobPosition?.name }}</strong>?
       </p>
 
       <template #footer>
         <Button :label="t('common.cancel')" text severity="secondary" @click="deleteDialogVisible = false" />
-        <Button :label="t('organization.delete.btn')" severity="danger" :loading="isDeleting" @click="confirmDelete" />
+        <Button :label="t('job_position.delete.btn')" severity="danger" :loading="isDeleting" @click="confirmDelete" />
       </template>
     </Dialog>
   </ion-page>
@@ -203,17 +155,41 @@ import { IonPage } from '@ionic/vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'primevue/usetoast';
 import { FilterMatchMode } from '@primevue/core/api';
-import organizationApi from '@/api/organization';
-import {
-  OrganizationImportValidationError,
-  formatOrganizationImportErrorLocations,
-  parseOrganizationExcel,
-} from '@/utils/organizationExcelImport';
-import type { OrganizationImportPayload } from '@/types/organization';
+import jobPositionApi from '@/api/jobPosition';
+import jobPositionViewApi from '@/api/jobPositionView';
 import { usePageDataRefresh } from '@/composables/usePageDataRefresh';
 import { useAuthStore } from '@/store/auth';
-import { getLocalDateTimeNow } from '@/utils/localDateTime';
-import type { Organization, OrganizationPagedData, OrganizationQueryPayload } from '@/types/organization';
+type JobPosition = {
+  id: number;
+  code?: string;
+  name: string;
+  keyword?: string;
+  priority: number;
+  isActive: boolean;
+  updatedName?: string;
+  updatedAt?: string;
+  UpdatedName?: string;
+  UpdatedAt?: string;
+};
+
+type JobPositionQueryPayload = {
+  page: number;
+  pageSize: number;
+  code?: string;
+  name?: string;
+  keyword?: string;
+  isActive?: boolean;
+};
+
+type JobPositionPagedData = {
+  items: JobPosition[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPage?: number;
+  hasNextPage?: boolean;
+  hasPreviousPage?: boolean;
+};
 import { useMenuPermissions } from '@/composables/useMenuPermissions';
 import { useModalFieldValidation } from '@/composables/useModalFieldValidation';
 import format from '@/mixins/format';
@@ -221,17 +197,12 @@ import format from '@/mixins/format';
 const toast = useToast();
 const authStore = useAuthStore();
 const { t } = useI18n();
-const { getOrganizationNameFormatError, getPriorityFormatError } = useModalFieldValidation();
+const { getModalNameFormatError, getPriorityFormatError } = useModalFieldValidation();
 
-const organizationList = ref<Organization[]>([]);
+const jobPositionList = ref<JobPosition[]>([]);
 const isLoading = ref(false);
 const isSaving = ref(false);
 const isDeleting = ref(false);
-const isImporting = ref(false);
-const importDialogVisible = ref(false);
-const selectedImportFile = ref<File | null>(null);
-const importFileInputRef = ref<HTMLInputElement | null>(null);
-const isDragOver = ref(false);
 const filters = ref<Record<string, { value: unknown; matchMode: string }>>();
 const totalRecords = ref(0);
 const first = ref(0);
@@ -240,10 +211,10 @@ const rows = ref(13);
 const formDialogVisible = ref(false);
 const deleteDialogVisible = ref(false);
 const formMode = ref<'create' | 'edit'>('create');
-const editingOrganizationId = ref<number | null>(null);
-const deletingOrganization = ref<Organization | null>(null);
+const editingJobPositionId = ref<number | null>(null);
+const deletingJobPosition = ref<JobPosition | null>(null);
 
-const { canCreate, canUpdate, canDelete, canImport } = useMenuPermissions(['organization']);
+const { canCreate, canUpdate, canDelete } = useMenuPermissions(['jobposition']);
 
 const formState = ref({
   name: '',
@@ -257,8 +228,8 @@ const formErrors = ref({
 });
 
 const activeFilterOptions = computed(() => [
-  { label: t('organization.status.active'), value: true },
-  { label: t('organization.status.inactive'), value: false },
+  { label: t('job_position.status.active'), value: true },
+  { label: t('job_position.status.inactive'), value: false },
 ]);
 
 const serverFilterPassthrough = () => true;
@@ -267,23 +238,23 @@ const tableColumns = computed(() => [
   { field: '#', header: '#', width: '5rem', type: '#', filterable: false, bodyClass: 'text-center' },
   {
     field: 'code',
-    header: t('organization.columns.code'),
+    header: t('job_position.columns.code'),
     width: '200px',
     type: 'text',
     filterable: true,
-    filterPlaceholder: t('organization.filters.search_code'),
+    filterPlaceholder: t('job_position.filters.search_code'),
   },
   {
     field: 'name',
-    header: t('organization.columns.name'),
+    header: t('job_position.columns.name'),
     width: 'auto',
     type: 'text',
     filterable: true,
-    filterPlaceholder: t('organization.filters.search_name'),
+    filterPlaceholder: t('job_position.filters.search_name'),
   },
   {
     field: 'priority',
-    header: t('organization.columns.priority'),
+    header: t('job_position.columns.priority'),
     width: '150px',
     bodyClass: 'text-center',
     type: 'priority',
@@ -291,22 +262,22 @@ const tableColumns = computed(() => [
   },
   {
     field: 'isActive',
-    header: t('organization.columns.status'),
+    header: t('job_position.columns.status'),
     width: '150px',
     type: 'active',
     filterable: true,
-    filterPlaceholder: t('organization.filters.status'),
+    filterPlaceholder: t('job_position.filters.status'),
   },
   {
     field: 'updatedName',
-    header: t('organization.columns.updated_name'),
+    header: t('job_position.columns.updated_name'),
     width: 'auto',
     type: 'updatedName',
     filterable: false,
   },
   {
     field: 'updatedAt',
-    header: t('organization.columns.updated_at'),
+    header: t('job_position.columns.updated_at'),
     width: 'auto',
     type: 'updatedAt',
     filterable: false,
@@ -342,7 +313,7 @@ const showToast = (
   });
 };
 
-const appendFilterFields = (payload: OrganizationQueryPayload) => {
+const appendFilterFields = (payload: JobPositionQueryPayload) => {
   const f = filters.value;
   if (!f) return;
 
@@ -364,7 +335,7 @@ const appendFilterFields = (payload: OrganizationQueryPayload) => {
   }
 };
 
-const buildPayload = (event?: { page?: number; rows?: number }): OrganizationQueryPayload => {
+const buildPayload = (event?: { page?: number; rows?: number }): JobPositionQueryPayload => {
   const pageSize = event?.rows ?? rows.value;
   if (event?.rows != null) {
     rows.value = event.rows;
@@ -374,7 +345,7 @@ const buildPayload = (event?: { page?: number; rows?: number }): OrganizationQue
     ? event.page + 1
     : Math.floor(first.value / pageSize) + 1;
 
-  const payload: OrganizationQueryPayload = { page, pageSize };
+  const payload: JobPositionQueryPayload = { page, pageSize };
   appendFilterFields(payload);
   return payload;
 };
@@ -390,14 +361,14 @@ const mapAuditFields = <T extends { updatedName?: string; updatedAt?: string }>(
   };
 };
 
-const parsePagedResult = (response: unknown): OrganizationPagedData | null => {
-  const body = response as { data?: { data?: OrganizationPagedData; items?: Organization[] } };
+const parsePagedResult = (response: unknown): JobPositionPagedData | null => {
+  const body = response as { data?: { data?: JobPositionPagedData; items?: JobPosition[] } };
   const data = body?.data?.data ?? body?.data;
   if (!data || !Array.isArray(data.items)) {
     return null;
   }
   return {
-    ...(data as OrganizationPagedData),
+    ...(data as JobPositionPagedData),
     items: data.items.map((item) => mapAuditFields(item)),
   };
 };
@@ -407,11 +378,11 @@ const loadData = async (event?: { page?: number; rows?: number }) => {
 
   try {
     const payload = buildPayload(event);
-    const response = await organizationApi.postOrganizationViewQueryResult(payload);
+    const response = await jobPositionViewApi.postJobPositionView(payload);
     const result = parsePagedResult(response);
 
     if (result) {
-      organizationList.value = result.items;
+      jobPositionList.value = result.items;
       totalRecords.value = Number(result.totalCount) || 0;
 
       if (result.page != null && result.pageSize != null) {
@@ -419,14 +390,14 @@ const loadData = async (event?: { page?: number; rows?: number }) => {
         rows.value = result.pageSize;
       }
     } else {
-      organizationList.value = [];
+      jobPositionList.value = [];
       totalRecords.value = 0;
     }
   } catch (error) {
-    console.error('Load organization list error:', error);
-    organizationList.value = [];
+    console.error('Load job position list error:', error);
+    jobPositionList.value = [];
     totalRecords.value = 0;
-    // showToast('error', t('organization.toast.error'), t('organization.toast.load_failed'));
+    // showToast('error', t('job_position.toast.error'), t('job_position.toast.load_failed'));
   } finally {
     isLoading.value = false;
   }
@@ -485,7 +456,7 @@ const resetFormState = () => {
     name: '',
     priority: '',
   };
-  editingOrganizationId.value = null;
+  editingJobPositionId.value = null;
 };
 
 const resetFormDialog = () => {
@@ -502,25 +473,25 @@ const openCreateDialog = () => {
   formDialogVisible.value = true;
 };
 
-const openEditDialog = (organization: Organization) => {
+const openEditDialog = (jobPosition: JobPosition) => {
   formMode.value = 'edit';
-  editingOrganizationId.value = organization.id;
+  editingJobPositionId.value = jobPosition.id;
   formState.value = {
-    name: organization.name,
-    priority: String(organization.priority),
-    isActive: organization.isActive,
+    name: jobPosition.name,
+    priority: String(jobPosition.priority),
+    isActive: jobPosition.isActive,
   };
   formErrors.value = { name: '', priority: '' };
   formDialogVisible.value = true;
 };
 
-const openDeleteDialog = (organization: Organization) => {
-  deletingOrganization.value = organization;
+const openDeleteDialog = (jobPosition: JobPosition) => {
+  deletingJobPosition.value = jobPosition;
   deleteDialogVisible.value = true;
 };
 
 const onNameInput = () => {
-  formErrors.value.name = getOrganizationNameFormatError(formState.value.name);
+  formErrors.value.name = getModalNameFormatError(formState.value.name);
 };
 
 const onPriorityInput = () => {
@@ -541,16 +512,16 @@ const validateForm = () => {
   const errors = { name: '', priority: '' };
 
   if (!name) {
-    errors.name = t('organization.errors.name_required');
+    errors.name = t('job_position.errors.name_required');
   } else {
-    errors.name = getOrganizationNameFormatError(name);
+    errors.name = getModalNameFormatError(name);
   }
 
   const priorityFormatError = getPriorityFormatError(formState.value.priority);
   if (priorityFormatError) {
     errors.priority = priorityFormatError;
   } else if (Number.isNaN(priority) || priority < 0) {
-    errors.priority = t('organization.errors.priority_non_negative');
+    errors.priority = t('job_position.errors.priority_non_negative');
   }
 
   formErrors.value = errors;
@@ -561,7 +532,7 @@ const submitForm = async () => {
   if (!validateForm()) return;
 
   if (!currentUserId.value) {
-    showToast('error', t('organization.toast.error'), t('organization.toast.account_missing'));
+    showToast('error', t('job_position.toast.error'), t('job_position.toast.account_missing'));
     return;
   }
 
@@ -575,259 +546,88 @@ const submitForm = async () => {
     isSaving.value = true;
 
     if (formMode.value === 'create') {
-      const now = getLocalDateTimeNow();
-      const response = await organizationApi.postOrganizationCreate({
+      const response = await jobPositionApi.postJobPositionCreate({
         ...payloadBase,
+        priority: Number(formState.value.priority),
         createdBy: currentUserId.value,
-        createdAt: now,
-        updatedAt: now,
       });
 
       if (response.data?.success) {
-        showToast('success', t('organization.toast.success'), response.data.message || t('organization.toast.create_success'));
+        showToast('success', t('job_position.toast.success'), response.data.message || t('job_position.toast.create_success'));
         closeFormDialog();
         await loadData();
         return;
       }
 
-      showToast('error', t('organization.toast.failure'), response.data?.message || t('organization.toast.create_failed'));
+      showToast('error', t('job_position.toast.failure'), response.data?.message || t('job_position.toast.create_failed'));
       return;
     }
 
-    if (editingOrganizationId.value == null) return;
+    if (editingJobPositionId.value == null) return;
 
-    const response = await organizationApi.patchOrganizationUpdate(
-      editingOrganizationId.value,
+    const response = await jobPositionApi.postJobPositionUpdate(
+      editingJobPositionId.value,
       {
         ...payloadBase,
         priority: Number(formState.value.priority),
-        updatedAt: getLocalDateTimeNow(),
       },
     );
 
     if (response.data?.success) {
-      showToast('success', t('organization.toast.success'), response.data.message || t('organization.toast.update_success'));
+      showToast('success', t('job_position.toast.success'), response.data.message || t('job_position.toast.update_success'));
       closeFormDialog();
       await loadData();
       return;
     }
 
-    showToast('error', t('organization.toast.failure'), response.data?.message || t('organization.toast.update_failed'));
+    showToast('error', t('job_position.toast.failure'), response.data?.message || t('job_position.toast.update_failed'));
   } catch (error: unknown) {
-    console.error('Save organization error:', error);
+    console.error('Save job position error:', error);
     const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
-    showToast('error', t('organization.toast.error'), message || t('organization.toast.save_failed'));
+    showToast('error', t('job_position.toast.error'), message || t('job_position.toast.save_failed'));
   } finally {
     isSaving.value = false;
   }
 };
 
 const confirmDelete = async () => {
-  if (!deletingOrganization.value) return;
+  if (!deletingJobPosition.value) return;
 
   if (!currentUserId.value) {
-    showToast('error', t('organization.toast.error'), t('organization.toast.account_missing'));
+    showToast('error', t('job_position.toast.error'), t('job_position.toast.account_missing'));
     return;
   }
 
   try {
     isDeleting.value = true;
-    const response = await organizationApi.deleteOrganizationById(
-      deletingOrganization.value.id,
+    const response = await jobPositionApi.postJobPositionDelete(
+      deletingJobPosition.value.id,
       {
         updatedBy: currentUserId.value,
-        updatedAt: getLocalDateTimeNow(),
       },
     );
 
     if (response.data?.success) {
-      showToast('success', t('organization.toast.success'), response.data.message || t('organization.toast.delete_success'));
+      showToast('success', t('job_position.toast.success'), response.data.message || t('job_position.toast.delete_success'));
       deleteDialogVisible.value = false;
-      deletingOrganization.value = null;
+      deletingJobPosition.value = null;
       await loadData();
       return;
     }
 
-    showToast('error', t('organization.toast.failure'), response.data?.message || t('organization.toast.delete_failed'));
+    showToast('error', t('job_position.toast.failure'), response.data?.message || t('job_position.toast.delete_failed'));
   } catch (error: unknown) {
-    console.error('Delete organization error:', error);
+    console.error('Delete job position error:', error);
     const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
-    showToast('error', t('organization.toast.error'), message || t('organization.toast.delete_retry'));
+    showToast('error', t('job_position.toast.error'), message || t('job_position.toast.delete_retry'));
   } finally {
     isDeleting.value = false;
   }
 };
 
-usePageDataRefresh('ListOrganization', () => {
+usePageDataRefresh('ListJobPosition', () => {
   loadData();
 });
-
-const openImportDialog = () => {
-  selectedImportFile.value = null;
-  isDragOver.value = false;
-  importDialogVisible.value = true;
-};
-
-const closeImportDialog = () => {
-  importDialogVisible.value = false;
-};
-
-const resetImportDialog = () => {
-  clearImportFile();
-  isDragOver.value = false;
-};
-
-const isExcelFile = (file: File) => {
-  const extension = file.name.split('.').pop()?.toLowerCase();
-  return extension === 'xlsx' || extension === 'xls';
-};
-
-const setImportFile = (file: File | null) => {
-  if (!file) {
-    selectedImportFile.value = null;
-    return;
-  }
-
-  if (!isExcelFile(file)) {
-    showToast('warn', t('organization.toast.error'), t('organization.import.invalid_file'));
-    return;
-  }
-
-  selectedImportFile.value = file;
-};
-
-const triggerImportFilePicker = () => {
-  if (isImporting.value) return;
-  importFileInputRef.value?.click();
-};
-
-const onImportFileInputChange = (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0] ?? null;
-  input.value = '';
-  setImportFile(file);
-};
-
-const onImportFileDrop = (event: DragEvent) => {
-  isDragOver.value = false;
-  if (isImporting.value) return;
-  setImportFile(event.dataTransfer?.files?.[0] ?? null);
-};
-
-const clearImportFile = () => {
-  selectedImportFile.value = null;
-  if (importFileInputRef.value) {
-    importFileInputRef.value.value = '';
-  }
-};
-
-type ImportProcessResult = 'success' | 'warn' | 'error';
-
-const formatImportFileSize = (bytes: number) => {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-};
-
-const ORGANIZATION_IMPORT_TEMPLATE_PATH = `${import.meta.env.BASE_URL}assets/templates/File-Mau.xlsx`;
-const ORGANIZATION_IMPORT_TEMPLATE_FILENAME = 'File-Mẫu.xlsx';
-
-const downloadTemplate = () => {
-  const link = document.createElement('a');
-  link.href = ORGANIZATION_IMPORT_TEMPLATE_PATH;
-  link.download = ORGANIZATION_IMPORT_TEMPLATE_FILENAME;
-  link.rel = 'noopener';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
-
-const processImportFile = async (file: File): Promise<ImportProcessResult> => {
-  if (!currentUserId.value) {
-    showToast('error', t('organization.toast.error'), t('organization.toast.account_missing'));
-    return 'error';
-  }
-
-  isImporting.value = true;
-
-  try {
-    const rows = await parseOrganizationExcel(file);
-
-    if (rows.length === 0) {
-      showToast('warn', t('organization.toast.error'), t('organization.import.empty'));
-      return 'warn';
-    }
-
-    const payload: OrganizationImportPayload[] = rows.map((row) => ({
-      priority: row.priority,
-      name: row.name,
-      isActive: row.isActive,
-      importBy: currentUserId.value,
-    }));
-
-    const response = await organizationApi.postOrganizationImport(payload);
-
-    if (response.data?.success) {
-      showToast(
-        'success',
-        t('organization.toast.success'),
-        response.data.message || t('organization.import.success', { count: rows.length }),
-      );
-      await loadData();
-      return 'success';
-    }
-
-    showToast(
-      'error',
-      t('organization.toast.failure'),
-      response.data?.message || t('organization.import.failed'),
-    );
-    return 'error';
-  } catch (error) {
-    if (error instanceof OrganizationImportValidationError) {
-      showToast(
-        'warn',
-        t('organization.toast.error'),
-        t('organization.import.invalid_status', {
-          locations: formatOrganizationImportErrorLocations(error.locations, t),
-        }),
-      );
-      return 'warn';
-    }
-
-    const message = error instanceof Error ? error.message : '';
-    if (message === 'invalid_file') {
-      showToast('warn', t('organization.toast.error'), t('organization.import.invalid_file'));
-      return 'warn';
-    }
-
-    if (message === 'missing_columns') {
-      showToast('warn', t('organization.toast.error'), t('organization.import.missing_columns'));
-      return 'warn';
-    }
-
-    console.error('Import organization excel error:', error);
-    const apiMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
-    showToast('error', t('organization.toast.error'), apiMessage || t('organization.import.failed'));
-    return 'error';
-  } finally {
-    isImporting.value = false;
-  }
-};
-
-const confirmImport = async () => {
-  if (!selectedImportFile.value || isImporting.value) return;
-
-  const result = await processImportFile(selectedImportFile.value);
-  if (result === 'success') {
-    closeImportDialog();
-    return;
-  }
-
-  if (result === 'warn') {
-    clearImportFile();
-  }
-};
 </script>
 
 <style scoped lang="scss">
