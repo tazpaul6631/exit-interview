@@ -17,7 +17,7 @@
                   :invalid="!!fieldFormatErrors.employeeName || (submitCount > 0 && !!errors['userInfo.employeeName'])"
                   @update:model-value="onEmployeeNameInput" />
                 <span class="error-msg" v-if="fieldFormatErrors.employeeName">{{ fieldFormatErrors.employeeName
-                  }}</span>
+                }}</span>
                 <span class="error-msg" v-else-if="submitCount > 0 && errors['userInfo.employeeName']">
                   Bắt buộc nhập/ 必填
                 </span>
@@ -27,11 +27,12 @@
             <ion-col size="12" size-md="6">
               <div class="custom-input">
                 <label><span class="request">*</span>Mã Số/ <span>工號</span></label>
-                <InputText :model-value="employeeCode" placeholder="Nhập mã nhân viên..." class="info-field-input w-full"
+                <InputText :model-value="employeeCode" placeholder="Nhập mã nhân viên..."
+                  class="info-field-input w-full"
                   :invalid="!!fieldFormatErrors.employeeCode || (submitCount > 0 && !!errors['userInfo.employeeCode'])"
                   @update:model-value="onEmployeeCodeInput" />
                 <span class="error-msg" v-if="fieldFormatErrors.employeeCode">{{ fieldFormatErrors.employeeCode
-                  }}</span>
+                }}</span>
                 <span class="error-msg" v-else-if="submitCount > 0 && errors['userInfo.employeeCode']">
                   Bắt buộc nhập/ 必填
                 </span>
@@ -43,9 +44,8 @@
                 <label><span class="request">*</span>Chức vụ/ <span>任職</span></label>
                 <Select :model-value="jobPositionId || null" :options="jobPositionList" optionLabel="name"
                   optionValue="id" placeholder="Chọn chức vụ..." class="info-prime-select w-full" appendTo="body"
-                  :invalid="submitCount > 0 && !!errors['userInfo.jobPositionId']"
-                  :loading="isJobPositionLoading" showClear @show="onJobPositionSelectShow"
-                  @update:model-value="onJobPositionChange" />
+                  :invalid="submitCount > 0 && !!errors['userInfo.jobPositionId']" :loading="isJobPositionLoading"
+                  showClear @show="onJobPositionSelectShow" @update:model-value="onJobPositionChange" />
                 <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.jobPositionId']">
                   Bắt buộc chọn/ 必填
                 </span>
@@ -55,16 +55,13 @@
             <ion-col size="12" size-md="6">
               <div class="custom-input">
                 <label><span class="request">*</span>Bộ phận/ Mã bộ phận <span>部門/ 部門代碼</span></label>
-                <AutoComplete v-model="selectedOrg" :suggestions="organizationSuggestions" optionLabel="name"
-                  placeholder="Gõ để tìm kiếm phòng ban..." forceSelection showClear appendTo="body"
-                  class="info-field-autocomplete w-full" :loading="isSearching"
-                  :invalid="!!fieldFormatErrors.organizationKeyword || (submitCount > 0 && !!errors['userInfo.organizationId'])"
-                  @complete="searchOrganizations" @update:model-value="onOrgModelChange" @clear="onOrgClear" />
-                <span class="error-msg" v-if="fieldFormatErrors.organizationKeyword">
-                  {{ fieldFormatErrors.organizationKeyword }}
-                </span>
-                <span class="error-msg" v-else-if="submitCount > 0 && errors['userInfo.organizationId']">
-                  Vui lòng chọn phòng ban từ danh sách
+                <Select :model-value="organizationId || null" :options="organizationList" optionLabel="name"
+                  optionValue="id" placeholder="Chọn phòng ban..." class="info-prime-select w-full" appendTo="body"
+                  :invalid="submitCount > 0 && !!errors['userInfo.organizationId']" :loading="isOrgLoading" showClear
+                  filter filterPlaceholder="Tìm phòng ban..." @show="onOrgSelectShow"
+                  @update:model-value="onOrgChange" />
+                <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.organizationId']">
+                  Bắt buộc chọn/ 必填
                 </span>
               </div>
             </ion-col>
@@ -72,10 +69,9 @@
             <ion-col size="12" size-md="6">
               <div class="custom-input">
                 <label><span class="request">*</span>Ngày thôi việc/ <span>離職日期</span></label>
-                <DatePicker :model-value="exitedAtDate" dateFormat="dd/mm/yy" placeholder="Chọn ngày nghỉ..."
-                  showIcon showClear appendTo="body" class="info-field-datepicker w-full"
-                  :invalid="submitCount > 0 && !!errors['userInfo.exitedAt']"
-                  @update:model-value="onExitedAtChange" />
+                <DatePicker :model-value="exitedAtDate" dateFormat="dd/mm/yy" placeholder="Chọn ngày nghỉ..." showIcon
+                  showClear appendTo="body" class="info-field-datepicker w-full"
+                  :invalid="submitCount > 0 && !!errors['userInfo.exitedAt']" @update:model-value="onExitedAtChange" />
                 <span class="error-msg" v-if="submitCount > 0 && errors['userInfo.exitedAt']">
                   Bắt buộc chọn/ 必填
                 </span>
@@ -160,12 +156,11 @@ const { t } = useI18n();
 const toast = useToast();
 const router = useRouter();
 const isSubmitting = ref(false);
-const { getCodeFormatError, getNameFormatError, getModalNameFormatError, getOrganizationNameFormatError } = useModalFieldValidation();
+const { getCodeFormatError, getNameFormatError, getModalNameFormatError } = useModalFieldValidation();
 
 const fieldFormatErrors = ref({
   employeeName: '',
   employeeCode: '',
-  organizationKeyword: '',
 });
 
 interface JobPositionOption {
@@ -184,6 +179,12 @@ const jobPositionList = ref<JobPositionOption[]>([]);
 const isJobPositionLoading = ref(false);
 const pendingLegacyJobPositionName = ref('');
 let jobPositionLoadPromise: Promise<void> | null = null;
+
+const organizationList = ref<OrganizationOption[]>([]);
+const isOrgLoading = ref(false);
+const organizationsLoaded = ref(false);
+const pendingLegacyOrganizationName = ref('');
+let orgLoadPromise: Promise<void> | null = null;
 
 const topLevelSectionIds = ref<string[]>([]);
 const fieldToTopSectionMap = ref<Record<string, string>>({});
@@ -265,13 +266,9 @@ const { handleSubmit, errors, defineField, values, submitCount, setFieldValue, s
 const [employeeName] = defineField('userInfo.employeeName');
 const [employeeCode] = defineField('userInfo.employeeCode');
 const [jobPositionId] = defineField('userInfo.jobPositionId');
+const [organizationId] = defineField('userInfo.organizationId');
 
 const exitedAtDate = ref<Date | null>(null);
-const selectedOrg = ref<OrganizationOption | null>(null);
-const organizationSuggestions = ref<OrganizationOption[]>([]);
-const orgSearchQuery = ref('');
-const isSearching = ref(false);
-let orgSearchTimeout: ReturnType<typeof setTimeout> | null = null;
 
 const parseExitedAtValue = (value: unknown): Date | null => {
   if (!value) return null;
@@ -308,11 +305,14 @@ const onJobPositionChange = (value: number | null | undefined) => {
   setFieldValue('userInfo.jobPositionId', value != null ? Number(value) : 0);
 };
 
+const onOrgChange = (value: number | null | undefined) => {
+  setFieldValue('userInfo.organizationId', value != null ? Number(value) : 0);
+};
+
 const resetFieldFormatErrors = () => {
   fieldFormatErrors.value = {
     employeeName: '',
     employeeCode: '',
-    organizationKeyword: '',
   };
 };
 
@@ -343,7 +343,7 @@ const loadJobPositions = async () => {
   isJobPositionLoading.value = true;
   jobPositionLoadPromise = (async () => {
     try {
-      const response = await jobPositionApi.postJobPosition({});
+      const response = await jobPositionApi.postJobPosition({ isActive: true });
       jobPositionList.value = normalizeJobPositionList(response.data?.data);
     } catch (error) {
       console.error('Lỗi load danh sách chức vụ:', error);
@@ -395,6 +395,99 @@ const resolveInitialJobPositionId = (): number => {
   return 0;
 };
 
+const normalizeOrganization = (raw: unknown): OrganizationOption | null => {
+  if (!raw || typeof raw !== 'object') return null;
+  const row = raw as Record<string, unknown>;
+  const id = row.id ?? row.Id;
+  if (id == null) return null;
+
+  return {
+    id: Number(id),
+    name: String(row.name ?? row.Name ?? row.organizationName ?? row.OrganizationName ?? row.orgName ?? ''),
+    code: String(row.code ?? row.Code ?? ''),
+  };
+};
+
+const loadOrganizations = async () => {
+  if (orgLoadPromise) {
+    return orgLoadPromise;
+  }
+
+  isOrgLoading.value = true;
+  orgLoadPromise = (async () => {
+    try {
+      const response = await organization.postOrganization({ isActive: true });
+      const rows: unknown[] = Array.isArray(response.data?.data) ? response.data.data : [];
+      const list = rows
+        .map(normalizeOrganization)
+        .filter((item): item is OrganizationOption => item !== null);
+
+      const currentId = Number(organizationId.value ?? 0);
+      if (currentId > 0 && !list.some((item) => item.id === currentId)) {
+        const currentName = String(
+          apiData.value?.organizationName ?? apiData.value?.OrganizationName ?? '',
+        ).trim();
+        if (currentName) {
+          list.unshift({ id: currentId, name: currentName });
+        }
+      }
+
+      organizationList.value = list;
+      organizationsLoaded.value = true;
+    } catch (error) {
+      console.error('Lỗi load danh sách phòng ban:', error);
+      organizationList.value = [];
+    } finally {
+      isOrgLoading.value = false;
+      orgLoadPromise = null;
+    }
+  })();
+
+  return orgLoadPromise;
+};
+
+const applyLegacyOrganizationIfNeeded = () => {
+  const currentId = Number(organizationId.value ?? 0);
+  if (currentId > 0 || !pendingLegacyOrganizationName.value) return;
+
+  const matched = organizationList.value.find(
+    (item) => item.name === pendingLegacyOrganizationName.value
+      || item.code === pendingLegacyOrganizationName.value,
+  );
+
+  if (matched) {
+    setFieldValue('userInfo.organizationId', matched.id);
+    pendingLegacyOrganizationName.value = '';
+  }
+};
+
+const onOrgSelectShow = async () => {
+  if (!organizationsLoaded.value) {
+    await loadOrganizations();
+  }
+  applyLegacyOrganizationIfNeeded();
+};
+
+const resolveInitialOrganizationId = (): number => {
+  const rawId = apiData.value?.organizationId ?? apiData.value?.OrganizationId;
+  if (rawId != null && Number(rawId) > 0) {
+    pendingLegacyOrganizationName.value = '';
+    return Number(rawId);
+  }
+
+  pendingLegacyOrganizationName.value = String(
+    apiData.value?.organizationName ?? apiData.value?.OrganizationName ?? '',
+  ).trim();
+  return 0;
+};
+
+const seedInitialOrganization = (id: number) => {
+  if (id <= 0) return;
+  const name = String(apiData.value?.organizationName ?? apiData.value?.OrganizationName ?? '').trim();
+  if (!name) return;
+  organizationList.value = [{ id, name }];
+};
+
 // ==========================================
 // HÀM KHỞI TẠO CHÍNH (GOM LOGIC)
 // ==========================================
@@ -412,13 +505,14 @@ const initializeForm = async () => {
     mandatoryQuestions = [];
     questionAnswerIds.clear();
     isConfirmed.value = false;
-    selectedOrg.value = null;
     exitedAtDate.value = null;
-    orgSearchQuery.value = '';
-    organizationSuggestions.value = [];
     pendingLegacyJobPositionName.value = '';
     jobPositionList.value = [];
     jobPositionLoadPromise = null;
+    pendingLegacyOrganizationName.value = '';
+    organizationList.value = [];
+    organizationsLoaded.value = false;
+    orgLoadPromise = null;
 
     const response = await interviewApi.getInterview();
     apiData.value = response.data.data;
@@ -611,17 +705,12 @@ const initializeForm = async () => {
           if (codeFormatError) {
             ctx.addIssue({ code: zod.ZodIssueCode.custom, message: codeFormatError, path: ['userInfo', 'employeeCode'] });
           }
-
-          const orgKeywordFormatError = getOrganizationNameFormatError(
-            selectedOrg.value?.name ?? orgSearchQuery.value,
-          );
-          if (orgKeywordFormatError) {
-            ctx.addIssue({ code: zod.ZodIssueCode.custom, message: orgKeywordFormatError, path: ['userInfo', 'organizationId'] });
-          }
         }
       });
 
     validationSchema.value = toTypedSchema(dynamicZod);
+
+    const initialOrganizationId = resolveInitialOrganizationId();
 
     setValues({
       userInfo: {
@@ -629,20 +718,13 @@ const initializeForm = async () => {
         employeeCode: apiData.value.employeeCode || '',
         jobPositionId: resolveInitialJobPositionId(),
         exitedAt: apiData.value.exitedAt || '',
-        organizationId: apiData.value.organizationId || 0
+        organizationId: initialOrganizationId
       },
       answersData: initData
     });
 
     resetFieldFormatErrors();
-
-    const orgId = Number(apiData.value.organizationId ?? 0);
-    selectedOrg.value = orgId > 0
-      ? {
-        id: orgId,
-        name: String(apiData.value.organizationName ?? ''),
-      }
-      : null;
+    seedInitialOrganization(initialOrganizationId);
     exitedAtDate.value = parseExitedAtValue(apiData.value.exitedAt);
     isFormReady.value = true;
 
@@ -663,74 +745,6 @@ const initializeForm = async () => {
 
 // onMounted dùng cho web thuần hoặc lần đầu mở app
 onMounted(initializeForm);
-
-// ==========================================
-// SEARCH ORGANIZATION
-// ==========================================
-const normalizeOrganization = (raw: unknown): OrganizationOption | null => {
-  if (!raw || typeof raw !== 'object') return null;
-  const row = raw as Record<string, unknown>;
-  const id = row.id ?? row.Id;
-  if (id == null) return null;
-
-  return {
-    id: Number(id),
-    name: String(row.name ?? row.Name ?? row.organizationName ?? row.OrganizationName ?? row.orgName ?? ''),
-    code: String(row.code ?? row.Code ?? ''),
-  };
-};
-
-const searchOrganizations = (event: { query: string }) => {
-  const keyword = event.query.trim();
-  orgSearchQuery.value = keyword;
-  fieldFormatErrors.value.organizationKeyword = getOrganizationNameFormatError(keyword);
-
-  if (selectedOrg.value?.name !== keyword) {
-    selectedOrg.value = null;
-    setFieldValue('userInfo.organizationId', 0);
-  }
-
-  if (orgSearchTimeout) clearTimeout(orgSearchTimeout);
-
-  if (fieldFormatErrors.value.organizationKeyword || !keyword) {
-    organizationSuggestions.value = [];
-    return;
-  }
-
-  orgSearchTimeout = setTimeout(async () => {
-    isSearching.value = true;
-    try {
-      const res = await organization.postOrganization({ keyword, isActive: true });
-      const rows: unknown[] = Array.isArray(res.data?.data) ? res.data.data : [];
-      organizationSuggestions.value = rows
-        .map(normalizeOrganization)
-        .filter((item): item is OrganizationOption => item !== null);
-    } catch (error) {
-      console.error('Lỗi khi tìm phòng ban:', error);
-      organizationSuggestions.value = [];
-    } finally {
-      isSearching.value = false;
-    }
-  }, 500);
-};
-
-const onOrgModelChange = (value: OrganizationOption | null) => {
-  if (!value) {
-    setFieldValue('userInfo.organizationId', 0);
-    return;
-  }
-  setFieldValue('userInfo.organizationId', value.id);
-  fieldFormatErrors.value.organizationKeyword = getOrganizationNameFormatError(value.name);
-};
-
-const onOrgClear = () => {
-  if (orgSearchTimeout) clearTimeout(orgSearchTimeout);
-  selectedOrg.value = null;
-  orgSearchQuery.value = '';
-  fieldFormatErrors.value.organizationKeyword = '';
-  setFieldValue('userInfo.organizationId', 0);
-  organizationSuggestions.value = [];
-};
 
 // ==========================================
 // SUBMIT FORM
@@ -762,7 +776,7 @@ const scrollToElement = async (el: Element) => {
 
 const hasInfoSectionErrors = () => {
   const formatErrors = fieldFormatErrors.value;
-  if (formatErrors.employeeName || formatErrors.employeeCode || formatErrors.organizationKeyword) {
+  if (formatErrors.employeeName || formatErrors.employeeCode) {
     return true;
   }
 
@@ -890,10 +904,9 @@ const submitForm = handleSubmit(
       showToast('success', t('messages.notifi'), t('messages.submitted'));
 
       resetForm();
-      selectedOrg.value = null;
       exitedAtDate.value = null;
-      orgSearchQuery.value = '';
-      organizationSuggestions.value = [];
+      organizationList.value = [];
+      organizationsLoaded.value = false;
       isConfirmed.value = false;
 
       router.push('/app-menu');
@@ -1042,24 +1055,6 @@ const submitForm = handleSubmit(
 }
 
 :deep(.info-prime-select.p-invalid .p-select) {
-  border-color: #e53e3e;
-  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12);
-}
-
-:deep(.info-field-autocomplete) {
-  width: 100%;
-}
-
-:deep(.info-field-autocomplete .p-autocomplete-input) {
-  width: 100%;
-  min-height: 48px;
-  padding: 12px 15px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 16px;
-}
-
-:deep(.info-field-autocomplete.p-invalid .p-autocomplete-input) {
   border-color: #e53e3e;
   box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12);
 }

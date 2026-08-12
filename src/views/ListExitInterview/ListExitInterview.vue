@@ -34,8 +34,7 @@
 
           <Column v-for="col in tableColumns" :key="col.field" :field="col.field" :header="col.header"
             :style="{ width: col.width }" :showFilterMenu="false" :bodyClass="col.bodyClass"
-            :headerClass="col.headerClass"
-            :filterFunction="col.filterable ? serverFilterPassthrough : undefined">
+            :headerClass="col.headerClass" :filterFunction="col.filterable ? serverFilterPassthrough : undefined">
 
             <template #body="{ data, index }">
               <template v-if="col.type === '#'">
@@ -361,7 +360,7 @@ const loadOrganizations = async () => {
 
   orgLoadPromise = (async () => {
     try {
-      const response = await organizationApi.postOrganization({ active: true });
+      const response = await organizationApi.postOrganization({ isActive: true });
       if (response?.data?.data) {
         organizations.value = response.data.data;
       }
@@ -388,7 +387,7 @@ const loadJobPositions = async () => {
   isJobPositionLoading.value = true;
   jobPositionLoadPromise = (async () => {
     try {
-      const response = await jobPositionApi.postJobPosition({ active: true });
+      const response = await jobPositionApi.postJobPosition({ isActive: true });
       const rows = Array.isArray(response?.data?.data) ? response.data.data : [];
       const mappedRows: Array<{ id: number; name: string } | null> = rows
         .map((row: Record<string, unknown>) => {
